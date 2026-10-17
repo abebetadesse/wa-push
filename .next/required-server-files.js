@@ -105,7 +105,7 @@ self.__SERVER_FILES_MANIFEST={
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "C:\\Users\\abebe\\Desktop\\Lesson plan",
+    "outputFileTracingRoot": "/home/runner/work/wa-push/wa-push",
     "enablePrerenderSourceMaps": true,
     "cacheComponents": true,
     "cacheLife": {
@@ -181,7 +181,7 @@ self.__SERVER_FILES_MANIFEST={
       "proxyPrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 11,
+      "cpus": 3,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptOperationCache": null,
@@ -249,7 +249,7 @@ self.__SERVER_FILES_MANIFEST={
       "serverActions": {
         "bodySizeLimit": "11mb",
         "allowedOrigins": [
-          "localhost:3000"
+          "app.wisdomcourse.com.et"
         ]
       },
       "turbopackMemoryEvictionMode": "auto",
@@ -343,7 +343,7 @@ self.__SERVER_FILES_MANIFEST={
     "configFileName": "next.config.ts",
     "partialPrefetching": true,
     "turbopack": {
-      "root": "C:\\Users\\abebe\\Desktop\\Lesson plan",
+      "root": "/home/runner/work/wa-push/wa-push",
       "rules": {
         "*.css": {
           "loaders": [
@@ -353,30 +353,30 @@ self.__SERVER_FILES_MANIFEST={
         }
       }
     },
-    "repoRoot": "C:\\Users\\abebe\\Desktop\\Lesson plan",
+    "repoRoot": "/home/runner/work/wa-push/wa-push",
     "distDirRoot": ".next"
   },
-  "appDir": "C:\\Users\\abebe\\Desktop\\Lesson plan",
+  "appDir": "/home/runner/work/wa-push/wa-push",
   "relativeAppDir": "",
   "files": [
-    ".next\\package.json",
-    ".next\\routes-manifest.json",
-    ".next\\server\\pages-manifest.json",
-    ".next\\build-manifest.json",
-    ".next\\prerender-manifest.json",
-    ".next\\server\\preview-props.json",
-    ".next\\server\\functions-config-manifest.json",
-    ".next\\server\\middleware-manifest.json",
-    ".next\\server\\middleware-build-manifest.js",
-    ".next\\server\\app-paths-manifest.json",
-    ".next\\app-path-routes-manifest.json",
-    ".next\\server\\server-reference-manifest.js",
-    ".next\\server\\server-reference-manifest.json",
-    ".next\\server\\prefetch-hints.json",
-    ".next\\BUILD_ID",
-    ".next\\server\\next-font-manifest.js",
-    ".next\\server\\next-font-manifest.json",
-    ".next\\required-server-files.json"
+    ".next/package.json",
+    ".next/routes-manifest.json",
+    ".next/server/pages-manifest.json",
+    ".next/build-manifest.json",
+    ".next/prerender-manifest.json",
+    ".next/server/preview-props.json",
+    ".next/server/functions-config-manifest.json",
+    ".next/server/middleware-manifest.json",
+    ".next/server/middleware-build-manifest.js",
+    ".next/server/app-paths-manifest.json",
+    ".next/app-path-routes-manifest.json",
+    ".next/server/server-reference-manifest.js",
+    ".next/server/server-reference-manifest.json",
+    ".next/server/prefetch-hints.json",
+    ".next/BUILD_ID",
+    ".next/server/next-font-manifest.js",
+    ".next/server/next-font-manifest.json",
+    ".next/required-server-files.json"
   ],
   "ignore": []
 }

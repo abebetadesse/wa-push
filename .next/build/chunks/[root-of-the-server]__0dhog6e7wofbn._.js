@@ -534,7 +534,7 @@ const transform = (ipc, content, name, query, loaders, target, mode, sourceMap)=
                             request = `./${request}`;
                         }
                     }
-                    request = ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : request.replaceAll(__TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].sep, '/');
+                    request = ("TURBOPACK compile-time truthy", 1) ? request : "TURBOPACK unreachable";
                     return [
                         request,
                         isDirectory

@@ -1,6 +1,6 @@
 {
   "node": {
-    "60edffeb71b248c99a35146b316f2f9602f8452a91": {
+    "604bfe78ec5d8dd9d2f0a67ee3c9701fdf6990b95e": {
       "workers": {
         "app/attendance/page": {
           "moduleId": 79060,
