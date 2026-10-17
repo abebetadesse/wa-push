@@ -130,7 +130,7 @@ if (branchIndex >= 0) {
   const env = { ...process.env, GIT_INDEX_FILE: path.join(root, ".git", "release-index") };
   fs.rmSync(env.GIT_INDEX_FILE, { force: true });
   try {
-    git(["-c", "core.autocrlf=false", "-c", "core.safecrlf=false", "--work-tree", out, "add", "-A", "-f", "."], { env });
+    git(["-c", "core.autocrlf=input", "-c", "core.safecrlf=false", "--work-tree", out, "add", "-A", "-f", "."], { env });
     const tree = git(["write-tree"], { env });
     let parent = "";
     try { parent = git(["rev-parse", "-q", "--verify", `refs/heads/${branch}`]); } catch {}
