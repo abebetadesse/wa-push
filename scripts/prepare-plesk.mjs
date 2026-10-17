@@ -117,7 +117,33 @@ fs.writeFileSync(path.join(out, "RELEASE.json"), `${JSON.stringify({
 }, null, 2)}\n`);
 console.log(`[release] ${commit} for "${basePath || "/"}" assembled in ${rel(out)}.`);
 
-// 7. One file to upload, when a zip tool is available.
+// 7. Optionally record the release on a Git branch (e.g. --branch plesk-release), for hosts that
+//    deploy from Git. Uses a separate index, so the current branch and working tree are untouched.
+const branchIndex = process.argv.indexOf("--branch");
+if (branchIndex >= 0) {
+  const branch = process.argv[branchIndex + 1];
+  if (!branch || !/^[A-Za-z0-9._/-]+$/.test(branch)) {
+    console.error("--branch needs a branch name such as plesk-release.");
+    process.exit(1);
+  }
+  const git = (args, options = {}) => execFileSync("git", args, { cwd: root, encoding: "utf8", ...options }).trim();
+  const env = { ...process.env, GIT_INDEX_FILE: path.join(root, ".git", "release-index") };
+  fs.rmSync(env.GIT_INDEX_FILE, { force: true });
+  try {
+    git(["-c", "core.autocrlf=false", "-c", "core.safecrlf=false", "--work-tree", out, "add", "-A", "-f", "."], { env });
+    const tree = git(["write-tree"], { env });
+    let parent = "";
+    try { parent = git(["rev-parse", "-q", "--verify", `refs/heads/${branch}`]); } catch {}
+    const message = `Pre-built Forma release for ${basePath || "/"} from ${commit}\n\nBuilt with npm run deploy:plesk. Its build script is a no-op, so the server never compiles anything.\n`;
+    const releaseCommit = git(["commit-tree", tree, ...(parent ? ["-p", parent] : [])], { env, input: message });
+    git(["update-ref", `refs/heads/${branch}`, releaseCommit]);
+    console.log(`[release] committed to branch ${branch} (${releaseCommit.slice(0, 7)}). Push it with: git push origin ${branch}`);
+  } finally {
+    fs.rmSync(env.GIT_INDEX_FILE, { force: true });
+  }
+}
+
+// 8. One file to upload, when a zip tool is available.
 if (!process.argv.includes("--no-zip")) {
   const zip = path.join(root, "plesk-release.zip");
   fs.rmSync(zip, { force: true });

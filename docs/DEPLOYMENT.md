@@ -48,13 +48,34 @@ a subdomain without a prefix instead, run `npm run deploy:plesk -- --base-path "
 The release contains the compiled app, `app.js` (the start-up file), the database migrations, and
 production-only scripts. No `.env` file is included; nothing is compiled on the server.
 
+**Do not build Forma on this server.** Its system libraries are too old for the Next.js 16 and
+Tailwind CSS 4 compilers (the build fails with ``GLIBC_2.29' not found`` and then
+`Failed to load next.config.ts`). Always deploy a pre-built release, either as the zip or from the
+`plesk-release` Git branch (§3, step 3). A release's `build` script only prints a message, so a host
+that runs `npm run build` automatically does no harm.
+
+To publish a release on the Git branch instead of (or as well as) the zip:
+
+```bash
+npm run deploy:plesk -- --branch plesk-release
+git push origin plesk-release
+```
+
 ## 3. Create the Forma application in Plesk
 
 1. **Subdomain.** Plesk → Websites & Domains → *Add Subdomain* → `school` (on
    `wisdomcourse.com.et`). Document root: `school.wisdomcourse.com.et/public`.
 2. **HTTPS.** On the subdomain: SSL/TLS Certificates → install a Let's Encrypt certificate.
-3. **Upload.** Files → open `school.wisdomcourse.com.et` → upload `plesk-release.zip` → *Extract
-   files*. The folder should now contain `app.js`, `package.json`, `.next`, `public`, `drizzle`.
+3. **Get the release onto the server**, either way:
+   - **Git (recommended):** Git → add the repository `https://github.com/abebetadesse/wa-push.git`,
+     branch **`plesk-release`** (not `main`: `main` is source code and cannot be built on this
+     server), deployment path `school.wisdomcourse.com.et`. Deploy. For updates, publish a new
+     release to the branch and click *Deploy* (or *Pull updates*).
+   - **Zip:** Files → open `school.wisdomcourse.com.et` → upload `plesk-release.zip` → *Extract
+     files*.
+
+   The folder should now contain `app.js`, `package.json`, `RELEASE.json`, `.next`, `public`,
+   `drizzle`. `RELEASE.json` should show `"basePath": "/school"`.
 4. **Node.js.** On the subdomain: Node.js → *Enable Node.js*, then set
    - Node.js version: 22.x
    - Application mode: `production`
@@ -178,9 +199,10 @@ Use this when the nginx rule cannot be added.
 
 ## 9. Updating Forma
 
-1. `npm run deploy:plesk` on your computer.
-2. Upload and extract the new zip over the application root (your `.env`, if you used one, is not
-   overwritten because the release does not contain one).
+1. `npm run deploy:plesk -- --branch plesk-release` on your computer, then
+   `git push origin plesk-release`.
+2. Plesk → Git → *Deploy* (or upload and extract the new zip over the application root). Your
+   `.env`, if you used one, is not overwritten because the release does not contain one.
 3. *NPM install* (only needed when dependencies changed), *Run script* → `db:migrate`, *Restart App*.
 
 Back up the database and the `UPLOAD_DIR` folder before each update.
