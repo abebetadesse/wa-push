@@ -1,0 +1,364 @@
+{
+  "node": {
+    "60244e2358f883fef04a68d04b76bd5bb638f49b69": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "filename": "src/app/academic-setup/actions.ts",
+      "exportedName": "createAcademicYear"
+    },
+    "6015804df4f0596eb6dcf29a7913583888efda838e": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "filename": "src/app/academic-setup/actions.ts",
+      "exportedName": "createClassroom"
+    },
+    "600575fffb1b95209471de7936aacb7a29a3b51569": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "filename": "src/app/academic-setup/actions.ts",
+      "exportedName": "createGradeLevel"
+    },
+    "609b87debc159c776d7621ff2aa32604eef2c27a50": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "filename": "src/app/academic-setup/actions.ts",
+      "exportedName": "createSubject"
+    },
+    "407f60de2607f8ce18d87a72c91ffea3a80dffe0f2": {
+      "workers": {
+        "app/accept-invite/page": {
+          "moduleId": 84570,
+          "async": false
+        }
+      },
+      "filename": "src/app/accept-invite/actions.ts",
+      "exportedName": "acceptInvitationForCurrentUser"
+    },
+    "60d866cb831b7a73d4cc63d68777378efcbc05bd57": {
+      "workers": {
+        "app/assessments/page": {
+          "moduleId": 5649,
+          "async": false
+        }
+      },
+      "filename": "src/app/assessments/actions.ts",
+      "exportedName": "createAssessment"
+    },
+    "409e698ef3f5f38abebf12ea6ca4c906249f859582": {
+      "workers": {
+        "app/assessments/page": {
+          "moduleId": 5649,
+          "async": false
+        }
+      },
+      "filename": "src/app/assessments/actions.ts",
+      "exportedName": "changeAssessmentStatus"
+    },
+    "602abc9ba1ee2b2a4df8df4bb35b9d03aa7eb61b4c": {
+      "workers": {
+        "app/assessments/page": {
+          "moduleId": 5649,
+          "async": false
+        }
+      },
+      "filename": "src/app/assessments/actions.ts",
+      "exportedName": "recordAssessmentResult"
+    },
+    "609e11af0b7cb604b13abd37d2e0cc68a54d9759b4": {
+      "workers": {
+        "app/assessments/page": {
+          "moduleId": 5649,
+          "async": false
+        },
+        "app/my-learning/page": {
+          "moduleId": 46515,
+          "async": false
+        }
+      },
+      "filename": "src/app/assessments/actions.ts",
+      "exportedName": "submitAssessmentAttempt"
+    },
+    "60edffeb71b248c99a35146b316f2f9602f8452a91": {
+      "workers": {
+        "app/attendance/page": {
+          "moduleId": 79060,
+          "async": false
+        }
+      },
+      "filename": "src/app/attendance/actions.ts",
+      "exportedName": "saveAttendance"
+    },
+    "60ef6a74086752daf72436cbc183ad11fc10020b06": {
+      "workers": {
+        "app/hr/page": {
+          "moduleId": 24061,
+          "async": false
+        }
+      },
+      "filename": "src/app/hr/actions.ts",
+      "exportedName": "createStaffMember"
+    },
+    "40e3c15cff79bdd94a2e910fa0ae02b41f9e935e4b": {
+      "workers": {
+        "app/hr/page": {
+          "moduleId": 24061,
+          "async": false
+        }
+      },
+      "filename": "src/app/hr/actions.ts",
+      "exportedName": "changeStaffStatus"
+    },
+    "40e72be1ed95e3806d3e82f0468a929a40ef68dba1": {
+      "workers": {
+        "app/inventory/page": {
+          "moduleId": 75835,
+          "async": false
+        }
+      },
+      "filename": "src/app/inventory/actions.ts",
+      "exportedName": "changeInventoryItemStatus"
+    },
+    "60bb340703318212825b532ae13cbb7d58187cf699": {
+      "workers": {
+        "app/inventory/page": {
+          "moduleId": 75835,
+          "async": false
+        }
+      },
+      "filename": "src/app/inventory/actions.ts",
+      "exportedName": "createInventoryItem"
+    },
+    "60c1cafbfde30f403f007a620f2decbed16bbcfef0": {
+      "workers": {
+        "app/inventory/page": {
+          "moduleId": 75835,
+          "async": false
+        }
+      },
+      "filename": "src/app/inventory/actions.ts",
+      "exportedName": "recordInventoryMovement"
+    },
+    "40d9e181e750aa15b6e7c0808f9928bebba30fcb77": {
+      "workers": {
+        "app/lessons/[id]/page": {
+          "moduleId": 26381,
+          "async": false
+        },
+        "app/lessons/page": {
+          "moduleId": 52381,
+          "async": false
+        }
+      },
+      "filename": "src/app/lessons/actions.ts",
+      "exportedName": "updateLessonStatus"
+    },
+    "607f7d1fc82c11f99dade1e9d72a0cb49b399dfdbd": {
+      "workers": {
+        "app/lessons/[id]/page": {
+          "moduleId": 26381,
+          "async": false
+        },
+        "app/lessons/page": {
+          "moduleId": 52381,
+          "async": false
+        }
+      },
+      "filename": "src/app/lessons/actions.ts",
+      "exportedName": "createLesson"
+    },
+    "60dfcfa46e985a80aea6ffc364a358f878baa84c79": {
+      "workers": {
+        "app/lessons/[id]/page": {
+          "moduleId": 26381,
+          "async": false
+        },
+        "app/lessons/page": {
+          "moduleId": 52381,
+          "async": false
+        }
+      },
+      "filename": "src/app/lessons/actions.ts",
+      "exportedName": "updateLesson"
+    },
+    "606496b00b3bbc674487274cd05581b77a0920ad45": {
+      "workers": {
+        "app/setup-school/page": {
+          "moduleId": 5617,
+          "async": false
+        }
+      },
+      "filename": "src/app/setup-school/actions.ts",
+      "exportedName": "createSchool"
+    },
+    "402e54efaf5b6be9cafef9851e037d0ee05294c439": {
+      "workers": {
+        "app/students/page": {
+          "moduleId": 82376,
+          "async": false
+        }
+      },
+      "filename": "src/app/students/actions.ts",
+      "exportedName": "changeStudentStatus"
+    },
+    "60a375326156b01e25900b427e3d95cb72cc005d0a": {
+      "workers": {
+        "app/students/page": {
+          "moduleId": 82376,
+          "async": false
+        }
+      },
+      "filename": "src/app/students/actions.ts",
+      "exportedName": "registerStudent"
+    },
+    "60aeeb68f65ff04a90f4b269bc2474a7a18678e9c0": {
+      "workers": {
+        "app/students/[id]/page": {
+          "moduleId": 40881,
+          "async": false
+        },
+        "app/students/page": {
+          "moduleId": 82376,
+          "async": false
+        }
+      },
+      "filename": "src/app/students/actions.ts",
+      "exportedName": "updateStudent"
+    },
+    "40d628348f7899e49adf467c6b4b2c5b9fa68babbc": {
+      "workers": {
+        "app/teachers/page": {
+          "moduleId": 74116,
+          "async": false
+        }
+      },
+      "filename": "src/app/teachers/actions.ts",
+      "exportedName": "changeTeacherStatus"
+    },
+    "608caa195ed3dcd6f1c5e822eb8185797592a6abd9": {
+      "workers": {
+        "app/teachers/[id]/page": {
+          "moduleId": 37870,
+          "async": false
+        },
+        "app/teachers/page": {
+          "moduleId": 74116,
+          "async": false
+        }
+      },
+      "filename": "src/app/teachers/actions.ts",
+      "exportedName": "updateTeacher"
+    },
+    "609db34c6db5a0b7c6560a10ef71bd59a69009711a": {
+      "workers": {
+        "app/teachers/[id]/page": {
+          "moduleId": 37870,
+          "async": false
+        },
+        "app/teachers/page": {
+          "moduleId": 74116,
+          "async": false
+        }
+      },
+      "filename": "src/app/teachers/actions.ts",
+      "exportedName": "createTeacher"
+    },
+    "60da2e4e6ad1113c8e2ac3f8de543f439ea344dc35": {
+      "workers": {
+        "app/team/page": {
+          "moduleId": 33815,
+          "async": false
+        }
+      },
+      "filename": "src/app/team/actions.ts",
+      "exportedName": "inviteMember"
+    },
+    "40e456ecd00656275c919ebc7ffe08a62ce82fe1e8": {
+      "workers": {
+        "app/team/page": {
+          "moduleId": 33815,
+          "async": false
+        }
+      },
+      "filename": "src/app/team/actions.ts",
+      "exportedName": "changeMemberRole"
+    },
+    "40a2afdeb753d69ad6648604bc12a8e88639e6e48b": {
+      "workers": {
+        "app/team/page": {
+          "moduleId": 33815,
+          "async": false
+        }
+      },
+      "filename": "src/app/team/actions.ts",
+      "exportedName": "removeMember"
+    },
+    "401b03f7b467308c907c1946e18857808504187bd6": {
+      "workers": {
+        "app/team/page": {
+          "moduleId": 33815,
+          "async": false
+        }
+      },
+      "filename": "src/app/team/actions.ts",
+      "exportedName": "revokeInvitation"
+    },
+    "60c49fd8f36df5437c2fc52ef2a91e41834bcdc023": {
+      "workers": {
+        "app/timetable/page": {
+          "moduleId": 484,
+          "async": false
+        }
+      },
+      "filename": "src/app/timetable/actions.ts",
+      "exportedName": "assignScheduleTeacher"
+    },
+    "60af920816dfa08c7f9b971a290862e5095f000a39": {
+      "workers": {
+        "app/timetable/page": {
+          "moduleId": 484,
+          "async": false
+        }
+      },
+      "filename": "src/app/timetable/actions.ts",
+      "exportedName": "createScheduleEntry"
+    },
+    "40386bcb83ba7c583496e9820b23c8f6c9666f8744": {
+      "workers": {
+        "app/timetable/page": {
+          "moduleId": 484,
+          "async": false
+        }
+      },
+      "filename": "src/app/timetable/actions.ts",
+      "exportedName": "deleteScheduleEntry"
+    },
+    "6046287a23aa5624171a323a269aa6f9c254be75ed": {
+      "workers": {
+        "app/timetable/page": {
+          "moduleId": 484,
+          "async": false
+        }
+      },
+      "filename": "src/app/timetable/actions.ts",
+      "exportedName": "toggleScheduleCancelled"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "jhsKYHkuHSiO3jp3xJf7T4N7GUzOAjKvB9xaZoUpxzE="
+}

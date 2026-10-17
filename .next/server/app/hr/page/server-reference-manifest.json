@@ -1,0 +1,25 @@
+{
+  "node": {
+    "60ef6a74086752daf72436cbc183ad11fc10020b06": {
+      "workers": {
+        "app/hr/page": {
+          "moduleId": 24061,
+          "async": false
+        }
+      },
+      "exportedName": "createStaffMember",
+      "filename": "src/app/hr/actions.ts"
+    },
+    "40e3c15cff79bdd94a2e910fa0ae02b41f9e935e4b": {
+      "workers": {
+        "app/hr/page": {
+          "moduleId": 24061,
+          "async": false
+        }
+      },
+      "exportedName": "changeStaffStatus",
+      "filename": "src/app/hr/actions.ts"
+    }
+  },
+  "edge": {}
+}

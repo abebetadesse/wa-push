@@ -1,0 +1,35 @@
+{
+  "node": {
+    "40e72be1ed95e3806d3e82f0468a929a40ef68dba1": {
+      "workers": {
+        "app/inventory/page": {
+          "moduleId": 75835,
+          "async": false
+        }
+      },
+      "exportedName": "changeInventoryItemStatus",
+      "filename": "src/app/inventory/actions.ts"
+    },
+    "60bb340703318212825b532ae13cbb7d58187cf699": {
+      "workers": {
+        "app/inventory/page": {
+          "moduleId": 75835,
+          "async": false
+        }
+      },
+      "exportedName": "createInventoryItem",
+      "filename": "src/app/inventory/actions.ts"
+    },
+    "60c1cafbfde30f403f007a620f2decbed16bbcfef0": {
+      "workers": {
+        "app/inventory/page": {
+          "moduleId": 75835,
+          "async": false
+        }
+      },
+      "exportedName": "recordInventoryMovement",
+      "filename": "src/app/inventory/actions.ts"
+    }
+  },
+  "edge": {}
+}

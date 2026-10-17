@@ -1,0 +1,25 @@
+{
+  "node": {
+    "609db34c6db5a0b7c6560a10ef71bd59a69009711a": {
+      "workers": {
+        "app/teachers/[id]/page": {
+          "moduleId": 37870,
+          "async": false
+        }
+      },
+      "exportedName": "createTeacher",
+      "filename": "src/app/teachers/actions.ts"
+    },
+    "608caa195ed3dcd6f1c5e822eb8185797592a6abd9": {
+      "workers": {
+        "app/teachers/[id]/page": {
+          "moduleId": 37870,
+          "async": false
+        }
+      },
+      "exportedName": "updateTeacher",
+      "filename": "src/app/teachers/actions.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,45 @@
+{
+  "node": {
+    "60244e2358f883fef04a68d04b76bd5bb638f49b69": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "exportedName": "createAcademicYear",
+      "filename": "src/app/academic-setup/actions.ts"
+    },
+    "6015804df4f0596eb6dcf29a7913583888efda838e": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "exportedName": "createClassroom",
+      "filename": "src/app/academic-setup/actions.ts"
+    },
+    "600575fffb1b95209471de7936aacb7a29a3b51569": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "exportedName": "createGradeLevel",
+      "filename": "src/app/academic-setup/actions.ts"
+    },
+    "609b87debc159c776d7621ff2aa32604eef2c27a50": {
+      "workers": {
+        "app/academic-setup/page": {
+          "moduleId": 60285,
+          "async": false
+        }
+      },
+      "exportedName": "createSubject",
+      "filename": "src/app/academic-setup/actions.ts"
+    }
+  },
+  "edge": {}
+}

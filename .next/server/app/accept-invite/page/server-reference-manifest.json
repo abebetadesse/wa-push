@@ -1,0 +1,15 @@
+{
+  "node": {
+    "407f60de2607f8ce18d87a72c91ffea3a80dffe0f2": {
+      "workers": {
+        "app/accept-invite/page": {
+          "moduleId": 84570,
+          "async": false
+        }
+      },
+      "exportedName": "acceptInvitationForCurrentUser",
+      "filename": "src/app/accept-invite/actions.ts"
+    }
+  },
+  "edge": {}
+}

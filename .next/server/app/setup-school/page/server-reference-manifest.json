@@ -1,0 +1,15 @@
+{
+  "node": {
+    "606496b00b3bbc674487274cd05581b77a0920ad45": {
+      "workers": {
+        "app/setup-school/page": {
+          "moduleId": 5617,
+          "async": false
+        }
+      },
+      "exportedName": "createSchool",
+      "filename": "src/app/setup-school/actions.ts"
+    }
+  },
+  "edge": {}
+}

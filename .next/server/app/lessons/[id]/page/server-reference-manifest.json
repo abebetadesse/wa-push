@@ -1,0 +1,35 @@
+{
+  "node": {
+    "40d9e181e750aa15b6e7c0808f9928bebba30fcb77": {
+      "workers": {
+        "app/lessons/[id]/page": {
+          "moduleId": 26381,
+          "async": false
+        }
+      },
+      "exportedName": "updateLessonStatus",
+      "filename": "src/app/lessons/actions.ts"
+    },
+    "607f7d1fc82c11f99dade1e9d72a0cb49b399dfdbd": {
+      "workers": {
+        "app/lessons/[id]/page": {
+          "moduleId": 26381,
+          "async": false
+        }
+      },
+      "exportedName": "createLesson",
+      "filename": "src/app/lessons/actions.ts"
+    },
+    "60dfcfa46e985a80aea6ffc364a358f878baa84c79": {
+      "workers": {
+        "app/lessons/[id]/page": {
+          "moduleId": 26381,
+          "async": false
+        }
+      },
+      "exportedName": "updateLesson",
+      "filename": "src/app/lessons/actions.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,15 @@
+{
+  "node": {
+    "60edffeb71b248c99a35146b316f2f9602f8452a91": {
+      "workers": {
+        "app/attendance/page": {
+          "moduleId": 79060,
+          "async": false
+        }
+      },
+      "exportedName": "saveAttendance",
+      "filename": "src/app/attendance/actions.ts"
+    }
+  },
+  "edge": {}
+}
