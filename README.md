@@ -49,6 +49,12 @@ A multi-school platform starter built with Next.js, Drizzle ORM, MySQL, and Bett
 
 Open the configured `BETTER_AUTH_URL`, sign in as the platform administrator, and create a school. School administrators can then invite staff from **Team**.
 
+## Deploying under app.wisdomcourse.com.et
+
+Forma can be served under a path of another site's domain. The production deployment runs it at `https://app.wisdomcourse.com.et/school`, next to the Ethio Wellness Platform, which links to it from a **School** tab. `npm run deploy:plesk` builds an upload-ready Plesk release for `/school` (`npm run deploy:plesk -- --base-path ""` builds for the root of its own subdomain). See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the Plesk set-up, the nginx rule, and the subdomain fallback.
+
+The prefix comes from `NEXT_PUBLIC_BASE_PATH` at build time and is empty for local development. `BETTER_AUTH_URL` is always the public origin without the prefix.
+
 ## Question imports and learning resources
 
 Teachers and school administrators can bulk-import up to 200 single-answer multiple-choice questions per assessment in Moodle XML, GIFT, Aiken, Blackboard, or WebCT format. Moodle XML, GIFT, and Aiken files must be UTF-8 and no larger than 10 MB. Moodle XML questions with unsupported types (including essay, matching, and multi-answer questions) are skipped and reported; malformed or unsupported questions in other import formats are also reported. Other Moodle question types are not converted into multiple-choice questions.

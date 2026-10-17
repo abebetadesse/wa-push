@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { and, eq, inArray } from "drizzle-orm";
+import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -145,13 +146,13 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
       </header>
       <div className="management-sections">
         <section className="management-card">
-          <form action="/reports" className="auth-form attendance-filter">
+          <Form action="/reports" className="auth-form attendance-filter">
             {schools.length > 1 && <label>School<select defaultValue={selectedSchoolId} name="schoolId">
               {schools.map((school) => <option key={school.id} value={school.id}>{school.name}</option>)}
             </select></label>}
             {schools.length === 1 && <input name="schoolId" type="hidden" value={selectedSchoolId} />}
             <button className="secondary-button" type="submit">View report</button>
-          </form>
+          </Form>
         </section>
         <section className="management-card">
           <div className="management-card-heading"><div><h2>Student progress</h2><p>{studentRows.length} active student{studentRows.length === 1 ? "" : "s"} · assessment grades use staff marks when available, otherwise online attempts</p></div></div>

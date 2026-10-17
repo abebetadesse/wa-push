@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { and, eq } from "drizzle-orm";
+import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -119,7 +120,7 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
       <div className="management-sections">
         <section className="management-card">
           <h2>Select a class and date</h2>
-          <form action="/attendance" className="auth-form attendance-filter">
+          <Form action="/attendance" className="auth-form attendance-filter">
             {visibleSchools.length > 1 && (
               <label>School
                 <select defaultValue={selectedSchoolId} name="schoolId">
@@ -139,7 +140,7 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
             <label>Date<input defaultValue={date} name="date" required type="date" /></label>
             {visibleSchools.length === 1 && <input name="schoolId" type="hidden" value={selectedSchoolId} />}
             <button className="secondary-button" type="submit">Load roster</button>
-          </form>
+          </Form>
         </section>
         <section className="management-card">
           <div className="management-card-heading">

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 type SchoolOption = { id: string; name: string };
 
@@ -17,7 +18,7 @@ export function ResourceUploadForm({ schools }: { schools: SchoolOption[] }) {
     setPending(true);
     setMessage("");
     try {
-      const response = await fetch("/api/resources", {
+      const response = await fetch(withBasePath("/api/resources"), {
         method: "POST",
         body: new FormData(form),
       });

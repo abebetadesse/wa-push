@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useActionState } from "react";
 import { createAssessment, type AssessmentActionState } from "./actions";
@@ -71,7 +72,7 @@ export function AssessmentForm({
         <label>Subject<select key={schoolId} name="subjectId" required defaultValue=""><option value="" disabled>Select a subject</option>{availableSubjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}</select></label>
       </div>
       {(availableYears.length === 0 || availableClasses.length === 0 || availableSubjects.length === 0) && (
-        <p className="setup-hint">Set up an academic year, class, and subject in <a href="/academic-setup">Academic setup</a> first.</p>
+        <p className="setup-hint">Set up an academic year, class, and subject in <Link href="/academic-setup">Academic setup</Link> first.</p>
       )}
       <label>Assessment title<input maxLength={200} name="title" required /></label>
       <label>Instructions <span className="optional-label">Optional</span><textarea maxLength={2000} name="instructions" rows={2} /></label>

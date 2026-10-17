@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useActionState } from "react";
 import { createLesson, type LessonActionState } from "./actions";
@@ -31,7 +32,7 @@ export function LessonForm({
       {schools.length > 1
         ? <label>School<select name="schoolId" onChange={(event) => setSchoolId(event.target.value)} required value={schoolId}>{schools.map((school) => <option key={school.id} value={school.id}>{school.name}</option>)}</select></label>
         : <input name="schoolId" type="hidden" value={schoolId} />}
-      {!ready && <p className="setup-hint">Add an academic year, grade level, and subject in <a href="/academic-setup">Academic setup</a> before creating a lesson.</p>}
+      {!ready && <p className="setup-hint">Add an academic year, grade level, and subject in <Link href="/academic-setup">Academic setup</Link> before creating a lesson.</p>}
       <label>Academic year<select key={`year-${schoolId}`} disabled={!ready} name="academicYearId" required defaultValue={availableYears.find((year) => year.isCurrent)?.id ?? ""}><option value="" disabled>Select an academic year</option>{availableYears.map((year) => <option key={year.id} value={year.id}>{year.name}{year.isCurrent ? " · Current" : ""}</option>)}</select></label>
       <div className="form-two-columns">
         <label>Grade level<select key={`grade-${schoolId}`} disabled={!ready} name="gradeLevelId" required defaultValue=""><option value="" disabled>Select a grade</option>{availableGrades.map((grade) => <option key={grade.id} value={grade.id}>{grade.name}</option>)}</select></label>

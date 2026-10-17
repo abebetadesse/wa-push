@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
+import { withBasePath } from "@/lib/base-path";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -16,7 +17,7 @@ export function ForgotPasswordForm() {
     try {
       const result = await authClient.requestPasswordReset({
         email: email.trim(),
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}${withBasePath("/reset-password")}`,
       });
       if (result.error) {
         setMessage("We could not process that request. Please try again later.");

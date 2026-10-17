@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { activityEvents, authUsers, schoolInvitations, schoolMemberships, staffMembers, students } from "@/db/schema";
 import { sendEmail } from "@/lib/email";
+import { withBasePath } from "@/lib/base-path";
 import { hashInvitationToken } from "@/lib/invitations";
 import { isPlatformAdmin, requireSchoolRole } from "@/lib/permissions";
 
@@ -85,7 +86,7 @@ export async function inviteMember(_previous: InviteState, formData: FormData): 
     await sendEmail({
       to: email,
       subject: `Invitation to join ${access.school.name} on Forma`,
-      text: `You have been invited to join ${access.school.name} as ${role.replaceAll("_", " ")}. Create your secure account within seven days: ${new URL(`/accept-invite?token=${encodeURIComponent(token)}`, baseUrl).toString()}\n\nIf you were not expecting this invitation, you can ignore this message.`,
+      text: `You have been invited to join ${access.school.name} as ${role.replaceAll("_", " ")}. Create your secure account within seven days: ${new URL(withBasePath(`/accept-invite?token=${encodeURIComponent(token)}`), new URL(baseUrl).origin).toString()}\n\nIf you were not expecting this invitation, you can ignore this message.`,
     });
   } catch (error) {
     console.error("Failed to deliver a school invitation.", error);

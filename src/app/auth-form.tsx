@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
+import { withBasePath } from "@/lib/base-path";
 
 export function AuthForm() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export function AuthForm() {
       const result = await authClient.signIn.email({
         email: email.trim(),
         password,
-        callbackURL: "/",
+        callbackURL: withBasePath("/"),
       });
 
       if (result.error) {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { and, eq } from "drizzle-orm";
+import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -139,7 +140,7 @@ async function TimetableContent({ searchParams }: { searchParams: SearchParams }
       <div className="management-sections">
         <section className="management-card">
           <h2>Choose a timetable</h2>
-          <form action="/timetable" className="auth-form attendance-filter">
+          <Form action="/timetable" className="auth-form attendance-filter">
             {visibleSchools.length > 1 && (
               <label>School
                 <select defaultValue={selectedSchoolId} name="schoolId">
@@ -155,8 +156,8 @@ async function TimetableContent({ searchParams }: { searchParams: SearchParams }
               </select>
             </label>
             <button className="secondary-button" type="submit">Show class</button>
-          </form>
-          {teacherRows.length > 0 && <form action="/timetable" className="auth-form attendance-filter" style={{ marginTop: 12 }}>
+          </Form>
+          {teacherRows.length > 0 && <Form action="/timetable" className="auth-form attendance-filter" style={{ marginTop: 12 }}>
             <input name="schoolId" type="hidden" value={selectedSchoolId} />
             <label>Teacher
               <select defaultValue={selectedTeacher?.id ?? ""} name="teacherId" required>
@@ -165,7 +166,7 @@ async function TimetableContent({ searchParams }: { searchParams: SearchParams }
               </select>
             </label>
             <button className="secondary-button" type="submit">Show teacher</button>
-          </form>}
+          </Form>}
           {teacherRows.length === 0 && <p className="setup-hint" style={{ marginTop: 12 }}>Add teacher profiles in <Link href="/teachers">Teachers</Link> to assign them to periods.</p>}
         </section>
         {classRows.length === 0

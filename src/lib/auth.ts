@@ -5,6 +5,7 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 import { db } from "@/db";
+import { authBasePath } from "@/lib/base-path";
 import { sendEmail } from "@/lib/email";
 import { acceptInvitation, findPendingInvitation } from "@/lib/invitations";
 import {
@@ -31,8 +32,9 @@ if (process.env.NODE_ENV === "production" && authUrl.protocol !== "https:" && !i
 
 export const auth = betterAuth({
   appName: "Forma",
-  baseURL: authBaseUrl,
-  trustedOrigins: [authBaseUrl],
+  baseURL: authUrl.origin,
+  basePath: authBasePath,
+  trustedOrigins: [authUrl.origin],
   secret: authSecret,
   database: drizzleAdapter(db, {
     provider: "mysql",

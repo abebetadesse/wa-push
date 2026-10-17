@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
+import { withBasePath } from "@/lib/base-path";
 import { acceptInvitationForCurrentUser } from "./actions";
 
 export function InviteAcceptForm({
@@ -31,7 +32,7 @@ export function InviteAcceptForm({
     setError("");
     setPending(true);
     try {
-      const response = await fetch("/api/auth/sign-up/email", {
+      const response = await fetch(withBasePath("/api/auth/sign-up/email"), {
         method: "POST",
         credentials: "include",
         headers: {
@@ -42,7 +43,7 @@ export function InviteAcceptForm({
           name: name.trim(),
           email,
           password,
-          callbackURL: "/",
+          callbackURL: withBasePath("/"),
         }),
       });
       if (!response.ok) {

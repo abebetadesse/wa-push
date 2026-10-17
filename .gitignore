@@ -19,6 +19,8 @@
 
 # production
 /build
+/plesk-release/
+/plesk-release.zip
 /var/uploads/
 
 # misc
