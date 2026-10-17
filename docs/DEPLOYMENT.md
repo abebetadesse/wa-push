@@ -207,6 +207,18 @@ Use this when the nginx rule cannot be added.
 
 ## 9. Updating Forma
 
+GitHub Actions (`.github/workflows/ci-cd.yml`) does steps 1 and, when configured, 2 for you on every
+push to `main`: it checks the code, builds the `/school` release on Linux, and publishes it to the
+`plesk-release` branch. To also deploy automatically, copy the webhook URL from Plesk → Git → the
+repository's settings and save it as the repository secret `PLESK_GIT_WEBHOOK_URL` (GitHub →
+Settings → Secrets and variables → Actions). The workflow then triggers the server and waits until
+`/school/api/health` reports the new release. Make sure the Plesk Git deployment's additional
+actions run `npm ci --omit=dev`, `npm run db:migrate`, and a restart (e.g.
+`mkdir -p tmp && touch tmp/restart.txt`). If GitHub cannot reach the server, the workflow says so
+and you click *Deploy* in Plesk → Git instead.
+
+To publish a release by hand:
+
 1. `npm run deploy:plesk -- --branch plesk-release` on your computer, then
    `git push origin plesk-release`.
 2. Plesk → Git → *Deploy* (or upload and extract the new zip over the application root). Your

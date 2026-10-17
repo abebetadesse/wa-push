@@ -108,16 +108,27 @@ async function checkUploads() {
   }
 }
 
+// Which release is running, from RELEASE.json written by npm run deploy:plesk (absent in development).
+async function readRelease() {
+  try {
+    const release = JSON.parse(await readFile(join(/* turbopackIgnore: true */ process.cwd(), "RELEASE.json"), "utf8"));
+    return { commit: String(release.commit ?? ""), basePath: String(release.basePath ?? ""), builtAt: String(release.builtAt ?? "") };
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
   await connection();
-  const [settings, database, uploads] = await Promise.all([
+  const [settings, database, uploads, release] = await Promise.all([
     Promise.resolve(checkSettings()),
     checkDatabase(),
     checkUploads(),
+    readRelease(),
   ]);
   const ok = settings.ok && database.ok && uploads.ok;
   return Response.json(
-    { status: ok ? "ok" : "error", settings, database, uploads, time: new Date().toISOString() },
+    { status: ok ? "ok" : "error", release, settings, database, uploads, time: new Date().toISOString() },
     { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } },
   );
 }

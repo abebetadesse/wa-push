@@ -1,0 +1,174 @@
+name: CI / CD
+
+# CI: every push and pull request is type-checked, linted, migrated against an empty MySQL
+# database, built, and started once.
+#
+# CD: every push to main publishes a pre-built release (base path /school) to the plesk-release
+# branch. The hosting server cannot compile the app (its glibc is too old for the Next.js and
+# Tailwind compilers), so it only ever pulls that branch. Optional settings for automatic
+# deployment, in Settings → Secrets and variables → Actions:
+#   secret   PLESK_GIT_WEBHOOK_URL  Plesk → Git → the repository's webhook URL. When set, the
+#                                   server pulls the new release right away; otherwise click
+#                                   Deploy in Plesk → Git.
+#   variable PUBLIC_URL             Public origin the release is built for
+#                                   (default https://app.wisdomcourse.com.et).
+#   variable HEALTH_URL             Health endpoint checked after deployment
+#                                   (default <PUBLIC_URL>/school/api/health).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+  # Placeholders so the build can load its configuration; nothing here reaches the server.
+  BETTER_AUTH_SECRET: ci-only-placeholder-secret-0123456789abcdef
+  DATABASE_URL: mysql://root:ci-only@127.0.0.1:3306/forma
+
+jobs:
+  verify:
+    name: Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: verify-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only
+          MYSQL_DATABASE: forma
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -pci-only --silent"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      BETTER_AUTH_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: No known high-severity vulnerabilities in what ships
+        run: npm audit --omit=dev --audit-level=high
+      - name: Types
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Database builds from scratch
+        run: |
+          node scripts/migrate.mjs
+          # A second run must be a no-op.
+          node scripts/migrate.mjs
+      - name: Production build
+        run: npm run build
+      - name: The built app starts and reaches the database
+        run: |
+          set -Eeuo pipefail
+          npm start -- -p 3000 > server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --silent --max-time 5 http://localhost:3000/api/health --output health.json; then break; fi
+            sleep 2
+          done
+          cat health.json; echo
+          # Email settings are not configured in CI, so only the database and uploads must be ready.
+          jq -e '.database.ok == true and .uploads.ok == true and .database.migrations.applied >= 1' health.json
+          curl --silent --fail --max-time 10 --output /dev/null http://localhost:3000/login
+      - name: Server log
+        if: failure()
+        run: cat server.log || true
+
+  deploy:
+    name: Publish release (CD)
+    needs: verify
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only
+          MYSQL_DATABASE: forma
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -pci-only --silent"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      BETTER_AUTH_URL: ${{ vars.PUBLIC_URL || 'https://app.wisdomcourse.com.et' }}
+      HEALTH_URL: ${{ vars.HEALTH_URL || format('{0}/school/api/health', vars.PUBLIC_URL || 'https://app.wisdomcourse.com.et') }}
+      WEBHOOK_URL: ${{ secrets.PLESK_GIT_WEBHOOK_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Build the /school release onto the plesk-release branch
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Continue the branch's history when it exists.
+          git fetch --no-tags origin plesk-release:refs/heads/plesk-release || true
+          node scripts/prepare-plesk.mjs --base-path /school --branch plesk-release --no-zip
+          jq . plesk-release/RELEASE.json
+      - name: Publish the release
+        run: git push origin refs/heads/plesk-release:refs/heads/plesk-release
+      - name: Trigger the server to pull it
+        id: trigger
+        run: |
+          set -Eeuo pipefail
+          if [[ -z "$WEBHOOK_URL" ]]; then
+            echo "triggered=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Release published::The plesk-release branch is updated. Click Deploy in Plesk → Git, or add the PLESK_GIT_WEBHOOK_URL secret to deploy automatically."
+            exit 0
+          fi
+          if curl --silent --show-error --fail --max-time 60 --request POST "$WEBHOOK_URL" --output /dev/null; then
+            echo "triggered=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error title=Server not reached::The Plesk webhook did not answer from GitHub. The release is published; click Deploy in Plesk → Git."
+            exit 1
+          fi
+      - name: Verify the live site runs this release
+        if: steps.trigger.outputs.triggered == 'true'
+        run: |
+          set -Eeuo pipefail
+          EXPECTED="$(jq -r .commit plesk-release/RELEASE.json)"
+          for attempt in $(seq 1 40); do
+            if curl --silent --max-time 10 "$HEALTH_URL" --output health.json; then
+              STATUS="$(jq -r '.status // "unknown"' health.json 2>/dev/null || echo unknown)"
+              RUNNING="$(jq -r '.release.commit // "none"' health.json 2>/dev/null || echo none)"
+              echo "Attempt $attempt/40: status=$STATUS release=$RUNNING (expecting $EXPECTED)"
+              if [[ "$STATUS" == "ok" && "$RUNNING" == "$EXPECTED" ]]; then
+                echo "Live site is healthy and runs $EXPECTED."
+                exit 0
+              fi
+            else
+              echo "Attempt $attempt/40: no response yet."
+            fi
+            sleep 15
+          done
+          echo "::error::$HEALTH_URL did not report a healthy $EXPECTED release within 10 minutes."
+          cat health.json 2>/dev/null || true
+          exit 1
