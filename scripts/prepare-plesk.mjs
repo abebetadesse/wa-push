@@ -48,9 +48,10 @@ fs.mkdirSync(path.join(out, "scripts"), { recursive: true });
 
 // 2. The compiled app without caches, traces, or the development server's output; static files.
 const skipInBuild = new Set(["cache", "trace", "types", "diagnostics", "dev"]);
+// Source maps are left out: they only help debugging and make up most of the build's size.
 fs.cpSync(buildDir, path.join(out, ".next"), {
   recursive: true,
-  filter: (source) => !(path.dirname(source) === buildDir && skipInBuild.has(path.basename(source))),
+  filter: (source) => !(path.dirname(source) === buildDir && skipInBuild.has(path.basename(source))) && !source.endsWith(".map"),
 });
 fs.cpSync(path.join(root, "public"), path.join(out, "public"), { recursive: true });
 
