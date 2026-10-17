@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1792139085116,
+      "tag": "0000_adorable_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1792143444042,
+      "tag": "0001_black_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1792161069647,
+      "tag": "0002_rainy_pestilence",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1792169009545,
+      "tag": "0003_misty_namor",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1792171617523,
+      "tag": "0004_jittery_ozymandias",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1792173766181,
+      "tag": "0005_noisy_microchip",
+      "breakpoints": true
+    }
+  ]
+}
