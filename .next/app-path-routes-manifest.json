@@ -4,6 +4,7 @@
   "/academic-setup/page": "/academic-setup",
   "/accept-invite/page": "/accept-invite",
   "/api/auth/[...all]/route": "/api/auth/[...all]",
+  "/api/health/route": "/api/health",
   "/api/resources/[id]/route": "/api/resources/[id]",
   "/api/resources/route": "/api/resources",
   "/assessments/page": "/assessments",

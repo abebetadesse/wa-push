@@ -123,8 +123,16 @@ In Node.js → *Run script* (or over SSH in the application root):
    then **delete the variable** and keep the password somewhere safe.
 3. Click *Restart App*.
 
-Check: `https://school.wisdomcourse.com.et/school/login` shows the Forma sign-in page. (Use this
-address only for this check; users sign in at `app.wisdomcourse.com.et/school`.)
+Check: open `https://school.wisdomcourse.com.et/school/api/health` (later also
+`https://app.wisdomcourse.com.et/school/api/health`). It must show `"status":"ok"`. Otherwise it
+lists, by name only, the settings that are missing or wrong, whether the database can be reached,
+how many migrations are applied, and whether the upload folder is writable. Fix what it reports and
+click *Restart App*. Then `https://school.wisdomcourse.com.et/school/login` shows the Forma sign-in
+page. (Use the subdomain address only for these checks; users sign in at
+`app.wisdomcourse.com.et/school`.)
+
+The subdomain needs its own valid certificate (§3, step 2). Without it, browsers warn on the
+subdomain address; the nginx rule in §6 still works because nginx does not verify it.
 
 ## 6. The nginx rule on app.wisdomcourse.com.et
 

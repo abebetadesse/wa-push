@@ -131,6 +131,12 @@
       "namedRegex": "^/accept\\-invite(?:/)?$"
     },
     {
+      "page": "/api/health",
+      "regex": "^/api/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/health(?:/)?$"
+    },
+    {
       "page": "/api/resources",
       "regex": "^/api/resources(?:/)?$",
       "routeKeys": {},

@@ -1,5 +1,5 @@
 var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/forgot-password/page.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0m4_91bl-y58x._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0z-85ktc1rp4u._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_compiled_@opentelemetry_api_index_1oy1nwhip-98t.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_1do0-8f-ofdf1.js")
 R.c("server/chunks/ssr/[root-of-the-server]__13n-m2ui6n8vg._.js")

@@ -4,6 +4,7 @@
   "/academic-setup/page": "app/academic-setup/page.js",
   "/accept-invite/page": "app/accept-invite/page.js",
   "/api/auth/[...all]/route": "app/api/auth/[...all]/route.js",
+  "/api/health/route": "app/api/health/route.js",
   "/api/resources/[id]/route": "app/api/resources/[id]/route.js",
   "/api/resources/route": "app/api/resources/route.js",
   "/assessments/page": "app/assessments/page.js",
