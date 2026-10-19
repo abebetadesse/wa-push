@@ -1,6 +1,6 @@
 {
   "node": {
-    "40c0267c613f83ad87b6266829e31670fabe35855c": {
+    "40495e4fde54444dbca4cbea6686d51b6f128ff47e": {
       "workers": {
         "app/inventory/page": {
           "moduleId": 75835,
@@ -10,7 +10,7 @@
       "exportedName": "changeInventoryItemStatus",
       "filename": "src/app/inventory/actions.ts"
     },
-    "605c76b761ff25123e50a571ced87f0169fb7ddf2f": {
+    "6007b78aa4c6dd786d7451e8397be28ac84cc44a92": {
       "workers": {
         "app/inventory/page": {
           "moduleId": 75835,
@@ -20,7 +20,7 @@
       "exportedName": "createInventoryItem",
       "filename": "src/app/inventory/actions.ts"
     },
-    "60c3be1e9c454c37c6576f5f7d6b9a7f4fdc40461b": {
+    "6095af71f1903bd5dd9d7d0cc64e4041613859be11": {
       "workers": {
         "app/inventory/page": {
           "moduleId": 75835,
