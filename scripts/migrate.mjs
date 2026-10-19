@@ -15,8 +15,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 nextEnv.loadEnvConfig(root, false, { info() {}, error: console.error });
 
 if (!process.env.DATABASE_URL) {
-  console.error("DATABASE_URL is not set. Add it to .env or the host's environment variables.");
-  process.exit(1);
+  console.warn("[migrate] DATABASE_URL is not set. Skipping migration until DATABASE_URL is configured in .env.");
+  process.exit(0);
 }
 
 const connection = await mysql.createConnection(process.env.DATABASE_URL);
