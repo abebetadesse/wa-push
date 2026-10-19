@@ -16,6 +16,26 @@ process.chdir(__dirname);
 // Read .env now so PORT is known before the server starts. Host-provided variables win.
 require("@next/env").loadEnvConfig(__dirname, false, { info() {}, error: console.error });
 
+// Automatically apply any pending database migrations on startup
+if (process.env.DATABASE_URL) {
+  try {
+    const { execFileSync } = require("node:child_process");
+    const { existsSync } = require("node:fs");
+    const { join } = require("node:path");
+    const migrateScript = join(__dirname, "scripts", "migrate.mjs");
+    if (existsSync(migrateScript)) {
+      console.log("[forma] checking database migrations...");
+      execFileSync(process.execPath, [migrateScript], {
+        cwd: __dirname,
+        stdio: "inherit",
+        env: process.env,
+      });
+    }
+  } catch (err) {
+    console.error("[forma] database migration on startup:", err && err.message ? err.message : err);
+  }
+}
+
 const next = require("next");
 
 const port = Number(process.env.PORT) || 3000;
