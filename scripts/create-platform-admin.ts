@@ -110,7 +110,7 @@ async function main() {
     }
 
     const [userRows] = await connection.query<RowDataPacket[]>(
-      "SELECT COUNT(*) AS user_count FROM auth_users",
+      "SELECT COUNT(*) AS user_count FROM school_auth_users",
     );
     if (Number(userRows[0]?.user_count) !== 0) {
       throw new Error("Bootstrap is only allowed before the first user exists.");

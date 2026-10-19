@@ -10,4 +10,7 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL ?? "",
   },
+  migrations: {
+    table: "school_drizzle_migrations",
+  },
 });

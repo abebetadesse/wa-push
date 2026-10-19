@@ -233,3 +233,185 @@ export async function updateStudent(
   revalidatePath(`/students/${studentId}`);
   return { success: "Student record saved." };
 }
+
+export type BulkImportActionState = {
+  error?: string;
+  success?: string;
+  imported?: number;
+  skipped?: number;
+  details?: string[];
+};
+
+export async function bulkImportStudents(
+  _previous: BulkImportActionState,
+  formData: FormData,
+): Promise<BulkImportActionState> {
+  const schoolId = String(formData.get("schoolId") ?? "").trim();
+  const rawCsv = String(formData.get("csvContent") ?? "").trim();
+  const defaultClassroomId = String(formData.get("defaultClassroomId") ?? "").trim();
+
+  if (!schoolId) return { error: "Select a school." };
+  if (!rawCsv) return { error: "Please provide CSV content or upload a CSV file." };
+
+  const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
+
+  const [currentYear] = await db
+    .select({ id: academicYears.id })
+    .from(academicYears)
+    .where(and(eq(academicYears.schoolId, schoolId), eq(academicYears.isCurrent, true)))
+    .limit(1);
+
+  const classroomRows = currentYear
+    ? await db
+        .select({ id: classrooms.id, name: classrooms.name })
+        .from(classrooms)
+        .where(and(eq(classrooms.schoolId, schoolId), eq(classrooms.academicYearId, currentYear.id)))
+    : [];
+
+  const classroomMap = new Map<string, string>();
+  for (const c of classroomRows) {
+    classroomMap.set(c.name.trim().toLowerCase(), c.id);
+  }
+
+  const lines = rawCsv.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+  if (lines.length === 0) return { error: "The provided CSV is empty." };
+
+  const parseLine = (line: string): string[] => {
+    const result: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"' || char === "'") {
+        if (inQuotes && line[i + 1] === char) {
+          current += char;
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === "," && !inQuotes) {
+        result.push(current.trim());
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim());
+    return result;
+  };
+
+  const parsedRows = lines.map(parseLine);
+  let startIndex = 0;
+  const firstRowStr = parsedRows[0].join(" ").toLowerCase();
+  if (
+    firstRowStr.includes("student") ||
+    firstRowStr.includes("name") ||
+    firstRowStr.includes("number") ||
+    firstRowStr.includes("first")
+  ) {
+    startIndex = 1;
+  }
+
+  let imported = 0;
+  let skipped = 0;
+  const details: string[] = [];
+
+  for (let i = startIndex; i < parsedRows.length; i++) {
+    const row = parsedRows[i];
+    const rowNum = i + 1;
+    const studentNumber = row[0]?.trim() ?? "";
+    const firstName = row[1]?.trim() ?? "";
+    const lastName = row[2]?.trim() ?? "";
+    const email = row[3]?.trim().toLowerCase() ?? "";
+    const dateOfBirth = row[4]?.trim() ?? "";
+    const className = row[5]?.trim() ?? "";
+
+    if (!studentNumber || !firstName || !lastName) {
+      skipped++;
+      details.push(`Row ${rowNum}: Skipped - missing required fields (student number, first name, or last name).`);
+      continue;
+    }
+
+    if (studentNumber.length > 80) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Student number exceeds 80 characters.`);
+      continue;
+    }
+
+    if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Invalid email format "${email}".`);
+      continue;
+    }
+
+    if (dateOfBirth && !isDate(dateOfBirth)) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Invalid date of birth "${dateOfBirth}" (expected YYYY-MM-DD).`);
+      continue;
+    }
+
+    let targetClassroomId: string | null = null;
+    if (className && classroomMap.has(className.toLowerCase())) {
+      targetClassroomId = classroomMap.get(className.toLowerCase())!;
+    } else if (defaultClassroomId && classroomRows.some((c) => c.id === defaultClassroomId)) {
+      targetClassroomId = defaultClassroomId;
+    }
+
+    try {
+      await db.transaction(async (tx) => {
+        const studentId = randomUUID();
+        await tx.insert(students).values({
+          id: studentId,
+          schoolId,
+          studentNumber,
+          firstName,
+          lastName,
+          email: email || null,
+          dateOfBirth: dateOfBirth || null,
+        });
+
+        if (targetClassroomId && currentYear) {
+          await tx.insert(enrollments).values({
+            id: randomUUID(),
+            schoolId,
+            studentId,
+            classroomId: targetClassroomId,
+            academicYearId: currentYear.id,
+          });
+        }
+      });
+      imported++;
+    } catch (err) {
+      skipped++;
+      if (isDuplicateEntry(err)) {
+        details.push(`Row ${rowNum} (${studentNumber}): Student number already exists in this school.`);
+      } else {
+        details.push(`Row ${rowNum} (${studentNumber}): Failed to insert record.`);
+      }
+    }
+  }
+
+  if (imported > 0) {
+    await db.insert(activityEvents).values({
+      schoolId,
+      userId: session.user.id,
+      detail: `Bulk imported ${imported} student${imported === 1 ? "" : "s"}${skipped > 0 ? ` (${skipped} skipped)` : ""}`,
+    });
+    revalidatePath("/");
+    revalidatePath("/students");
+    revalidatePath("/reports");
+  }
+
+  const successMessage = imported > 0
+    ? `Successfully imported ${imported} student${imported === 1 ? "" : "s"}${skipped > 0 ? ` (${skipped} skipped - see details below)` : ""}.`
+    : undefined;
+
+  return {
+    success: successMessage,
+    error: imported === 0 ? `No students imported. ${skipped} row(s) failed validation or had duplicates.` : undefined,
+    imported,
+    skipped,
+    details: details.slice(0, 15),
+  };
+}
+

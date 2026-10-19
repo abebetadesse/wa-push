@@ -17,7 +17,7 @@ const id = () => varchar("id", { length: 36 }).primaryKey().$defaultFn(() => ran
 const createdAt = () => timestamp("created_at").notNull().defaultNow();
 
 export const authUsers = mysqlTable(
-  "auth_users",
+  "school_auth_users",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),
@@ -31,11 +31,11 @@ export const authUsers = mysqlTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
-  (table) => [uniqueIndex("auth_users_email_unique").on(table.email)],
+  (table) => [uniqueIndex("school_auth_users_email_unique").on(table.email)],
 );
 
 export const authSessions = mysqlTable(
-  "auth_sessions",
+  "school_auth_sessions",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     expiresAt: timestamp("expires_at").notNull(),
@@ -48,13 +48,13 @@ export const authSessions = mysqlTable(
     userId: varchar("user_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
   },
   (table) => [
-    uniqueIndex("auth_sessions_token_unique").on(table.token),
-    index("auth_sessions_user_idx").on(table.userId),
+    uniqueIndex("school_auth_sessions_token_unique").on(table.token),
+    index("school_auth_sessions_user_idx").on(table.userId),
   ],
 );
 
 export const authAccounts = mysqlTable(
-  "auth_accounts",
+  "school_auth_accounts",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     accountId: varchar("account_id", { length: 255 }).notNull(),
@@ -70,11 +70,11 @@ export const authAccounts = mysqlTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
-  (table) => [index("auth_accounts_user_idx").on(table.userId)],
+  (table) => [index("school_auth_accounts_user_idx").on(table.userId)],
 );
 
 export const authVerifications = mysqlTable(
-  "auth_verifications",
+  "school_auth_verifications",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     identifier: varchar("identifier", { length: 255 }).notNull(),
@@ -83,11 +83,11 @@ export const authVerifications = mysqlTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
-  (table) => [index("auth_verifications_identifier_idx").on(table.identifier)],
+  (table) => [index("school_auth_verifications_identifier_idx").on(table.identifier)],
 );
 
 export const schools = mysqlTable(
-  "schools",
+  "school_schools",
   {
     id: id(),
     name: varchar("name", { length: 180 }).notNull(),
@@ -100,7 +100,7 @@ export const schools = mysqlTable(
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
-  (table) => [uniqueIndex("schools_slug_unique").on(table.slug)],
+  (table) => [uniqueIndex("school_schools_slug_unique").on(table.slug)],
 );
 
 export const schoolMemberships = mysqlTable(
@@ -138,7 +138,7 @@ export const schoolInvitations = mysqlTable(
 );
 
 export const activityEvents = mysqlTable(
-  "activity_events",
+  "school_activity_events",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -146,11 +146,11 @@ export const activityEvents = mysqlTable(
     detail: varchar("detail", { length: 255 }).notNull(),
     createdAt: createdAt(),
   },
-  (table) => [index("activity_events_school_created_idx").on(table.schoolId, table.createdAt)],
+  (table) => [index("school_activity_events_school_created_idx").on(table.schoolId, table.createdAt)],
 );
 
 export const academicYears = mysqlTable(
-  "academic_years",
+  "school_academic_years",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -161,13 +161,13 @@ export const academicYears = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    uniqueIndex("academic_years_school_name_unique").on(table.schoolId, table.name),
-    index("academic_years_school_idx").on(table.schoolId),
+    uniqueIndex("school_academic_years_school_name_unique").on(table.schoolId, table.name),
+    index("school_academic_years_school_idx").on(table.schoolId),
   ],
 );
 
 export const gradeLevels = mysqlTable(
-  "grade_levels",
+  "school_grade_levels",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -176,13 +176,13 @@ export const gradeLevels = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    uniqueIndex("grade_levels_school_name_unique").on(table.schoolId, table.name),
-    index("grade_levels_school_idx").on(table.schoolId),
+    uniqueIndex("school_grade_levels_school_name_unique").on(table.schoolId, table.name),
+    index("school_grade_levels_school_idx").on(table.schoolId),
   ],
 );
 
 export const classrooms = mysqlTable(
-  "classrooms",
+  "school_classrooms",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -193,13 +193,13 @@ export const classrooms = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    uniqueIndex("classrooms_year_name_unique").on(table.academicYearId, table.name),
-    index("classrooms_school_year_idx").on(table.schoolId, table.academicYearId),
+    uniqueIndex("school_classrooms_year_name_unique").on(table.academicYearId, table.name),
+    index("school_classrooms_school_year_idx").on(table.schoolId, table.academicYearId),
   ],
 );
 
 export const students = mysqlTable(
-  "students",
+  "school_students",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -214,14 +214,14 @@ export const students = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    uniqueIndex("students_school_number_unique").on(table.schoolId, table.studentNumber),
-    uniqueIndex("students_school_user_unique").on(table.schoolId, table.userId),
-    index("students_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
+    uniqueIndex("school_students_school_number_unique").on(table.schoolId, table.studentNumber),
+    uniqueIndex("school_students_school_user_unique").on(table.schoolId, table.userId),
+    index("school_students_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
   ],
 );
 
 export const enrollments = mysqlTable(
-  "enrollments",
+  "school_enrollments",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -232,13 +232,13 @@ export const enrollments = mysqlTable(
     enrolledAt: timestamp("enrolled_at").notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex("enrollments_student_year_unique").on(table.studentId, table.academicYearId),
-    index("enrollments_school_class_idx").on(table.schoolId, table.classroomId),
+    uniqueIndex("school_enrollments_student_year_unique").on(table.studentId, table.academicYearId),
+    index("school_enrollments_school_class_idx").on(table.schoolId, table.classroomId),
   ],
 );
 
 export const subjects = mysqlTable(
-  "subjects",
+  "school_subjects",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -249,13 +249,13 @@ export const subjects = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    uniqueIndex("subjects_school_name_unique").on(table.schoolId, table.name),
-    index("subjects_school_idx").on(table.schoolId),
+    uniqueIndex("school_subjects_school_name_unique").on(table.schoolId, table.name),
+    index("school_subjects_school_idx").on(table.schoolId),
   ],
 );
 
 export const teachers = mysqlTable(
-  "teachers",
+  "school_teachers",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -271,13 +271,13 @@ export const teachers = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    uniqueIndex("teachers_school_number_unique").on(table.schoolId, table.teacherNumber),
-    index("teachers_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
+    uniqueIndex("school_teachers_school_number_unique").on(table.schoolId, table.teacherNumber),
+    index("school_teachers_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
   ],
 );
 
 export const lessonPlans = mysqlTable(
-  "lesson_plans",
+  "school_lesson_plans",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -305,14 +305,14 @@ export const lessonPlans = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    index("lesson_plans_school_subject_idx").on(table.schoolId, table.subjectId),
-    index("lesson_plans_teacher_idx").on(table.teacherId),
-    index("lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate),
+    index("school_lesson_plans_school_subject_idx").on(table.schoolId, table.subjectId),
+    index("school_lesson_plans_teacher_idx").on(table.teacherId),
+    index("school_lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate),
   ],
 );
 
 export const assessments = mysqlTable(
-  "assessments",
+  "school_assessments",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -328,13 +328,13 @@ export const assessments = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    index("assessments_school_class_idx").on(table.schoolId, table.classroomId),
-    index("assessments_creator_idx").on(table.createdBy),
+    index("school_assessments_school_class_idx").on(table.schoolId, table.classroomId),
+    index("school_assessments_creator_idx").on(table.createdBy),
   ],
 );
 
 export const assessmentQuestions = mysqlTable(
-  "assessment_questions",
+  "school_assessment_questions",
   {
     id: id(),
     assessmentId: varchar("assessment_id", { length: 36 }).notNull().references(() => assessments.id, { onDelete: "cascade" }),
@@ -345,11 +345,11 @@ export const assessmentQuestions = mysqlTable(
     sortOrder: int("sort_order").notNull(),
     createdAt: createdAt(),
   },
-  (table) => [index("assessment_questions_assessment_order_idx").on(table.assessmentId, table.sortOrder)],
+  (table) => [index("school_assessment_questions_assessment_order_idx").on(table.assessmentId, table.sortOrder)],
 );
 
 export const learningResources = mysqlTable(
-  "learning_resources",
+  "school_learning_resources",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -363,13 +363,13 @@ export const learningResources = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    uniqueIndex("learning_resources_storage_key_unique").on(table.storageKey),
-    index("learning_resources_school_created_idx").on(table.schoolId, table.createdAt),
+    uniqueIndex("school_learning_resources_storage_key_unique").on(table.storageKey),
+    index("school_learning_resources_school_created_idx").on(table.schoolId, table.createdAt),
   ],
 );
 
 export const assessmentResults = mysqlTable(
-  "assessment_results",
+  "school_assessment_results",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -382,13 +382,13 @@ export const assessmentResults = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    uniqueIndex("assessment_results_assessment_student_unique").on(table.assessmentId, table.studentId),
-    index("assessment_results_school_student_idx").on(table.schoolId, table.studentId),
+    uniqueIndex("school_assessment_results_assessment_student_unique").on(table.assessmentId, table.studentId),
+    index("school_assessment_results_school_student_idx").on(table.schoolId, table.studentId),
   ],
 );
 
 export const assessmentAttempts = mysqlTable(
-  "assessment_attempts",
+  "school_assessment_attempts",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -400,13 +400,13 @@ export const assessmentAttempts = mysqlTable(
     submittedAt: timestamp("submitted_at").notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex("assessment_attempts_assessment_student_unique").on(table.assessmentId, table.studentId),
-    index("assessment_attempts_school_assessment_idx").on(table.schoolId, table.assessmentId),
+    uniqueIndex("school_assessment_attempts_assessment_student_unique").on(table.assessmentId, table.studentId),
+    index("school_assessment_attempts_school_assessment_idx").on(table.schoolId, table.assessmentId),
   ],
 );
 
 export const classSchedules = mysqlTable(
-  "class_schedules",
+  "school_class_schedules",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -423,14 +423,14 @@ export const classSchedules = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    index("class_schedules_classroom_idx").on(table.classroomId, table.dayOfWeek),
-    index("class_schedules_teacher_idx").on(table.teacherId, table.dayOfWeek),
-    index("class_schedules_school_idx").on(table.schoolId),
+    index("school_class_schedules_classroom_idx").on(table.classroomId, table.dayOfWeek),
+    index("school_class_schedules_teacher_idx").on(table.teacherId, table.dayOfWeek),
+    index("school_class_schedules_school_idx").on(table.schoolId),
   ],
 );
 
 export const attendanceRecords = mysqlTable(
-  "attendance_records",
+  "school_attendance_records",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -443,13 +443,13 @@ export const attendanceRecords = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    uniqueIndex("attendance_student_class_date_unique").on(table.studentId, table.classroomId, table.date),
-    index("attendance_school_date_idx").on(table.schoolId, table.date),
+    uniqueIndex("school_attendance_student_class_date_unique").on(table.studentId, table.classroomId, table.date),
+    index("school_attendance_school_date_idx").on(table.schoolId, table.date),
   ],
 );
 
 export const inventoryItems = mysqlTable(
-  "inventory_items",
+  "school_inventory_items",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -465,13 +465,13 @@ export const inventoryItems = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    uniqueIndex("inventory_items_school_sku_unique").on(table.schoolId, table.sku),
-    index("inventory_items_school_name_idx").on(table.schoolId, table.name),
+    uniqueIndex("school_inventory_items_school_sku_unique").on(table.schoolId, table.sku),
+    index("school_inventory_items_school_name_idx").on(table.schoolId, table.name),
   ],
 );
 
 export const inventoryMovements = mysqlTable(
-  "inventory_movements",
+  "school_inventory_movements",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -483,13 +483,13 @@ export const inventoryMovements = mysqlTable(
     createdAt: createdAt(),
   },
   (table) => [
-    index("inventory_movements_school_item_idx").on(table.schoolId, table.itemId),
-    index("inventory_movements_created_idx").on(table.schoolId, table.createdAt),
+    index("school_inventory_movements_school_item_idx").on(table.schoolId, table.itemId),
+    index("school_inventory_movements_created_idx").on(table.schoolId, table.createdAt),
   ],
 );
 
 export const staffMembers = mysqlTable(
-  "staff_members",
+  "school_staff_members",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -506,8 +506,8 @@ export const staffMembers = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
   (table) => [
-    uniqueIndex("staff_members_school_employee_unique").on(table.schoolId, table.employeeNumber),
-    uniqueIndex("staff_members_school_user_unique").on(table.schoolId, table.userId),
-    index("staff_members_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
+    uniqueIndex("school_staff_members_school_employee_unique").on(table.schoolId, table.employeeNumber),
+    uniqueIndex("school_staff_members_school_user_unique").on(table.schoolId, table.userId),
+    index("school_staff_members_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
   ],
 );

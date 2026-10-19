@@ -57,10 +57,15 @@ async function checkDatabase() {
     db = await mysql.createConnection({ uri: process.env.DATABASE_URL, connectTimeout: 5000 });
     let applied = 0;
     try {
-      const [rows] = await db.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS applied FROM `__drizzle_migrations`");
+      const [rows] = await db.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS applied FROM `school_drizzle_migrations`");
       applied = Number(rows[0]?.applied ?? 0);
     } catch {
-      applied = 0;
+      try {
+        const [rows] = await db.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS applied FROM `__drizzle_migrations`");
+        applied = Number(rows[0]?.applied ?? 0);
+      } catch {
+        applied = 0;
+      }
     }
     let expected: number | null = null;
     try {
