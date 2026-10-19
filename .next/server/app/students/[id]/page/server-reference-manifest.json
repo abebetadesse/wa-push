@@ -1,6 +1,6 @@
 {
   "node": {
-    "60510e6553cd056edf5753e7e95bb76613573f97a1": {
+    "6088e920429094433eaf5dea1da964cf99c7dc7e31": {
       "workers": {
         "app/students/[id]/page": {
           "moduleId": 40881,
