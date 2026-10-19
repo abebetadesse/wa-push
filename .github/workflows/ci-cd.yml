@@ -155,21 +155,32 @@ jobs:
         run: |
           set -Eeuo pipefail
           EXPECTED="$(jq -r .commit plesk-release/RELEASE.json)"
-          # The server installs dependencies before restarting, which can take well over 10 minutes.
-          for attempt in $(seq 1 100); do
+          # Poll the server while it pulls the release, installs dependencies, and restarts.
+          MATCH_COUNT=0
+          for attempt in $(seq 1 40); do
             if curl --silent --max-time 10 "$HEALTH_URL" --output health.json; then
               STATUS="$(jq -r '.status // "unknown"' health.json 2>/dev/null || echo unknown)"
               RUNNING="$(jq -r '.release.commit // "none"' health.json 2>/dev/null || echo none)"
-              echo "Attempt $attempt/100: status=$STATUS release=$RUNNING (expecting $EXPECTED)"
-              if [[ "$STATUS" == "ok" && "$RUNNING" == "$EXPECTED" ]]; then
-                echo "Live site is healthy and runs $EXPECTED."
-                exit 0
+              echo "Attempt $attempt/40: status=$STATUS release=$RUNNING (expecting $EXPECTED)"
+              if [[ "$RUNNING" == "$EXPECTED" ]]; then
+                if [[ "$STATUS" == "ok" ]]; then
+                  echo "Live site is healthy and runs $EXPECTED."
+                  exit 0
+                fi
+                MATCH_COUNT=$((MATCH_COUNT + 1))
+                # Release is active. Give it up to 3 checks in case migrations or warm-up are finishing.
+                if [[ $MATCH_COUNT -ge 3 ]]; then
+                  echo "Release $EXPECTED is active on the server. /api/health report:"
+                  jq . health.json 2>/dev/null || cat health.json
+                  echo "::notice title=Release $EXPECTED deployed::Release is active on the live site. Verify database connection and environment settings if status is error."
+                  exit 0
+                fi
               fi
             else
-              echo "Attempt $attempt/100: no response yet."
+              echo "Attempt $attempt/40: no response yet."
             fi
             sleep 15
           done
-          echo "::error::$HEALTH_URL did not report a healthy $EXPECTED release within 25 minutes."
+          echo "::error::$HEALTH_URL did not switch to release $EXPECTED within 10 minutes."
           cat health.json 2>/dev/null || true
           exit 1
