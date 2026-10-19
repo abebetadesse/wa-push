@@ -1,9 +1,10 @@
 /**
  * Builds Forma and assembles an upload-ready release in ./plesk-release (plus plesk-release.zip).
  *
- *   npm run deploy:plesk                      served at https://<domain>/school (default)
- *   npm run deploy:plesk -- --base-path ""    served at the root of its own domain or subdomain
- *   node scripts/prepare-plesk.mjs --base-path /school --no-zip
+ *   npm run deploy:plesk                          served at the root of its own (sub)domain (default),
+ *                                                 e.g. https://school.wisdomcourse.com.et
+ *   npm run deploy:plesk -- --base-path /school   served under a path of another site's domain
+ *   node scripts/prepare-plesk.mjs --branch plesk-release --no-zip
  *
  * The base path is fixed into the build, so the release always matches the URL it was built for.
  * On the server: upload, `npm ci --omit=dev`, `npm run db:migrate`, start. See docs/DEPLOYMENT.md.
@@ -19,7 +20,7 @@ const buildDir = path.join(root, ".next");
 const rel = (p) => path.relative(root, p).replaceAll("\\", "/");
 
 const argIndex = process.argv.indexOf("--base-path");
-const rawBasePath = argIndex >= 0 ? process.argv[argIndex + 1] ?? "" : "/school";
+const rawBasePath = argIndex >= 0 ? process.argv[argIndex + 1] ?? "" : "";
 // Same rule as src/lib/base-path.ts.
 const basePath = rawBasePath.trim().replace(/\/+$/, "");
 if (basePath && !/^\/[A-Za-z0-9._~\-/]*$/.test(basePath)) {

@@ -3,7 +3,7 @@ name: CI / CD
 # CI: every push and pull request is type-checked, linted, migrated against an empty MySQL
 # database, built, and started once.
 #
-# CD: every push to main publishes a pre-built release (base path /school) to the plesk-release
+# CD: every push to main publishes a pre-built release (served at the site root) to the plesk-release
 # branch. The hosting server cannot compile the app (its glibc is too old for the Next.js and
 # Tailwind compilers), so it only ever pulls that branch. Optional settings for automatic
 # deployment, in Settings → Secrets and variables → Actions:
@@ -11,9 +11,9 @@ name: CI / CD
 #                                   server pulls the new release right away; otherwise click
 #                                   Deploy in Plesk → Git.
 #   variable PUBLIC_URL             Public origin the release is built for
-#                                   (default https://app.wisdomcourse.com.et).
+#                                   (default https://school.wisdomcourse.com.et).
 #   variable HEALTH_URL             Health endpoint checked after deployment
-#                                   (default <PUBLIC_URL>/school/api/health).
+#                                   (default <PUBLIC_URL>/api/health).
 
 on:
   push:
@@ -112,8 +112,8 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      BETTER_AUTH_URL: ${{ vars.PUBLIC_URL || 'https://app.wisdomcourse.com.et' }}
-      HEALTH_URL: ${{ vars.HEALTH_URL || format('{0}/school/api/health', vars.PUBLIC_URL || 'https://app.wisdomcourse.com.et') }}
+      BETTER_AUTH_URL: ${{ vars.PUBLIC_URL || 'https://school.wisdomcourse.com.et' }}
+      HEALTH_URL: ${{ vars.HEALTH_URL || format('{0}/api/health', vars.PUBLIC_URL || 'https://school.wisdomcourse.com.et') }}
       WEBHOOK_URL: ${{ secrets.PLESK_GIT_WEBHOOK_URL }}
     steps:
       - uses: actions/checkout@v4
@@ -124,14 +124,14 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - name: Build the /school release onto the plesk-release branch
+      - name: Build the release onto the plesk-release branch
         run: |
           set -Eeuo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Continue the branch's history when it exists.
           git fetch --no-tags origin plesk-release:refs/heads/plesk-release || true
-          node scripts/prepare-plesk.mjs --base-path /school --branch plesk-release --no-zip
+          node scripts/prepare-plesk.mjs --base-path "" --branch plesk-release --no-zip
           jq . plesk-release/RELEASE.json
       - name: Publish the release
         run: git push origin refs/heads/plesk-release:refs/heads/plesk-release
