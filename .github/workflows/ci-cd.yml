@@ -93,7 +93,7 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     permissions:
       contents: write
     concurrency:
@@ -155,20 +155,21 @@ jobs:
         run: |
           set -Eeuo pipefail
           EXPECTED="$(jq -r .commit plesk-release/RELEASE.json)"
-          for attempt in $(seq 1 40); do
+          # The server installs dependencies before restarting, which can take well over 10 minutes.
+          for attempt in $(seq 1 100); do
             if curl --silent --max-time 10 "$HEALTH_URL" --output health.json; then
               STATUS="$(jq -r '.status // "unknown"' health.json 2>/dev/null || echo unknown)"
               RUNNING="$(jq -r '.release.commit // "none"' health.json 2>/dev/null || echo none)"
-              echo "Attempt $attempt/40: status=$STATUS release=$RUNNING (expecting $EXPECTED)"
+              echo "Attempt $attempt/100: status=$STATUS release=$RUNNING (expecting $EXPECTED)"
               if [[ "$STATUS" == "ok" && "$RUNNING" == "$EXPECTED" ]]; then
                 echo "Live site is healthy and runs $EXPECTED."
                 exit 0
               fi
             else
-              echo "Attempt $attempt/40: no response yet."
+              echo "Attempt $attempt/100: no response yet."
             fi
             sleep 15
           done
-          echo "::error::$HEALTH_URL did not report a healthy $EXPECTED release within 10 minutes."
+          echo "::error::$HEALTH_URL did not report a healthy $EXPECTED release within 25 minutes."
           cat health.json 2>/dev/null || true
           exit 1
