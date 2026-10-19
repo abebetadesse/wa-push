@@ -121,12 +121,16 @@ async function readRelease() {
 // Whether a .env file sits beside the app (yes/no only), to tell "settings saved in the wrong place"
 // apart from "settings never saved" when nothing is configured.
 async function hasEnvFile() {
-  try {
-    await access(join(/* turbopackIgnore: true */ process.cwd(), ".env"), constants.R_OK);
-    return true;
-  } catch {
-    return false;
+  const candidates = [".env", ".env.local", ".env.production", ".env.production.local"];
+  for (const name of candidates) {
+    try {
+      await access(join(/* turbopackIgnore: true */ process.cwd(), name), constants.R_OK);
+      return true;
+    } catch {
+      // Continue to next candidate
+    }
   }
+  return false;
 }
 
 export async function GET() {
