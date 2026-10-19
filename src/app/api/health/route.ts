@@ -1,6 +1,7 @@
 import { access, readFile } from "node:fs/promises";
-import { constants } from "node:fs";
+import { constants, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import mysql from "mysql2/promise";
 import { connection } from "next/server";
 
@@ -74,7 +75,23 @@ async function checkDatabase() {
     } catch {
       expected = null;
     }
-    const migrated = expected === null ? applied > 0 : applied >= expected;
+    let migrated = expected === null ? applied > 0 : applied >= expected;
+    if (!migrated) {
+      try {
+        const migrateScript = join(/* turbopackIgnore: true */ process.cwd(), "scripts", "migrate.mjs");
+        if (existsSync(migrateScript)) {
+          const { runMigrations } = await import(/* turbopackIgnore: true */ pathToFileURL(migrateScript).href);
+          if (typeof runMigrations === "function") {
+            await runMigrations();
+            const [newRows] = await db.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS applied FROM `school_drizzle_migrations`");
+            applied = Number(newRows[0]?.applied ?? 0);
+            migrated = expected === null ? applied > 0 : applied >= expected;
+          }
+        }
+      } catch {
+        // If auto-migration threw, error is reported below
+      }
+    }
     let tables: string[] = [];
     try {
       const [tableRows] = await db.query<mysql.RowDataPacket[]>("SHOW TABLES");
