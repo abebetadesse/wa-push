@@ -942,6 +942,53 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/students/[id]/report-card": {
+      "experimentalPPR": true,
+      "throwOnEmptyStaticShell": true,
+      "renderingMode": "PARTIALLY_STATIC",
+      "routeType": "shell",
+      "response": "initial",
+      "compute": "resuming",
+      "htmlSize": 1710,
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(?:[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight).*"
+        }
+      ],
+      "routeRegex": "^/students/([^/]+?)/report\\-card(?:/)?$",
+      "dataRoute": "/students/[id]/report-card.rsc",
+      "fallback": "/students/[id]/report-card",
+      "fallbackRevalidate": false,
+      "fallbackRootParams": [],
+      "fallbackSourceRoute": "/students/[id]/report-card",
+      "fallbackRouteParams": [
+        {
+          "paramName": "id",
+          "paramType": "dynamic"
+        }
+      ],
+      "dataRouteRegex": "^/students/([^/]+?)/report\\-card\\.rsc$",
+      "prefetchDataRoute": null,
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/teachers/[id]": {
       "experimentalPPR": true,
       "throwOnEmptyStaticShell": true,
@@ -992,8 +1039,8 @@
   },
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "793ca4274ef949c7533f9eeb5d90dd0b",
-    "previewModeSigningKey": "bbd0714da52f9c19968f0b54bed34519a1193050cc27f9614e4bc7bdb95ddc0a",
-    "previewModeEncryptionKey": "00635fd3c66dff7b5b767869fea326ca512ef2a842f03a91880454bfb83b28f6"
+    "previewModeId": "4ab71b015154097beea6c2f661d1be97",
+    "previewModeSigningKey": "6895b9129ac7bfe0cd162e946075ee233b12bc48dc5001b8cbc1bbc491d93f8d",
+    "previewModeEncryptionKey": "b2c8260fbf6cf8d8c29b344647e77f57c19c274ad46f7630ba6025497ffe4afb"
   }
 }

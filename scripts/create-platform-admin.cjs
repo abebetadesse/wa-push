@@ -68,7 +68,7 @@ var init_schema = __esm({
     id = () => (0, import_mysql_core.varchar)("id", { length: 36 }).primaryKey().$defaultFn(() => (0, import_node_crypto.randomUUID)());
     createdAt = () => (0, import_mysql_core.timestamp)("created_at").notNull().defaultNow();
     authUsers = (0, import_mysql_core.mysqlTable)(
-      "auth_users",
+      "school_auth_users",
       {
         id: (0, import_mysql_core.varchar)("id", { length: 36 }).primaryKey(),
         name: (0, import_mysql_core.varchar)("name", { length: 255 }).notNull(),
@@ -82,10 +82,10 @@ var init_schema = __esm({
         createdAt: (0, import_mysql_core.timestamp)("created_at").notNull().defaultNow(),
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
-      (table) => [(0, import_mysql_core.uniqueIndex)("auth_users_email_unique").on(table.email)]
+      (table) => [(0, import_mysql_core.uniqueIndex)("school_auth_users_email_unique").on(table.email)]
     );
     authSessions = (0, import_mysql_core.mysqlTable)(
-      "auth_sessions",
+      "school_auth_sessions",
       {
         id: (0, import_mysql_core.varchar)("id", { length: 36 }).primaryKey(),
         expiresAt: (0, import_mysql_core.timestamp)("expires_at").notNull(),
@@ -98,12 +98,12 @@ var init_schema = __esm({
         userId: (0, import_mysql_core.varchar)("user_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" })
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("auth_sessions_token_unique").on(table.token),
-        (0, import_mysql_core.index)("auth_sessions_user_idx").on(table.userId)
+        (0, import_mysql_core.uniqueIndex)("school_auth_sessions_token_unique").on(table.token),
+        (0, import_mysql_core.index)("school_auth_sessions_user_idx").on(table.userId)
       ]
     );
     authAccounts = (0, import_mysql_core.mysqlTable)(
-      "auth_accounts",
+      "school_auth_accounts",
       {
         id: (0, import_mysql_core.varchar)("id", { length: 36 }).primaryKey(),
         accountId: (0, import_mysql_core.varchar)("account_id", { length: 255 }).notNull(),
@@ -119,10 +119,10 @@ var init_schema = __esm({
         createdAt: (0, import_mysql_core.timestamp)("created_at").notNull().defaultNow(),
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
-      (table) => [(0, import_mysql_core.index)("auth_accounts_user_idx").on(table.userId)]
+      (table) => [(0, import_mysql_core.index)("school_auth_accounts_user_idx").on(table.userId)]
     );
     authVerifications = (0, import_mysql_core.mysqlTable)(
-      "auth_verifications",
+      "school_auth_verifications",
       {
         id: (0, import_mysql_core.varchar)("id", { length: 36 }).primaryKey(),
         identifier: (0, import_mysql_core.varchar)("identifier", { length: 255 }).notNull(),
@@ -131,10 +131,10 @@ var init_schema = __esm({
         createdAt: (0, import_mysql_core.timestamp)("created_at").notNull().defaultNow(),
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
-      (table) => [(0, import_mysql_core.index)("auth_verifications_identifier_idx").on(table.identifier)]
+      (table) => [(0, import_mysql_core.index)("school_auth_verifications_identifier_idx").on(table.identifier)]
     );
     schools = (0, import_mysql_core.mysqlTable)(
-      "schools",
+      "school_schools",
       {
         id: id(),
         name: (0, import_mysql_core.varchar)("name", { length: 180 }).notNull(),
@@ -147,7 +147,7 @@ var init_schema = __esm({
         createdAt: createdAt(),
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
-      (table) => [(0, import_mysql_core.uniqueIndex)("schools_slug_unique").on(table.slug)]
+      (table) => [(0, import_mysql_core.uniqueIndex)("school_schools_slug_unique").on(table.slug)]
     );
     schoolMemberships = (0, import_mysql_core.mysqlTable)(
       "school_memberships",
@@ -182,7 +182,7 @@ var init_schema = __esm({
       ]
     );
     activityEvents = (0, import_mysql_core.mysqlTable)(
-      "activity_events",
+      "school_activity_events",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -190,10 +190,10 @@ var init_schema = __esm({
         detail: (0, import_mysql_core.varchar)("detail", { length: 255 }).notNull(),
         createdAt: createdAt()
       },
-      (table) => [(0, import_mysql_core.index)("activity_events_school_created_idx").on(table.schoolId, table.createdAt)]
+      (table) => [(0, import_mysql_core.index)("school_activity_events_school_created_idx").on(table.schoolId, table.createdAt)]
     );
     academicYears = (0, import_mysql_core.mysqlTable)(
-      "academic_years",
+      "school_academic_years",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -204,12 +204,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("academic_years_school_name_unique").on(table.schoolId, table.name),
-        (0, import_mysql_core.index)("academic_years_school_idx").on(table.schoolId)
+        (0, import_mysql_core.uniqueIndex)("school_academic_years_school_name_unique").on(table.schoolId, table.name),
+        (0, import_mysql_core.index)("school_academic_years_school_idx").on(table.schoolId)
       ]
     );
     gradeLevels = (0, import_mysql_core.mysqlTable)(
-      "grade_levels",
+      "school_grade_levels",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -218,12 +218,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("grade_levels_school_name_unique").on(table.schoolId, table.name),
-        (0, import_mysql_core.index)("grade_levels_school_idx").on(table.schoolId)
+        (0, import_mysql_core.uniqueIndex)("school_grade_levels_school_name_unique").on(table.schoolId, table.name),
+        (0, import_mysql_core.index)("school_grade_levels_school_idx").on(table.schoolId)
       ]
     );
     classrooms = (0, import_mysql_core.mysqlTable)(
-      "classrooms",
+      "school_classrooms",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -234,12 +234,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("classrooms_year_name_unique").on(table.academicYearId, table.name),
-        (0, import_mysql_core.index)("classrooms_school_year_idx").on(table.schoolId, table.academicYearId)
+        (0, import_mysql_core.uniqueIndex)("school_classrooms_year_name_unique").on(table.academicYearId, table.name),
+        (0, import_mysql_core.index)("school_classrooms_school_year_idx").on(table.schoolId, table.academicYearId)
       ]
     );
     students = (0, import_mysql_core.mysqlTable)(
-      "students",
+      "school_students",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -254,13 +254,13 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("students_school_number_unique").on(table.schoolId, table.studentNumber),
-        (0, import_mysql_core.uniqueIndex)("students_school_user_unique").on(table.schoolId, table.userId),
-        (0, import_mysql_core.index)("students_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
+        (0, import_mysql_core.uniqueIndex)("school_students_school_number_unique").on(table.schoolId, table.studentNumber),
+        (0, import_mysql_core.uniqueIndex)("school_students_school_user_unique").on(table.schoolId, table.userId),
+        (0, import_mysql_core.index)("school_students_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
       ]
     );
     enrollments = (0, import_mysql_core.mysqlTable)(
-      "enrollments",
+      "school_enrollments",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -271,12 +271,12 @@ var init_schema = __esm({
         enrolledAt: (0, import_mysql_core.timestamp)("enrolled_at").notNull().defaultNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("enrollments_student_year_unique").on(table.studentId, table.academicYearId),
-        (0, import_mysql_core.index)("enrollments_school_class_idx").on(table.schoolId, table.classroomId)
+        (0, import_mysql_core.uniqueIndex)("school_enrollments_student_year_unique").on(table.studentId, table.academicYearId),
+        (0, import_mysql_core.index)("school_enrollments_school_class_idx").on(table.schoolId, table.classroomId)
       ]
     );
     subjects = (0, import_mysql_core.mysqlTable)(
-      "subjects",
+      "school_subjects",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -287,12 +287,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("subjects_school_name_unique").on(table.schoolId, table.name),
-        (0, import_mysql_core.index)("subjects_school_idx").on(table.schoolId)
+        (0, import_mysql_core.uniqueIndex)("school_subjects_school_name_unique").on(table.schoolId, table.name),
+        (0, import_mysql_core.index)("school_subjects_school_idx").on(table.schoolId)
       ]
     );
     teachers = (0, import_mysql_core.mysqlTable)(
-      "teachers",
+      "school_teachers",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -308,12 +308,12 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("teachers_school_number_unique").on(table.schoolId, table.teacherNumber),
-        (0, import_mysql_core.index)("teachers_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
+        (0, import_mysql_core.uniqueIndex)("school_teachers_school_number_unique").on(table.schoolId, table.teacherNumber),
+        (0, import_mysql_core.index)("school_teachers_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
       ]
     );
     lessonPlans = (0, import_mysql_core.mysqlTable)(
-      "lesson_plans",
+      "school_lesson_plans",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -341,13 +341,13 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.index)("lesson_plans_school_subject_idx").on(table.schoolId, table.subjectId),
-        (0, import_mysql_core.index)("lesson_plans_teacher_idx").on(table.teacherId),
-        (0, import_mysql_core.index)("lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate)
+        (0, import_mysql_core.index)("school_lesson_plans_school_subject_idx").on(table.schoolId, table.subjectId),
+        (0, import_mysql_core.index)("school_lesson_plans_teacher_idx").on(table.teacherId),
+        (0, import_mysql_core.index)("school_lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate)
       ]
     );
     assessments = (0, import_mysql_core.mysqlTable)(
-      "assessments",
+      "school_assessments",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -363,12 +363,12 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.index)("assessments_school_class_idx").on(table.schoolId, table.classroomId),
-        (0, import_mysql_core.index)("assessments_creator_idx").on(table.createdBy)
+        (0, import_mysql_core.index)("school_assessments_school_class_idx").on(table.schoolId, table.classroomId),
+        (0, import_mysql_core.index)("school_assessments_creator_idx").on(table.createdBy)
       ]
     );
     assessmentQuestions = (0, import_mysql_core.mysqlTable)(
-      "assessment_questions",
+      "school_assessment_questions",
       {
         id: id(),
         assessmentId: (0, import_mysql_core.varchar)("assessment_id", { length: 36 }).notNull().references(() => assessments.id, { onDelete: "cascade" }),
@@ -379,10 +379,10 @@ var init_schema = __esm({
         sortOrder: (0, import_mysql_core.int)("sort_order").notNull(),
         createdAt: createdAt()
       },
-      (table) => [(0, import_mysql_core.index)("assessment_questions_assessment_order_idx").on(table.assessmentId, table.sortOrder)]
+      (table) => [(0, import_mysql_core.index)("school_assessment_questions_assessment_order_idx").on(table.assessmentId, table.sortOrder)]
     );
     learningResources = (0, import_mysql_core.mysqlTable)(
-      "learning_resources",
+      "school_learning_resources",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -396,12 +396,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("learning_resources_storage_key_unique").on(table.storageKey),
-        (0, import_mysql_core.index)("learning_resources_school_created_idx").on(table.schoolId, table.createdAt)
+        (0, import_mysql_core.uniqueIndex)("school_learning_resources_storage_key_unique").on(table.storageKey),
+        (0, import_mysql_core.index)("school_learning_resources_school_created_idx").on(table.schoolId, table.createdAt)
       ]
     );
     assessmentResults = (0, import_mysql_core.mysqlTable)(
-      "assessment_results",
+      "school_assessment_results",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -414,12 +414,12 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("assessment_results_assessment_student_unique").on(table.assessmentId, table.studentId),
-        (0, import_mysql_core.index)("assessment_results_school_student_idx").on(table.schoolId, table.studentId)
+        (0, import_mysql_core.uniqueIndex)("school_assessment_results_assessment_student_unique").on(table.assessmentId, table.studentId),
+        (0, import_mysql_core.index)("school_assessment_results_school_student_idx").on(table.schoolId, table.studentId)
       ]
     );
     assessmentAttempts = (0, import_mysql_core.mysqlTable)(
-      "assessment_attempts",
+      "school_assessment_attempts",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -431,12 +431,12 @@ var init_schema = __esm({
         submittedAt: (0, import_mysql_core.timestamp)("submitted_at").notNull().defaultNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("assessment_attempts_assessment_student_unique").on(table.assessmentId, table.studentId),
-        (0, import_mysql_core.index)("assessment_attempts_school_assessment_idx").on(table.schoolId, table.assessmentId)
+        (0, import_mysql_core.uniqueIndex)("school_assessment_attempts_assessment_student_unique").on(table.assessmentId, table.studentId),
+        (0, import_mysql_core.index)("school_assessment_attempts_school_assessment_idx").on(table.schoolId, table.assessmentId)
       ]
     );
     classSchedules = (0, import_mysql_core.mysqlTable)(
-      "class_schedules",
+      "school_class_schedules",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -453,13 +453,13 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.index)("class_schedules_classroom_idx").on(table.classroomId, table.dayOfWeek),
-        (0, import_mysql_core.index)("class_schedules_teacher_idx").on(table.teacherId, table.dayOfWeek),
-        (0, import_mysql_core.index)("class_schedules_school_idx").on(table.schoolId)
+        (0, import_mysql_core.index)("school_class_schedules_classroom_idx").on(table.classroomId, table.dayOfWeek),
+        (0, import_mysql_core.index)("school_class_schedules_teacher_idx").on(table.teacherId, table.dayOfWeek),
+        (0, import_mysql_core.index)("school_class_schedules_school_idx").on(table.schoolId)
       ]
     );
     attendanceRecords = (0, import_mysql_core.mysqlTable)(
-      "attendance_records",
+      "school_attendance_records",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -472,12 +472,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("attendance_student_class_date_unique").on(table.studentId, table.classroomId, table.date),
-        (0, import_mysql_core.index)("attendance_school_date_idx").on(table.schoolId, table.date)
+        (0, import_mysql_core.uniqueIndex)("school_attendance_student_class_date_unique").on(table.studentId, table.classroomId, table.date),
+        (0, import_mysql_core.index)("school_attendance_school_date_idx").on(table.schoolId, table.date)
       ]
     );
     inventoryItems = (0, import_mysql_core.mysqlTable)(
-      "inventory_items",
+      "school_inventory_items",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -493,12 +493,12 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("inventory_items_school_sku_unique").on(table.schoolId, table.sku),
-        (0, import_mysql_core.index)("inventory_items_school_name_idx").on(table.schoolId, table.name)
+        (0, import_mysql_core.uniqueIndex)("school_inventory_items_school_sku_unique").on(table.schoolId, table.sku),
+        (0, import_mysql_core.index)("school_inventory_items_school_name_idx").on(table.schoolId, table.name)
       ]
     );
     inventoryMovements = (0, import_mysql_core.mysqlTable)(
-      "inventory_movements",
+      "school_inventory_movements",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -510,12 +510,12 @@ var init_schema = __esm({
         createdAt: createdAt()
       },
       (table) => [
-        (0, import_mysql_core.index)("inventory_movements_school_item_idx").on(table.schoolId, table.itemId),
-        (0, import_mysql_core.index)("inventory_movements_created_idx").on(table.schoolId, table.createdAt)
+        (0, import_mysql_core.index)("school_inventory_movements_school_item_idx").on(table.schoolId, table.itemId),
+        (0, import_mysql_core.index)("school_inventory_movements_created_idx").on(table.schoolId, table.createdAt)
       ]
     );
     staffMembers = (0, import_mysql_core.mysqlTable)(
-      "staff_members",
+      "school_staff_members",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
@@ -532,9 +532,9 @@ var init_schema = __esm({
         updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
       },
       (table) => [
-        (0, import_mysql_core.uniqueIndex)("staff_members_school_employee_unique").on(table.schoolId, table.employeeNumber),
-        (0, import_mysql_core.uniqueIndex)("staff_members_school_user_unique").on(table.schoolId, table.userId),
-        (0, import_mysql_core.index)("staff_members_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
+        (0, import_mysql_core.uniqueIndex)("school_staff_members_school_employee_unique").on(table.schoolId, table.employeeNumber),
+        (0, import_mysql_core.uniqueIndex)("school_staff_members_school_user_unique").on(table.schoolId, table.userId),
+        (0, import_mysql_core.index)("school_staff_members_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
       ]
     );
   }
@@ -637,7 +637,7 @@ async function main() {
       throw new Error("Another platform-admin bootstrap is already running.");
     }
     const [userRows] = await connection.query(
-      "SELECT COUNT(*) AS user_count FROM auth_users"
+      "SELECT COUNT(*) AS user_count FROM school_auth_users"
     );
     if (Number(userRows[0]?.user_count) !== 0) {
       throw new Error("Bootstrap is only allowed before the first user exists.");

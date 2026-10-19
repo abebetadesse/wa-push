@@ -293,6 +293,30 @@
       }
     }
   },
+  "/students/[id]/report-card": {
+    "hints": 16448,
+    "slots": {
+      "children": {
+        "hints": 16480,
+        "slots": {
+          "children": {
+            "hints": 16480,
+            "slots": {
+              "children": {
+                "hints": 16480,
+                "slots": {
+                  "children": {
+                    "hints": 16544,
+                    "slots": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "/students": {
     "hints": 64,
     "slots": {

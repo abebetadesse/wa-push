@@ -73,6 +73,23 @@
       ]
     },
     {
+      "page": "/students/[id]/report-card",
+      "regex": "^/students/([^/]+?)/report\\-card(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/students/(?<nxtPid>[^/]+?)/report\\-card(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/students/[id]/report-card.segments/students/$d$id/report-card$segment",
+          "source": "^/students/(?<nxtPid>[^/]+?)/report\\-card\\.segments/students/\\$d\\$id/report\\-card(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
+    },
+    {
       "page": "/teachers/[id]",
       "regex": "^/teachers/([^/]+?)(?:/)?$",
       "routeKeys": {

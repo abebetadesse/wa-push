@@ -7,9 +7,9 @@
     "static/chunks/0cz1d0mv5g_q7.js"
   ],
   "lowPriorityFiles": [
-    "static/Cy5uHJRe_lf9R-mRUBPgA/_buildManifest.js",
-    "static/Cy5uHJRe_lf9R-mRUBPgA/_ssgManifest.js",
-    "static/Cy5uHJRe_lf9R-mRUBPgA/_clientMiddlewareManifest.js"
+    "static/pfpV0hzBGRpl4Vov6WOjb/_buildManifest.js",
+    "static/pfpV0hzBGRpl4Vov6WOjb/_ssgManifest.js",
+    "static/pfpV0hzBGRpl4Vov6WOjb/_clientMiddlewareManifest.js"
   ],
   "rootMainFiles": [
     "static/chunks/1x6obpmlu1_c2.js",
@@ -252,6 +252,17 @@
       ]
     },
     "/students/[id]/page": {
+      "otherChunks": [
+        "static/chunks/1x6obpmlu1_c2.js",
+        "static/chunks/1tsmk8175ecta.js",
+        "static/chunks/1vo0wohvofgd7.js",
+        "static/chunks/2tdgz_eyr3s4k.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    },
+    "/students/[id]/report-card/page": {
       "otherChunks": [
         "static/chunks/1x6obpmlu1_c2.js",
         "static/chunks/1tsmk8175ecta.js",

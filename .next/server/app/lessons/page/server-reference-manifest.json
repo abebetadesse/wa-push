@@ -1,6 +1,6 @@
 {
   "node": {
-    "409c675e5ca711f3c9b77aceaed744e78839753e5f": {
+    "4026f1f95b2be5f56eb0c23c58943f7939611f104f": {
       "workers": {
         "app/lessons/page": {
           "moduleId": 52381,
@@ -10,7 +10,7 @@
       "exportedName": "updateLessonStatus",
       "filename": "src/app/lessons/actions.ts"
     },
-    "601447fb47dc83129393ed199e2f1531b7570f9ab2": {
+    "605c1c4afe722e494f1f2685c6544487631dd18ffe": {
       "workers": {
         "app/lessons/page": {
           "moduleId": 52381,
@@ -20,7 +20,7 @@
       "exportedName": "updateLesson",
       "filename": "src/app/lessons/actions.ts"
     },
-    "60c806b1a213eaa2920aef0cba5d5d1d5573084fa7": {
+    "605e8c71c969225976eaf44f608ddc2484fbf7ae12": {
       "workers": {
         "app/lessons/page": {
           "moduleId": 52381,

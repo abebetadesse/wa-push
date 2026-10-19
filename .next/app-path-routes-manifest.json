@@ -25,6 +25,7 @@
   "/resources/page": "/resources",
   "/setup-school/page": "/setup-school",
   "/students/[id]/page": "/students/[id]",
+  "/students/[id]/report-card/page": "/students/[id]/report-card",
   "/students/page": "/students",
   "/teachers/[id]/page": "/teachers/[id]",
   "/teachers/page": "/teachers",

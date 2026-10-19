@@ -43,6 +43,13 @@
       "when": 1792173766181,
       "tag": "0005_noisy_microchip",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1792429587063,
+      "tag": "0006_prefix_school_tables",
+      "breakpoints": true
     }
   ]
 }

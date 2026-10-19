@@ -25,6 +25,7 @@
   "/resources/page": "app/resources/page.js",
   "/setup-school/page": "app/setup-school/page.js",
   "/students/[id]/page": "app/students/[id]/page.js",
+  "/students/[id]/report-card/page": "app/students/[id]/report-card/page.js",
   "/students/page": "app/students/page.js",
   "/teachers/[id]/page": "app/teachers/[id]/page.js",
   "/teachers/page": "app/teachers/page.js",

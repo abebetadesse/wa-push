@@ -1,6 +1,6 @@
 {
   "node": {
-    "40a1aadbf4818d752664fc45750fe90eccbe2e00e3": {
+    "4070795c8bbda2a80e930a442da1c7c323052da174": {
       "workers": {
         "app/students/page": {
           "moduleId": 82376,
@@ -10,7 +10,17 @@
       "exportedName": "changeStudentStatus",
       "filename": "src/app/students/actions.ts"
     },
-    "605a90e64a80abf0a01e2c34db6ff9838b2512e0f6": {
+    "605e28dfad64bc126b34b8a2d7d0f0b0a79a2e6f9c": {
+      "workers": {
+        "app/students/page": {
+          "moduleId": 82376,
+          "async": false
+        }
+      },
+      "exportedName": "bulkImportStudents",
+      "filename": "src/app/students/actions.ts"
+    },
+    "6062870856dadf2b724f698a20bffa89803eb90cf7": {
       "workers": {
         "app/students/page": {
           "moduleId": 82376,
@@ -20,7 +30,7 @@
       "exportedName": "registerStudent",
       "filename": "src/app/students/actions.ts"
     },
-    "60bf11d828ba498de7561f54dd70a3545375a218a9": {
+    "60e1691647c0dab3a5eeb901a9dbcfc15ce3561487": {
       "workers": {
         "app/students/page": {
           "moduleId": 82376,
