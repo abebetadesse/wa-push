@@ -22,7 +22,9 @@ async function start() {
   require("@next/env").loadEnvConfig(__dirname, false, { info() {}, error: console.error });
 
   // Automatically apply any pending database migrations in-process on startup
+  globalThis.__migrationStatus = { attempted: false, cwd: __dirname };
   if (process.env.DATABASE_URL) {
+    globalThis.__migrationStatus.attempted = true;
     try {
       const migrateScript = join(__dirname, "scripts", "migrate.mjs");
       if (existsSync(migrateScript)) {
@@ -30,10 +32,19 @@ async function start() {
         const { runMigrations } = await import(pathToFileURL(migrateScript).href);
         if (typeof runMigrations === "function") {
           await runMigrations();
+          globalThis.__migrationStatus.ok = true;
           console.log("[forma] startup database migration completed.");
+        } else {
+          globalThis.__migrationStatus.ok = false;
+          globalThis.__migrationStatus.error = "runMigrations is not an exported function";
         }
+      } else {
+        globalThis.__migrationStatus.ok = false;
+        globalThis.__migrationStatus.error = "migrate.mjs not found at " + migrateScript;
       }
     } catch (err) {
+      globalThis.__migrationStatus.ok = false;
+      globalThis.__migrationStatus.error = err && err.message ? err.message : String(err);
       console.error("[forma] startup database migration:", err && err.message ? err.message : err);
     }
   }
