@@ -159,7 +159,7 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
           {studentRows.length === 0
             ? <p className="empty-state">No active students are registered in this school.</p>
             : <div className="report-table-wrap"><table className="report-table">
-              <thead><tr><th>Student</th><th>Assessment average</th><th>Assessments</th><th>Attendance</th><th>Present</th><th>Absent</th><th>Late</th><th>Excused</th></tr></thead>
+              <thead><tr><th>Student</th><th>Assessment average</th><th>Assessments</th><th>Attendance</th><th>Present</th><th>Absent</th><th>Late</th><th>Excused</th><th>Report</th></tr></thead>
               <tbody>{studentRows.map((student) => {
                 const grades = assessmentsByStudent.get(student.id);
                 const attendance = attendanceByStudent.get(student.id) ?? { present: 0, late: 0, absent: 0, excused: 0, total: 0 };
@@ -173,6 +173,11 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
                   <td>{grades?.count ?? 0}</td>
                   <td>{presentRate}<small>{attendance.total} recorded days</small></td>
                   <td>{attendance.present}</td><td>{attendance.absent}</td><td>{attendance.late}</td><td>{attendance.excused}</td>
+                  <td>
+                    <Link className="secondary-button" href={`/students/${student.id}/report-card`} style={{ display: "inline-flex", alignItems: "center", padding: "4px 10px", fontSize: "0.8rem" }}>
+                      Report Card
+                    </Link>
+                  </td>
                 </tr>;
               })}</tbody>
             </table></div>}

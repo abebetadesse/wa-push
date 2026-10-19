@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { academicYears, classrooms, gradeLevels, schoolMemberships, schools, students } from "@/db/schema";
 import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
 import { changeStudentStatus } from "./actions";
+import { BulkStudentImportForm } from "./bulk-import-form";
 import { StudentForm } from "./student-form";
 
 export const metadata: Metadata = { title: "Students | Forma" };
@@ -72,10 +73,18 @@ async function StudentsContent() {
         </div>
       </header>
       <div className="management-sections">
-        {canRegister && <section className="management-card">
-          <h2>Register a student</h2>
-          <StudentForm schools={visibleSchools} classrooms={currentClassrooms} />
-        </section>}
+        {canRegister && (
+          <>
+            <section className="management-card">
+              <h2>Register a student</h2>
+              <StudentForm schools={visibleSchools} classrooms={currentClassrooms} />
+            </section>
+            <section className="management-card">
+              <h2>Bulk import students (CSV)</h2>
+              <BulkStudentImportForm schools={visibleSchools} classrooms={currentClassrooms} />
+            </section>
+          </>
+        )}
         <section className="management-card">
           <div className="management-card-heading"><div><h2>Student roster</h2><p>{studentRows.length} student{studentRows.length === 1 ? "" : "s"}</p></div></div>
           {studentRows.length === 0 ? <p className="empty-state">No students have been registered in these schools.</p> : <div className="record-list">
@@ -86,6 +95,7 @@ async function StudentsContent() {
                   <small>{student.studentNumber} · {student.schoolName}{student.email ? ` · ${student.email}` : ""}</small>
                 </div>
                 <span className={`role-badge status-${student.status}`}>{student.status.replaceAll("_", " ")}</span>
+                <Link className="secondary-button record-action" href={`/students/${student.id}/report-card`} style={{ display: "inline-flex", alignItems: "center" }}>Report card</Link>
                 {(platformAdmin || roles.some(({ schoolId, role }) => schoolId === student.schoolId && role === "school_admin")) && (
                   <form action={changeStudentStatus}>
                     <input name="schoolId" type="hidden" value={student.schoolId} />

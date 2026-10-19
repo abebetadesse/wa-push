@@ -86,7 +86,12 @@ async function StudentDetail({ studentId }: { studentId: string }) {
             {student.userId ? " · Linked to a student account" : ""}
           </p>
         </div>
-        <span className={`role-badge status-${student.status}`}>{student.status}</span>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <Link className="secondary-button" href={`/students/${student.id}/report-card`} style={{ display: "inline-flex", alignItems: "center" }}>
+            View report card
+          </Link>
+          <span className={`role-badge status-${student.status}`}>{student.status}</span>
+        </div>
       </header>
       <div className="management-sections">
         <section className="management-card">
