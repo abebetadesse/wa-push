@@ -37,7 +37,7 @@ try {
         }
       }
     }
-  } catch (histErr) {
+  } catch {
     // Ignore history transition errors
   }
 
