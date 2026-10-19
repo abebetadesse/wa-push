@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
-2:"/school/_next/static/chunks/1tq6ppe__m8m-.js"
+2:"/_next/static/chunks/1tq6ppe__m8m-.js"
 3:I[39756,["$2"],"default"]
 4:I[37457,["$2"],"default"]
 9:I[97367,["$2"],"OutletBoundary"]
@@ -21,7 +21,7 @@ d:C
 14:C
 17:X
 17:C
-0:{"t":{"t":{"s":"","h":49234,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}],"p":"$@5","v":"$6","s":"$7"},"c":"$Q8"},"h":{"r":["$","$1","h",{"children":[null,["$","$Lf",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L11",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$a",null,{"name":"Next.Metadata","children":[["$","link","0",{"rel":"icon","href":"/school/favicon.ico?favicon.117ezoe8m31dk.ico","sizes":"48x48","type":"image/x-icon"}],["$","$L12","1",{}]]}]}],null]}],null]}],"p":"$@13","v":"$14","s":"$7"}},"a":"$@15","u":"$@16","b":"VS_BQzbvHuNtDLbYcwiYB","r":"$17"}
+0:{"t":{"t":{"s":"","h":49234,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}],"p":"$@5","v":"$6","s":"$7"},"c":"$Q8"},"h":{"r":["$","$1","h",{"children":[null,["$","$Lf",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L11",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$a",null,{"name":"Next.Metadata","children":[["$","link","0",{"rel":"icon","href":"/favicon.ico?favicon.117ezoe8m31dk.ico","sizes":"48x48","type":"image/x-icon"}],["$","$L12","1",{}]]}]}],null]}],null]}],"p":"$@13","v":"$14","s":"$7"}},"a":"$@15","u":"$@16","b":"ERru27ECH0LeJEtOT6EeM","r":"$17"}
 b:null
 16:false
 15:null

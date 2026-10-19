@@ -1,5 +1,5 @@
 // next.config.ts
-var basePath = "/school".trim().replace(/\/+$/, "");
+var basePath = "".trim().replace(/\/+$/, "");
 if (basePath && !/^\/[A-Za-z0-9._~\-/]*$/.test(basePath)) {
   throw new Error("NEXT_PUBLIC_BASE_PATH must be a path such as /school.");
 }
