@@ -118,17 +118,36 @@ async function readRelease() {
   }
 }
 
+// Whether a .env file sits beside the app (yes/no only), to tell "settings saved in the wrong place"
+// apart from "settings never saved" when nothing is configured.
+async function hasEnvFile() {
+  try {
+    await access(join(/* turbopackIgnore: true */ process.cwd(), ".env"), constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET() {
   await connection();
-  const [settings, database, uploads, release] = await Promise.all([
+  const [settings, database, uploads, release, envFile] = await Promise.all([
     Promise.resolve(checkSettings()),
     checkDatabase(),
     checkUploads(),
     readRelease(),
+    hasEnvFile(),
   ]);
   const ok = settings.ok && database.ok && uploads.ok;
   return Response.json(
-    { status: ok ? "ok" : "error", release, settings, database, uploads, time: new Date().toISOString() },
+    {
+      status: ok ? "ok" : "error",
+      release,
+      settings: { ...settings, envFileBesideApp: envFile },
+      database,
+      uploads,
+      time: new Date().toISOString(),
+    },
     { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } },
   );
 }
