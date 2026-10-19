@@ -75,9 +75,20 @@ async function checkDatabase() {
       expected = null;
     }
     const migrated = expected === null ? applied > 0 : applied >= expected;
+    let tables: string[] = [];
+    try {
+      const [tableRows] = await db.query<mysql.RowDataPacket[]>("SHOW TABLES");
+      tables = tableRows.map((r) => Object.values(r)[0] as string);
+    } catch {
+      tables = [];
+    }
+    const startupMigration = (globalThis as unknown as { __migrationStatus?: unknown }).__migrationStatus;
     return {
       ok: migrated,
       migrations: { applied, expected },
+      startupMigration,
+      tablesCount: tables.length,
+      sampleTables: tables.slice(0, 10),
       ...(migrated ? {} : { error: "Database tables are missing or out of date: run the db:migrate script." }),
     };
   } catch (error) {
