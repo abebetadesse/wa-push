@@ -1,15 +1,15 @@
 import "server-only";
 import { and, eq, ne } from "drizzle-orm";
 import { headers } from "next/headers";
+import { cache } from "react";
 import { db } from "@/db";
 import { schoolMemberships, schools } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 export type SchoolRole = (typeof schoolMemberships.$inferSelect)["role"];
 
-export async function getSession() {
-  return auth.api.getSession({ headers: await headers() });
-}
+// Cached per request: the workspace layout, its page, and permission checks all read the session.
+export const getSession = cache(async () => auth.api.getSession({ headers: await headers() }));
 
 export async function requireSession() {
   const session = await getSession();

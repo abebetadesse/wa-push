@@ -28,6 +28,7 @@ async function SchoolSetup() {
           Add a school workspace and assign its first administrator.
         </p>
         <SchoolForm />
+        <p className="auth-switch"><Link href="/">← Back to dashboard</Link></p>
         <p className="auth-note">Only platform administrators can provision schools. School data is restricted to authorized members.</p>
       </section>
     </main>

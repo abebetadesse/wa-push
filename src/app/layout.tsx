@@ -1,15 +1,33 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
+import { themeInitScript } from "@/components/theme";
 import "./globals.css";
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+
 export const metadata: Metadata = {
-  title: "Forma | School management",
+  title: { default: "Forma | School management", template: "%s" },
   description: "A unified learning and school management platform.",
+  applicationName: "Forma",
 };
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f7fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f17" },
+  ],
+};
+
+// Restores the saved theme and sidebar width before first paint.
+const bootScript = `${themeInitScript}(function(){try{var s=localStorage.getItem("forma-sidebar");if(s==="collapsed")document.documentElement.setAttribute("data-sidebar","collapsed");}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );
