@@ -148,57 +148,8 @@ async function start() {
   };
   process.on("SIGTERM", () => stop("SIGTERM"));
   process.on("SIGINT", () => stop("SIGINT"));
-
-  restartWhenReleaseChanges(server);
-}
-
-/**
- * A Git deployment replaces the files on disk but does not restart this process, so it kept serving
- * the previous release (and its cached pages) until someone clicked Restart App. Watch the build ID
- * and, once a new release has stopped changing for a minute (so the deployment and `npm ci` have
- * finished), restart into it: touch tmp/restart.txt, and under Passenger also exit, since Passenger
- * starts a fresh process for the next request. Outside Passenger the process keeps running.
- */
-function restartWhenReleaseChanges(server) {
-  const buildIdFile = join(__dirname, ".next", "BUILD_ID");
-  const readBuildId = () => {
-    try {
-      return readFileSync(buildIdFile, "utf8").trim();
-    } catch {
-      return "";
-    }
-  };
-  const running = readBuildId();
-  if (!running) return;
-
-  let pending = "";
-  let pendingSince = 0;
-  const timer = setInterval(() => {
-    const onDisk = readBuildId();
-    if (!onDisk || onDisk === running) {
-      pending = "";
-      return;
-    }
-    if (onDisk !== pending) {
-      pending = onDisk;
-      pendingSince = Date.now();
-      console.log(`[forma] release ${onDisk} found on disk (running ${running}); restarting once it settles.`);
-      return;
-    }
-    if (Date.now() - pendingSince < 60_000) return;
-
-    clearInterval(timer);
-    console.log(`[forma] restarting to load release ${onDisk}.`);
-    try {
-      mkdirSync(join(__dirname, "tmp"), { recursive: true });
-      writeFileSync(join(__dirname, "tmp", "restart.txt"), `${Date.now()}\n`);
-    } catch {}
-    if (globalThis.PhusionPassenger) {
-      server.close(() => process.exit(0));
-      setTimeout(() => process.exit(0), 10_000).unref();
-    }
-  }, 15_000);
-  timer.unref();
+  // Restarting into a newly deployed release is done by src/lib/release-watcher.ts, which Next.js
+  // starts from instrumentation.ts, so it also runs when the host launches `next start` directly.
 }
 
 /**

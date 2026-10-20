@@ -1,0 +1,4 @@
+module.exports=[2157,(e,t,r)=>{t.exports=e.x("node:fs",()=>require("node:fs"))},50227,(e,t,r)=>{t.exports=e.x("node:path",()=>require("node:path"))},44665,e=>{"use strict";var t=e.i(2157),r=e.i(50227);e.s(["restartWhenReleaseChanges",0,function(){let e=process.cwd(),n=(0,r.join)(e,".next","BUILD_ID"),o=()=>{try{return(0,t.readFileSync)(n,"utf8").trim()}catch{return""}},s=o();if(!s)return;let i="",a=0,l=setInterval(()=>{let n=o();if(!n||n===s){i="";return}if(n!==i){i=n,a=Date.now(),console.log(`[forma] release ${n} found on disk (running ${s}); restarting once it settles.`);return}if(!(Date.now()-a<6e4)){clearInterval(l),console.log(`[forma] restarting to load release ${n}.`);try{(0,t.mkdirSync)((0,r.join)(e,"tmp"),{recursive:!0}),(0,t.writeFileSync)((0,r.join)(e,"tmp","restart.txt"),`${Date.now()}
+`)}catch{}globalThis.PhusionPassenger&&setTimeout(()=>process.exit(0),3e3)}},15e3);l.unref()}])}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__0yrvg490t6_ly._.js.map
