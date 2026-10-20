@@ -128,6 +128,62 @@ async function main() {
   const pool = mysql.createPool(databaseUrl);
 
   try {
+    // Check and rename legacy tables to school_ prefix if needed
+    const tablesToRename: [string, string][] = [
+      ["auth_users", "school_auth_users"],
+      ["auth_sessions", "school_auth_sessions"],
+      ["auth_accounts", "school_auth_accounts"],
+      ["auth_verifications", "school_auth_verifications"],
+      ["schools", "school_schools"],
+      ["activity_events", "school_activity_events"],
+      ["academic_years", "school_academic_years"],
+      ["grade_levels", "school_grade_levels"],
+      ["classrooms", "school_classrooms"],
+      ["students", "school_students"],
+      ["enrollments", "school_enrollments"],
+      ["subjects", "school_subjects"],
+      ["teachers", "school_teachers"],
+      ["lesson_plans", "school_lesson_plans"],
+      ["assessments", "school_assessments"],
+      ["assessment_questions", "school_assessment_questions"],
+      ["learning_resources", "school_learning_resources"],
+      ["assessment_results", "school_assessment_results"],
+      ["assessment_attempts", "school_assessment_attempts"],
+      ["class_schedules", "school_class_schedules"],
+      ["attendance_records", "school_attendance_records"],
+      ["inventory_items", "school_inventory_items"],
+      ["inventory_movements", "school_inventory_movements"],
+      ["staff_members", "school_staff_members"],
+    ];
+
+    for (const [oldName, newName] of tablesToRename) {
+      try {
+        const [oldRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${oldName}'`);
+        const [newRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${newName}'`);
+        if (oldRows.length > 0 && newRows.length === 0) {
+          await connection.query(`RENAME TABLE \`${oldName}\` TO \`${newName}\``);
+          console.info(`✓ Renamed legacy table ${oldName} to ${newName}`);
+        }
+      } catch {
+        // Table might not exist or already renamed
+      }
+    }
+
+    // Check if school_auth_users exists; if not, apply migrations
+    const [checkUsersTable] = await connection.query<RowDataPacket[]>(
+      "SHOW TABLES LIKE 'school_auth_users'",
+    );
+    if (!checkUsersTable || checkUsersTable.length === 0) {
+      console.info("school_auth_users table does not exist. Running database migrations...");
+      const { migrate } = await import("drizzle-orm/mysql2/migrator");
+      const path = await import("node:path");
+      await migrate(drizzle(connection), {
+        migrationsFolder: path.join(process.cwd(), "drizzle"),
+        migrationsTable: "school_drizzle_migrations",
+      });
+      console.info("✓ Migrations applied successfully.");
+    }
+
     const db = drizzle(pool, { schema, mode: "default" });
     const auth = betterAuth({
       appName: "Forma",
