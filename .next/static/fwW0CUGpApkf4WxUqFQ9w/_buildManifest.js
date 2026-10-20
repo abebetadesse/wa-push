@@ -6,6 +6,10 @@ self.__BUILD_MANIFEST = {
         "destination": "/_next/:path*"
       },
       {
+        "source": "/school/api/:path*",
+        "destination": "/api/:path*"
+      },
+      {
         "source": "/school/favicon.ico",
         "destination": "/favicon.ico"
       }

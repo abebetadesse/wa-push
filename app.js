@@ -58,17 +58,28 @@ async function start() {
   const handle = app.getRequestHandler();
   const server = createServer((req, res) => {
     if (req.url) {
-      if (req.url === "/school" || req.url === "/school/") {
-        res.writeHead(307, { Location: "/" });
+      const [pathname, search] = req.url.split("?");
+      const query = search ? `?${search}` : "";
+      if (pathname === "/school" || pathname === "/school/") {
+        res.writeHead(307, { Location: `/${query}` });
         res.end();
         return;
       }
-      if (req.url.startsWith("/school/")) {
-        const stripped = req.url.slice(7);
-        if (stripped.startsWith("/_next/") || stripped.startsWith("/favicon.ico")) {
-          req.url = stripped;
+      if (pathname.startsWith("/school/")) {
+        const strippedPath = pathname.slice(7);
+        if (
+          strippedPath.startsWith("/_next/") ||
+          strippedPath.startsWith("/api/") ||
+          strippedPath.startsWith("/favicon.ico") ||
+          strippedPath.endsWith(".css") ||
+          strippedPath.endsWith(".js") ||
+          strippedPath.endsWith(".ico") ||
+          strippedPath.endsWith(".png") ||
+          strippedPath.endsWith(".svg")
+        ) {
+          req.url = strippedPath + query;
         } else {
-          res.writeHead(307, { Location: stripped });
+          res.writeHead(307, { Location: strippedPath + query });
           res.end();
           return;
         }

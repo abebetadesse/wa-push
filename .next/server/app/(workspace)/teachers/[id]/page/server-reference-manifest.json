@@ -1,6 +1,6 @@
 {
   "node": {
-    "60ab79ccc6c70f5999f11d977da46a6fddc85951fd": {
+    "60fc6371d7a9fde56310a4d8e9c5d7fec7c51746c5": {
       "workers": {
         "app/(workspace)/teachers/[id]/page": {
           "moduleId": 9691,
@@ -10,7 +10,7 @@
       "exportedName": "createTeacher",
       "filename": "src/app/(workspace)/teachers/actions.ts"
     },
-    "60543eed1127689e4d21ab56154677087f67505890": {
+    "60729c373e4cf2748aeec643febed7be628c376b9a": {
       "workers": {
         "app/(workspace)/teachers/[id]/page": {
           "moduleId": 9691,

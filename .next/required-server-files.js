@@ -363,6 +363,10 @@ self.__SERVER_FILES_MANIFEST={
           "destination": "/_next/:path*"
         },
         {
+          "source": "/school/api/:path*",
+          "destination": "/api/:path*"
+        },
+        {
           "source": "/school/favicon.ico",
           "destination": "/favicon.ico"
         }
@@ -376,7 +380,7 @@ self.__SERVER_FILES_MANIFEST={
         "permanent": false
       },
       {
-        "source": "/school/:path((?!_next|favicon\\.ico).*)",
+        "source": "/school/:path((?!_next|api|favicon\\.ico).*)",
         "destination": "/:path*",
         "permanent": false
       }

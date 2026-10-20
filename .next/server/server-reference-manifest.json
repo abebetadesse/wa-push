@@ -1,6 +1,6 @@
 {
   "node": {
-    "609850328375baeaeccd60a6826ce5057df78285ab": {
+    "604cdbf9403cea77bc0e54fd297b68e12602e8df3e": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -10,7 +10,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createAcademicYear"
     },
-    "60619748fe96b9a7b6aafb5076a0d3fdaeeabd7d02": {
+    "60418ee8dce1e20169e6886a35da5a6464ccf3625a": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -20,7 +20,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createClassroom"
     },
-    "609ac1d18a14b6b951c222c755a0c8168badc86f02": {
+    "602e4ad6788e477f18c7a187b239275d47c524fb38": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -30,7 +30,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createGradeLevel"
     },
-    "60eec54c595cd7d91c36b98be032999f7186924b38": {
+    "6096aeab07005e2a49e1e1a76059db9359be37e2f7": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -40,7 +40,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createSubject"
     },
-    "60ffb9039bee69ee3c9805d59699058dbf76e8e0ae": {
+    "603df84aaf0230f0739bb96d894f7e52a4a77573d4": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -50,7 +50,7 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "createAssessment"
     },
-    "40b5b15746e60956ce3ab99bba1fa1bf011a6cfbac": {
+    "409206d00214874083e6b7f685116a45588ea1d8bf": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -60,7 +60,7 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "changeAssessmentStatus"
     },
-    "60017059deea9406a2fd4e5b1b9c075dde84922950": {
+    "60062564906467c9a1e89f0e8a585e3d0533594128": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -70,7 +70,7 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "recordAssessmentResult"
     },
-    "60615af157ff6dcacb39e7d92513d374dffdaf664b": {
+    "60d53342634ad7a50d6b24c0cddf3b9d386a825fb1": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -84,7 +84,7 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "submitAssessmentAttempt"
     },
-    "60c923588db71ea0386efaead0666cc7df9cd71ecb": {
+    "60fafc9e43a59dd45e79e1e6ee21d57852ae09a1c0": {
       "workers": {
         "app/(workspace)/attendance/page": {
           "moduleId": 31040,
@@ -94,7 +94,7 @@
       "filename": "src/app/(workspace)/attendance/actions.ts",
       "exportedName": "saveAttendance"
     },
-    "6037de11a6cb244e958b759f45b2a5d0315ccd8241": {
+    "60782d9719c5f541db48321998cc9eebfc64e9668c": {
       "workers": {
         "app/(workspace)/hr/page": {
           "moduleId": 70420,
@@ -104,7 +104,7 @@
       "filename": "src/app/(workspace)/hr/actions.ts",
       "exportedName": "createStaffMember"
     },
-    "4092f45d35693ad288c0815fbe0829d76f7af24a6e": {
+    "40b0d61c84aed974466b33f7e40fa317663e9a151b": {
       "workers": {
         "app/(workspace)/hr/page": {
           "moduleId": 70420,
@@ -114,7 +114,7 @@
       "filename": "src/app/(workspace)/hr/actions.ts",
       "exportedName": "changeStaffStatus"
     },
-    "40a11ec46ad76a16ab1590c3b725d3787d8ea0d287": {
+    "402d53950d762e1f81ba405d5435152a2cd1bd95d7": {
       "workers": {
         "app/(workspace)/inventory/page": {
           "moduleId": 68577,
@@ -124,7 +124,7 @@
       "filename": "src/app/(workspace)/inventory/actions.ts",
       "exportedName": "changeInventoryItemStatus"
     },
-    "609ba44534b9edc30bba8223ec8fbda7c9cc1e7d29": {
+    "60ba4109f1a209324e50e32a23c1875660baae1585": {
       "workers": {
         "app/(workspace)/inventory/page": {
           "moduleId": 68577,
@@ -134,7 +134,7 @@
       "filename": "src/app/(workspace)/inventory/actions.ts",
       "exportedName": "createInventoryItem"
     },
-    "6059d1d68deec5406e1a5b9cb483c6a73528845a15": {
+    "60f6e918c81310295790360315d8cdbce0468fe4bc": {
       "workers": {
         "app/(workspace)/inventory/page": {
           "moduleId": 68577,
@@ -144,7 +144,7 @@
       "filename": "src/app/(workspace)/inventory/actions.ts",
       "exportedName": "recordInventoryMovement"
     },
-    "407433a42797388abfd60b8e05cdb4618fb77788f9": {
+    "405c834cf40f51ccfcf67cce99eeecd0ce9a2861ce": {
       "workers": {
         "app/(workspace)/lessons/[id]/page": {
           "moduleId": 44991,
@@ -158,21 +158,7 @@
       "filename": "src/app/(workspace)/lessons/actions.ts",
       "exportedName": "updateLessonStatus"
     },
-    "6023670039f6f9d1b06d6652d09fee337c95bda7b0": {
-      "workers": {
-        "app/(workspace)/lessons/[id]/page": {
-          "moduleId": 44991,
-          "async": false
-        },
-        "app/(workspace)/lessons/page": {
-          "moduleId": 60985,
-          "async": false
-        }
-      },
-      "filename": "src/app/(workspace)/lessons/actions.ts",
-      "exportedName": "updateLesson"
-    },
-    "6078c744e63097a60108a6e879f14e3a1b7abbb5e5": {
+    "6019de32bfacb1e7a590694e9675c36d49abca1d74": {
       "workers": {
         "app/(workspace)/lessons/[id]/page": {
           "moduleId": 44991,
@@ -186,7 +172,21 @@
       "filename": "src/app/(workspace)/lessons/actions.ts",
       "exportedName": "createLesson"
     },
-    "40bd0c42aed1938b367e0519bfe6c9f3daa290a302": {
+    "60a90028efe1ee2b9328cbe806b9eb690a66227488": {
+      "workers": {
+        "app/(workspace)/lessons/[id]/page": {
+          "moduleId": 44991,
+          "async": false
+        },
+        "app/(workspace)/lessons/page": {
+          "moduleId": 60985,
+          "async": false
+        }
+      },
+      "filename": "src/app/(workspace)/lessons/actions.ts",
+      "exportedName": "updateLesson"
+    },
+    "406236b3d3785d5cb09c2c8eea87347ba0777a1d74": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -196,7 +196,7 @@
       "filename": "src/app/(workspace)/students/actions.ts",
       "exportedName": "changeStudentStatus"
     },
-    "600d307b89d85e6e5a06ed657d2a194f5d7de1aaf3": {
+    "6018141cf34ab160e3cbaa8d453faaa58380b203bc": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -206,17 +206,7 @@
       "filename": "src/app/(workspace)/students/actions.ts",
       "exportedName": "bulkImportStudents"
     },
-    "6059d980520214693c24ae18cab1840a56a827ffb5": {
-      "workers": {
-        "app/(workspace)/students/page": {
-          "moduleId": 24077,
-          "async": false
-        }
-      },
-      "filename": "src/app/(workspace)/students/actions.ts",
-      "exportedName": "registerStudent"
-    },
-    "607cc6227d84cf0633f87f7cb801f02acc92b1f0c8": {
+    "6037ea779a879cde3626b989496fcfa88b2c0c997d": {
       "workers": {
         "app/(workspace)/students/[id]/page": {
           "moduleId": 74490,
@@ -230,7 +220,17 @@
       "filename": "src/app/(workspace)/students/actions.ts",
       "exportedName": "updateStudent"
     },
-    "40949704cc1741fc46c46c18e2609bcdfecc47fa05": {
+    "60acc2bbcc47b0180d49afbf076604d61092d1bc53": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "filename": "src/app/(workspace)/students/actions.ts",
+      "exportedName": "registerStudent"
+    },
+    "4010bb48961616e222e6e2c37c430dd319d43320b2": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,
@@ -240,7 +240,7 @@
       "filename": "src/app/(workspace)/teachers/actions.ts",
       "exportedName": "changeTeacherStatus"
     },
-    "60543eed1127689e4d21ab56154677087f67505890": {
+    "60729c373e4cf2748aeec643febed7be628c376b9a": {
       "workers": {
         "app/(workspace)/teachers/[id]/page": {
           "moduleId": 9691,
@@ -254,7 +254,7 @@
       "filename": "src/app/(workspace)/teachers/actions.ts",
       "exportedName": "updateTeacher"
     },
-    "60ab79ccc6c70f5999f11d977da46a6fddc85951fd": {
+    "60fc6371d7a9fde56310a4d8e9c5d7fec7c51746c5": {
       "workers": {
         "app/(workspace)/teachers/[id]/page": {
           "moduleId": 9691,
@@ -268,7 +268,7 @@
       "filename": "src/app/(workspace)/teachers/actions.ts",
       "exportedName": "createTeacher"
     },
-    "60d096a57b2e3d976a9454ce5f6ff308b9c0a21535": {
+    "603671254d44a1e19f0f7970cea349e4a03c3be93b": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -278,7 +278,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "inviteMember"
     },
-    "401c1869f01efa4507b019748b8b824783add0ff06": {
+    "4064a791d58c283f842e3997ff2c4e57f03a3bf0a3": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -288,7 +288,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "changeMemberRole"
     },
-    "4094866f8472d15249a3090608b09da3759842b5fc": {
+    "40b7767ceef252252d3563e680f051913d92d9fd19": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -298,7 +298,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "removeMember"
     },
-    "40e2b0977229fed0487b5c2129545498879972eeb8": {
+    "406e0ef1d522f0283bf798b24081c7e6430deecde2": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -308,7 +308,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "revokeInvitation"
     },
-    "60bd7383bc41c837a431abb7375115fe94fd161c32": {
+    "60594d649ce3fad35a63ca1b456e77c23b9b71981f": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -318,7 +318,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "assignScheduleTeacher"
     },
-    "606d312a66734bbc9f200dcf2e4547df56481e395d": {
+    "604698b7a7cba811c5f93a465b01e58f21ba4cfebc": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -328,7 +328,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "createScheduleEntry"
     },
-    "4014d6d25c9c06bb4915c3bd62d0cc0f676327d28a": {
+    "40fd0edd602c7ffaf8bcd69d6ef2fc4b0bff758ae0": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -338,7 +338,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "deleteScheduleEntry"
     },
-    "60f01732f16c834686e21e11b11a6ce890deb81783": {
+    "600a6c35dff40c72d40536c5964b7fb8fd5f74e1f9": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -348,7 +348,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "toggleScheduleCancelled"
     },
-    "40ef86093188bd2fe0acb3e8db312f66cf09bf2b00": {
+    "40b8e45333750f704c3cfacd16bb10c48416a13602": {
       "workers": {
         "app/accept-invite/page": {
           "moduleId": 84570,
@@ -358,7 +358,7 @@
       "filename": "src/app/accept-invite/actions.ts",
       "exportedName": "acceptInvitationForCurrentUser"
     },
-    "60d2ab4991addab4f44df2fdfb6e8f89187267443e": {
+    "6033777cd89a5d7456a0237fae43a5cd941aa040a9": {
       "workers": {
         "app/setup-school/page": {
           "moduleId": 5617,
@@ -370,5 +370,5 @@
     }
   },
   "edge": {},
-  "encryptionKey": "YWVBr9X/htNNTzqP9PQBypuXNkf2aRFa2I3PNiuqkWE="
+  "encryptionKey": "4Dx+x6gcMWVE4XR1cXm+V1SiE0YZ77yGDJNQqkkWWyA="
 }
