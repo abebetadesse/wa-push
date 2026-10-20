@@ -174,12 +174,32 @@ async function main() {
       await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    // Check if school_auth_users exists; if not, create core authentication tables
-    const [checkUsersTable] = await connection.query<RowDataPacket[]>(
+    // Check if school_auth_users exists; if not, run migrations first
+    let [checkUsersTable] = await connection.query<RowDataPacket[]>(
       "SHOW TABLES LIKE 'school_auth_users'",
     );
     if (!checkUsersTable || checkUsersTable.length === 0) {
-      console.info("school_auth_users table does not exist. Creating school authentication tables...");
+      console.info("school_auth_users table does not exist. Running database migrations...");
+      try {
+        const { pathToFileURL } = await import("node:url");
+        const { join } = await import("node:path");
+        const migratePath = join(__dirname, "migrate.mjs");
+        const { runMigrations } = await import(pathToFileURL(migratePath).href);
+        if (typeof runMigrations === "function") {
+          await runMigrations();
+          console.info("✓ Migrations applied successfully.");
+        }
+      } catch (migErr) {
+        console.warn("[admin-setup] Automatic migration warning:", migErr instanceof Error ? migErr.message : migErr);
+      }
+
+      [checkUsersTable] = await connection.query<RowDataPacket[]>(
+        "SHOW TABLES LIKE 'school_auth_users'",
+      );
+    }
+
+    if (!checkUsersTable || checkUsersTable.length === 0) {
+      console.info("Creating fallback school authentication tables...");
       await connection.query(`
         CREATE TABLE IF NOT EXISTS \`school_auth_users\` (
           \`id\` varchar(36) NOT NULL,

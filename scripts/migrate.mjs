@@ -88,10 +88,28 @@ export async function runMigrations() {
       await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    // 3. If any tables were renamed or already exist with school_ prefix, sync migration history
+    // 3. Inspect if our tables actually exist.
+    //    On shared databases, school_drizzle_migrations might have records from earlier failed/partial
+    //    runs, but if neither school_auth_users nor legacy auth_users exists, the database is in an
+    //    uninitialized state. In that case, any entries in school_drizzle_migrations are stale and must
+    //    be cleared so Drizzle doesn't skip running migrations 0000..0006 from scratch.
     try {
-      const [existingSchoolTables] = await connection.query("SHOW TABLES LIKE 'school_%'");
-      if (Array.isArray(existingSchoolTables) && existingSchoolTables.length > 3) {
+      const [authUsersRows] = await connection.query("SHOW TABLES LIKE 'school_auth_users'");
+      const hasSchoolAuthUsers = Array.isArray(authUsersRows) && authUsersRows.length > 0;
+
+      const [legacyAuthUsersRows] = await connection.query("SHOW TABLES LIKE 'auth_users'");
+      const hasLegacyAuthUsers = Array.isArray(legacyAuthUsersRows) && legacyAuthUsersRows.length > 0;
+
+      if (!hasSchoolAuthUsers && !hasLegacyAuthUsers) {
+        const [existingMigrations] = await connection.query("SELECT COUNT(*) AS count FROM `school_drizzle_migrations`");
+        const migrationCount = existingMigrations[0]?.count ?? 0;
+        if (migrationCount > 0) {
+          console.warn(`[migrate] Stale migration records found (${migrationCount}) but school_auth_users is missing. Resetting migration table...`);
+          await connection.query("DELETE FROM `school_drizzle_migrations`");
+        }
+      } else if (hasSchoolAuthUsers) {
+        // Our tables exist with the school_ prefix — seed migration history so Drizzle does
+        // not try to re-run migrations that already produced this state.
         for (const m of knownMigrations) {
           await connection.query(
             "INSERT IGNORE INTO `school_drizzle_migrations` (`id`, `hash`, `created_at`) VALUES (?, ?, ?)",
@@ -99,8 +117,8 @@ export async function runMigrations() {
           );
         }
       }
-    } catch {
-      // Ignore sync warnings
+    } catch (e) {
+      console.warn("[migrate] Warning inspecting existing migration state:", e instanceof Error ? e.message : e);
     }
 
     // 4. Run Drizzle migration engine

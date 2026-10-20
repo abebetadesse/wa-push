@@ -3,10 +3,10 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env.local}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-7b345529b24bfffc8a0dbc2c08ea0142518623ea7e570271e3a6a2863a43ca7c}
       MYSQL_DATABASE: forma
       MYSQL_USER: forma_app
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env.local}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-c0867d22ba799f899303f8ba6dc2f1b0569e122536fdff8cbee822b751b935cc}
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
