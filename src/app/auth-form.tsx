@@ -6,6 +6,25 @@ import { useEffect, useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import { withBasePath } from "@/lib/base-path";
 
+const signInMessages: Record<string, string> = {
+  INVALID_EMAIL_OR_PASSWORD: "Email or password is incorrect.",
+  INVALID_EMAIL: "Enter a valid email address.",
+  PASSWORD_TOO_LONG: "That password is longer than allowed (128 characters).",
+  EMAIL_NOT_VERIFIED: "Verify your email address before signing in.",
+  BANNED_USER: "This account has been suspended. Contact your school administrator.",
+  INVALID_ORIGIN: "Sign-in was blocked because the page address didn't match the site. Open the site from its usual address and try again.",
+  MISSING_OR_NULL_ORIGIN: "Sign-in was blocked by the browser's privacy settings. Reload the page and try again.",
+};
+
+// Each rejection gets its real reason, plus its code so a failure can be reported precisely.
+function signInErrorMessage(error: { status?: number; code?: string; message?: string }) {
+  if (error.status === 429) return "Too many sign-in attempts. Please wait a minute and try again.";
+  const known = error.code ? signInMessages[error.code] : undefined;
+  if (known) return known;
+  const detail = error.message || "The sign-in request was rejected.";
+  return `${detail} (${[error.status, error.code].filter(Boolean).join(" ") || "no code"})`;
+}
+
 export function AuthForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -32,15 +51,14 @@ export function AuthForm() {
 
     try {
       const result = await authClient.signIn.email({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
         callbackURL: withBasePath("/"),
       });
 
       if (result.error) {
-        setError(result.error.status === 429
-          ? "Too many sign-in attempts. Please wait a minute and try again."
-          : "Email or password is incorrect.");
+        console.error("Sign-in was rejected.", result.error);
+        setError(signInErrorMessage(result.error));
         return;
       }
 
