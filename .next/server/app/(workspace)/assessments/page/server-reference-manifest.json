@@ -1,0 +1,45 @@
+{
+  "node": {
+    "60514e3908e64808b4cf93a647719beeac9ac353c6": {
+      "workers": {
+        "app/(workspace)/assessments/page": {
+          "moduleId": 44789,
+          "async": false
+        }
+      },
+      "exportedName": "createAssessment",
+      "filename": "src/app/(workspace)/assessments/actions.ts"
+    },
+    "409da50364dbb82b4521f165005f99c09b28e77514": {
+      "workers": {
+        "app/(workspace)/assessments/page": {
+          "moduleId": 44789,
+          "async": false
+        }
+      },
+      "exportedName": "changeAssessmentStatus",
+      "filename": "src/app/(workspace)/assessments/actions.ts"
+    },
+    "60708cb0b4baa131f55bea752f6b3507b40feceda4": {
+      "workers": {
+        "app/(workspace)/assessments/page": {
+          "moduleId": 44789,
+          "async": false
+        }
+      },
+      "exportedName": "submitAssessmentAttempt",
+      "filename": "src/app/(workspace)/assessments/actions.ts"
+    },
+    "6097a9edbfb72033f3aa4c43e566c3faf37ea50f86": {
+      "workers": {
+        "app/(workspace)/assessments/page": {
+          "moduleId": 44789,
+          "async": false
+        }
+      },
+      "exportedName": "recordAssessmentResult",
+      "filename": "src/app/(workspace)/assessments/actions.ts"
+    }
+  },
+  "edge": {}
+}

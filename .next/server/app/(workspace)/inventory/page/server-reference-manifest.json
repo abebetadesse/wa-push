@@ -1,0 +1,35 @@
+{
+  "node": {
+    "4051132ebd59f81ba556b0b38afad9cf92eec11f03": {
+      "workers": {
+        "app/(workspace)/inventory/page": {
+          "moduleId": 68577,
+          "async": false
+        }
+      },
+      "exportedName": "changeInventoryItemStatus",
+      "filename": "src/app/(workspace)/inventory/actions.ts"
+    },
+    "6054e46c7ab7d99532bb8ac5d3428f03f596f9945e": {
+      "workers": {
+        "app/(workspace)/inventory/page": {
+          "moduleId": 68577,
+          "async": false
+        }
+      },
+      "exportedName": "createInventoryItem",
+      "filename": "src/app/(workspace)/inventory/actions.ts"
+    },
+    "60651fb3f1853203f8eea849e3c3dd209fb8d834c5": {
+      "workers": {
+        "app/(workspace)/inventory/page": {
+          "moduleId": 68577,
+          "async": false
+        }
+      },
+      "exportedName": "recordInventoryMovement",
+      "filename": "src/app/(workspace)/inventory/actions.ts"
+    }
+  },
+  "edge": {}
+}

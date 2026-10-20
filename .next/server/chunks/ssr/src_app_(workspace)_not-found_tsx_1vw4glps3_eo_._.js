@@ -1,0 +1,3 @@
+module.exports=[83360,a=>{"use strict";var b=a.i(7997),c=a.i(95936);a.s(["default",0,function(){return(0,b.jsx)("main",{className:"management-page",children:(0,b.jsxs)("section",{className:"management-card status-card",children:[(0,b.jsx)("p",{className:"status-page-code",children:"404"}),(0,b.jsx)("h1",{children:"We couldn’t find that"}),(0,b.jsx)("p",{className:"management-description",children:"This record doesn’t exist, was removed, or belongs to a school you don’t have access to."}),(0,b.jsx)("div",{className:"inline-actions",children:(0,b.jsx)(c.default,{className:"primary-button",href:"/",children:"Back to dashboard"})})]})})}])},86175,function(a){a.n(a.i(83360))}];
+
+//# sourceMappingURL=src_app_%28workspace%29_not-found_tsx_1vw4glps3_eo_._.js.map

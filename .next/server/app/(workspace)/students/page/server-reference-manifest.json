@@ -1,0 +1,45 @@
+{
+  "node": {
+    "40fc9fd1a32759de0354481ac84384398db383be48": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "exportedName": "changeStudentStatus",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    },
+    "6037a40fae6d2ab7ef643d3f4f417418c764339b5d": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "exportedName": "bulkImportStudents",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    },
+    "604a6fafb6bc17542731f0cf314ec115b18d2233c0": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "exportedName": "updateStudent",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    },
+    "60cffd059d5505b36a5549258dbca0ba86b911b99c": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "exportedName": "registerStudent",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    }
+  },
+  "edge": {}
+}

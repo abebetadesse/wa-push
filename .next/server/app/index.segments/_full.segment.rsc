@@ -1,31 +1,43 @@
 1:"$Sreact.fragment"
 2:"/_next/static/chunks/1tq6ppe__m8m-.js"
 3:I[39756,["$2"],"default"]
-4:I[37457,["$2"],"default"]
-7:"$Sreact.suspense"
-9:I[97367,["$2"],"OutletBoundary"]
-c:"ViewportBoundary"
-d:I[97367,["$2"],"$c"]
-f:"MetadataBoundary"
-10:I[97367,["$2"],"$f"]
-13:I[68027,["$2"],"default",1]
-:HL["/_next/static/chunks/1jipw1fw4-g10.css","style"]
-5:X
+4:"/_next/static/chunks/3f-s7v4glaivg.js"
+5:I[58298,["$2","$4"],"default"]
+6:I[37457,["$2"],"default"]
+7:"/_next/static/chunks/08xtm-5tfxgx7.js"
+8:"/_next/static/chunks/33bi8b2ihtglq.js"
+9:"/_next/static/chunks/2-2q6_rrri23m.js"
+a:I[22016,["$2","$7","$8","$9"],""]
+d:"$Sreact.suspense"
+15:"ViewportBoundary"
+16:I[97367,["$2"],"$15"]
+18:"MetadataBoundary"
+19:I[97367,["$2"],"$18"]
+1c:I[68027,["$2"],"default",1]
+:HL["/_next/static/chunks/18rjjgwvewag2.css","style"]
+:HL["/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 b:X
-6:[["children",{"s":"__PAGE__","h":514,"d":{"r":["$","$1","c",{"children":[["$","$7",null,{"fallback":["$","main",null,{"className":"auth-page","children":["$","p",null,{"children":"Loading your school workspace..."}]}],"children":"$L8"}],[["$","script","script-0",{"src":"/_next/static/chunks/1aab14wvsuxj3.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/33bi8b2ihtglq.js","async":true,"nonce":"$undefined"}]],["$","$L9",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@a"}]}]]}],"p":true,"v":"$b"}}]]
-12:X
+f:X
 14:X
-15:X
-0:{"P":null,"c":["",""],"q":"","i":false,"t":{"t":{"s":"","h":530,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1jipw1fw4-g10.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/1tq6ppe__m8m-.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]]}],"p":true,"v":"$5"},"c":"$Q6"},"h":{"r":["$","$1","h",{"children":[null,["$","$Ld",null,{"children":"$Le"}],["$","$L10",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$7",null,{"name":"Next.Metadata","children":"$L11"}]}],null]}],null]}],"p":true,"v":"$12"}},"m":"$undefined","G":["$13",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/1jipw1fw4-g10.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$14","s":"$15","a":"$@16","l":"$undefined","p":"$undefined","d":"$undefined","b":"qcj9pYE5dh0v0ldqvPAJo","u":"$@17"}
-15:300
-17:true
-e:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
-18:I[27201,["$2"],"IconMark"]
-a:null
-11:[["$","title","0",{"children":"Forma | School management"}],["$","meta","1",{"name":"description","content":"A unified learning and school management platform."}],["$","link","2",{"rel":"icon","href":"/favicon.ico?favicon.117ezoe8m31dk.ico","sizes":"48x48","type":"image/x-icon"}],["$","$L18","3",{}]]
-15:C
-12:C
+10:[["children",{"s":"__PAGE__","h":514,"d":{"r":["$","$1","c",{"children":[["$","$d",null,{"fallback":["$","main",null,{"className":"management-page skeleton-page","aria-busy":"true","aria-label":"Loading","children":[["$","div",null,{"className":"skeleton skeleton-line","style":{"width":120}}],["$","div",null,{"className":"skeleton skeleton-title"}],["$","div",null,{"className":"skeleton skeleton-line","style":{"width":"min(420px, 80%)"}}],["$","div",null,{"className":"skeleton-grid","children":[["$","div","0",{"className":"skeleton skeleton-card"}],["$","div","1",{"className":"skeleton skeleton-card"}],["$","div","2",{"className":"skeleton skeleton-card"}],["$","div","3",{"className":"skeleton skeleton-card"}]]}],["$","div",null,{"className":"skeleton skeleton-panel"}]]}],"children":"$L11"}],["$L12"],"$L13"]}],"p":true,"v":"$14"}}]]
+c:[["children",{"s":"(workspace)","h":514,"d":{"r":["$","$1","c",{"children":[[["$","script","script-0",{"src":"/_next/static/chunks/08xtm-5tfxgx7.js","async":true,"nonce":"$undefined"}],["$","script","script-1",{"src":"/_next/static/chunks/33bi8b2ihtglq.js","async":true,"nonce":"$undefined"}]],["$","$d",null,{"fallback":["$","div",null,{"className":"app-shell","children":[["$","aside",null,{"className":"sidebar skeleton-sidebar","aria-hidden":"true","children":[["$","span",null,{"className":"brand","children":[["$","span",null,{"className":"brand-mark","children":"f"}],["$","span",null,{"className":"brand-name","children":["forma",["$","span",null,{"className":"brand-dot","children":"."}]]}]]}],["$","div",null,{"className":"skeleton skeleton-switcher"}],[["$","div","0",{"className":"skeleton skeleton-nav"}],["$","div","1",{"className":"skeleton skeleton-nav"}],["$","div","2",{"className":"skeleton skeleton-nav"}],["$","div","3",{"className":"skeleton skeleton-nav"}],["$","div","4",{"className":"skeleton skeleton-nav"}],["$","div","5",{"className":"skeleton skeleton-nav"}],["$","div","6",{"className":"skeleton skeleton-nav"}]]]}],["$","div",null,{"className":"main-panel","children":[["$","header",null,{"className":"topbar","children":["$","div",null,{"className":"skeleton skeleton-line","style":{"width":160}}]}],["$","div",null,{"className":"content","children":["$","main",null,{"className":"management-page skeleton-page","aria-busy":"true","aria-label":"Loading","children":[["$","div",null,{"className":"skeleton skeleton-line","style":{"width":120}}],["$","div",null,{"className":"skeleton skeleton-title"}],["$","div",null,{"className":"skeleton skeleton-line","style":{"width":"min(420px, 80%)"}}],["$","div",null,{"className":"skeleton-grid","children":[["$","div","0",{"className":"skeleton skeleton-card"}],["$","div","1",{"className":"skeleton skeleton-card"}],["$","div","2",{"className":"skeleton skeleton-card"}],["$","div","3",{"className":"skeleton skeleton-card"}]]}],["$","div",null,{"className":"skeleton skeleton-panel"}]]}]}]]}]]}],"children":"$Le"}]]}],"p":true,"v":"$f"},"c":"$Q10"}]]
+1b:X
+1d:X
+1e:X
+0:{"P":null,"c":["",""],"q":"","i":false,"t":{"t":{"s":"","h":530,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/18rjjgwvewag2.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/1tq6ppe__m8m-.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"giF-bG_variable","suppressHydrationWarning":true,"children":[["$","head",null,{"children":["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){try{var t=localStorage.getItem(\"forma-theme\");if(t===\"light\"||t===\"dark\")document.documentElement.setAttribute(\"data-theme\",t);}catch(e){}})();(function(){try{var s=localStorage.getItem(\"forma-sidebar\");if(s===\"collapsed\")document.documentElement.setAttribute(\"data-sidebar\",\"collapsed\");}catch(e){}})();"}}]}],["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$5","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/3f-s7v4glaivg.js","async":true,"nonce":"$undefined"}]],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","main",null,{"className":"auth-page","children":["$","section",null,{"className":"auth-card","children":[["$","p",null,{"className":"status-page-code","children":"404"}],["$","h1",null,{"children":"Page not found"}],["$","p",null,{"className":"auth-description","children":"The page you’re looking for doesn’t exist or has moved. Check the address, or head back to your workspace."}],["$","div",null,{"className":"no-access-actions","children":[["$","$La",null,{"className":"primary-button","href":"/","children":"Go to my workspace"}],["$","$La",null,{"className":"secondary-button","href":"/login","children":"Sign in"}]]}]]}]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}],"p":true,"v":"$b"},"c":"$Qc"},"h":{"r":["$","$1","h",{"children":[null,["$","$L16",null,{"children":"$L17"}],["$","$L19",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$d",null,{"name":"Next.Metadata","children":"$L1a"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":true,"v":"$1b"}},"m":"$undefined","G":["$1c",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/18rjjgwvewag2.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$1d","s":"$1e","a":"$@1f","l":"$undefined","p":"$undefined","d":"$undefined","b":"1Vdgw0NV7Ft-YfrGiRV2j","u":"$@20"}
+21:I[97367,["$2"],"OutletBoundary"]
+12:["$","script","script-0",{"src":"/_next/static/chunks/2-2q6_rrri23m.js","async":true,"nonce":"$undefined"}]
+13:["$","$L21",null,{"children":["$","$d",null,{"name":"Next.MetadataOutlet","children":"$@22"}]}]
+1e:300
+20:true
+17:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#f7f7fb","media":"(prefers-color-scheme: light)"}],["$","meta","3",{"name":"theme-color","content":"#0f0f17","media":"(prefers-color-scheme: dark)"}]]
+23:I[27201,["$2"],"IconMark"]
+1a:[["$","title","0",{"children":"Forma | School management"}],["$","meta","1",{"name":"description","content":"A unified learning and school management platform."}],["$","meta","2",{"name":"application-name","content":"Forma"}],["$","link","3",{"rel":"icon","href":"/favicon.ico?favicon.117ezoe8m31dk.ico","sizes":"48x48","type":"image/x-icon"}],["$","$L23","4",{}]]
+22:null
+1e:C
+1b:C
+1d:C
 14:C
+f:C
 b:C
-5:C
-16:null
+1f:null

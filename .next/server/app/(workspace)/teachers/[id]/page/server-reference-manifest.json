@@ -1,0 +1,25 @@
+{
+  "node": {
+    "60849d6ee9cf35a9ee10f0c67a73e758ba615a1194": {
+      "workers": {
+        "app/(workspace)/teachers/[id]/page": {
+          "moduleId": 9691,
+          "async": false
+        }
+      },
+      "exportedName": "createTeacher",
+      "filename": "src/app/(workspace)/teachers/actions.ts"
+    },
+    "601949df294306dab1ae60eccc83f7ff286dfb8be0": {
+      "workers": {
+        "app/(workspace)/teachers/[id]/page": {
+          "moduleId": 9691,
+          "async": false
+        }
+      },
+      "exportedName": "updateTeacher",
+      "filename": "src/app/(workspace)/teachers/actions.ts"
+    }
+  },
+  "edge": {}
+}

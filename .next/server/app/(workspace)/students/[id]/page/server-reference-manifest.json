@@ -1,0 +1,15 @@
+{
+  "node": {
+    "604a6fafb6bc17542731f0cf314ec115b18d2233c0": {
+      "workers": {
+        "app/(workspace)/students/[id]/page": {
+          "moduleId": 74490,
+          "async": false
+        }
+      },
+      "exportedName": "updateStudent",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    }
+  },
+  "edge": {}
+}

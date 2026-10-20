@@ -1,0 +1,45 @@
+{
+  "node": {
+    "60dfdd23b9db61d6d009ea6125fecd4c051142fd4f": {
+      "workers": {
+        "app/(workspace)/team/page": {
+          "moduleId": 13099,
+          "async": false
+        }
+      },
+      "exportedName": "inviteMember",
+      "filename": "src/app/(workspace)/team/actions.ts"
+    },
+    "4097fde95ec78596623397457ba09550f4a5040928": {
+      "workers": {
+        "app/(workspace)/team/page": {
+          "moduleId": 13099,
+          "async": false
+        }
+      },
+      "exportedName": "changeMemberRole",
+      "filename": "src/app/(workspace)/team/actions.ts"
+    },
+    "40099574358afd091466da2f601f2d57ddda2949a1": {
+      "workers": {
+        "app/(workspace)/team/page": {
+          "moduleId": 13099,
+          "async": false
+        }
+      },
+      "exportedName": "removeMember",
+      "filename": "src/app/(workspace)/team/actions.ts"
+    },
+    "408011f80ba76880959f550b533ec4f1223f99ebfc": {
+      "workers": {
+        "app/(workspace)/team/page": {
+          "moduleId": 13099,
+          "async": false
+        }
+      },
+      "exportedName": "revokeInvitation",
+      "filename": "src/app/(workspace)/team/actions.ts"
+    }
+  },
+  "edge": {}
+}

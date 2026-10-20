@@ -47,8 +47,8 @@
       "namedRegex": "^/lessons/(?<nxtPid>[^/]+?)(?:/)?$",
       "prefetchSegmentDataRoutes": [
         {
-          "destination": "/lessons/[id].segments/lessons/$d$id$segment",
-          "source": "^/lessons/(?<nxtPid>[^/]+?)\\.segments/lessons/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "destination": "/lessons/[id].segments/!KHdvcmtzcGFjZSk/lessons/$d$id$segment",
+          "source": "^/lessons/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/lessons/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
           "routeKeys": {
             "nxtPid": "nxtPid"
           }
@@ -64,8 +64,8 @@
       "namedRegex": "^/students/(?<nxtPid>[^/]+?)(?:/)?$",
       "prefetchSegmentDataRoutes": [
         {
-          "destination": "/students/[id].segments/students/$d$id$segment",
-          "source": "^/students/(?<nxtPid>[^/]+?)\\.segments/students/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "destination": "/students/[id].segments/!KHdvcmtzcGFjZSk/students/$d$id$segment",
+          "source": "^/students/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/students/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
           "routeKeys": {
             "nxtPid": "nxtPid"
           }
@@ -81,8 +81,8 @@
       "namedRegex": "^/students/(?<nxtPid>[^/]+?)/report\\-card(?:/)?$",
       "prefetchSegmentDataRoutes": [
         {
-          "destination": "/students/[id]/report-card.segments/students/$d$id/report-card$segment",
-          "source": "^/students/(?<nxtPid>[^/]+?)/report\\-card\\.segments/students/\\$d\\$id/report\\-card(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "destination": "/students/[id]/report-card.segments/!KHdvcmtzcGFjZSk/students/$d$id/report-card$segment",
+          "source": "^/students/(?<nxtPid>[^/]+?)/report\\-card\\.segments/!KHdvcmtzcGFjZSk/students/\\$d\\$id/report\\-card(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
           "routeKeys": {
             "nxtPid": "nxtPid"
           }
@@ -98,8 +98,8 @@
       "namedRegex": "^/teachers/(?<nxtPid>[^/]+?)(?:/)?$",
       "prefetchSegmentDataRoutes": [
         {
-          "destination": "/teachers/[id].segments/teachers/$d$id$segment",
-          "source": "^/teachers/(?<nxtPid>[^/]+?)\\.segments/teachers/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "destination": "/teachers/[id].segments/!KHdvcmtzcGFjZSk/teachers/$d$id$segment",
+          "source": "^/teachers/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/teachers/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
           "routeKeys": {
             "nxtPid": "nxtPid"
           }

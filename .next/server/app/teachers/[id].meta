@@ -1,28 +1,34 @@
 {
   "status": 200,
   "headers": {
+    "link": "</_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
     "x-nextjs-stale-time": "300",
     "x-nextjs-prerender": "1",
-    "x-next-cache-tags": "_N_T_/layout,_N_T_/teachers/layout,_N_T_/teachers/[id]/layout,_N_T_/teachers/[id]/page"
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(workspace)/layout,_N_T_/(workspace)/teachers/layout,_N_T_/(workspace)/teachers/[id]/layout,_N_T_/(workspace)/teachers/[id]/page"
   },
-  "postponed": "2638:6[\"id\"][1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/chunks/1jipw1fw4-g10.css\":null},\"scriptResources\":{\"/_next/static/chunks/1x6obpmlu1_c2.js\":null,\"/_next/static/chunks/1tsmk8175ecta.js\":null,\"/_next/static/chunks/1vo0wohvofgd7.js\":null,\"/_next/static/chunks/2tdgz_eyr3s4k.js\":null,\"/_next/static/chunks/turbopack-3-ry682tkyiqk.js\":null,\"/_next/static/chunks/1tq6ppe__m8m-.js\":null,\"/_next/static/chunks/01jaepbu8m2uy.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/chunks/1x6obpmlu1_c2.js\":null}},\"replayNodes\":[[\"sl\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"io\",0,[[\"aV\",0,[[\"az\",0,[[\"aq\",0,[[\"is\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aV\",0,[[\"az\",0,[[\"aq\",0,[[\"ai\",0,[[\"aa\",0,[[\"__next_root_layout_boundary__\",1,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",0,[[null,0,[[\"Activity\",\"teachers\",[[\"Context\",\"teachers\",[[null,2,[[\"Fragment\",0,[[\"E\",0,[[\"D\",0,[[\"Fragment\",0,[[\"n\",0,[[\"Fragment\",0,[[\"G\",0,[[\"Fragment\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"F\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"id|d\",[[\"Context\",\"id|d\",[[null,2,[[\"Fragment\",0,[[\"E\",0,[[\"D\",0,[[\"Fragment\",0,[[\"n\",0,[[\"Fragment\",0,[[\"G\",0,[[\"Fragment\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"F\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[null,1,[[\"Activity\",\"__PAGE__\",[[\"Context\",\"__PAGE__\",[[null,2,[[\"Fragment\",0,[[\"E\",0,[[\"D\",0,[[\"Fragment\",0,[[\"n\",0,[[\"Fragment\",0,[[\"G\",0,[[\"Fragment\",0,[[null,0,[[\"Fragment\",0,[[\"x\",0,[[\"w\",0,[[\"F\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"Suspense\",0,[],0,[\"Suspense Fallback\",0,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
+  "postponed": "2116:6[\"id\"][1,{\"nextSegmentId\":1,\"rootFormatContext\":{\"insertionMode\":0,\"selectedValue\":null,\"tagScope\":0,\"viewTransition\":null},\"progressiveChunkSize\":12800,\"resumableState\":{\"idPrefix\":\"\",\"nextFormID\":0,\"streamingFormat\":0,\"instructions\":96,\"hasBody\":true,\"hasHtml\":true,\"unknownResources\":{\"font\":{\"/_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2\":[]}},\"dnsResources\":{},\"connectResources\":{\"default\":{},\"anonymous\":{},\"credentials\":{}},\"imageResources\":{},\"styleResources\":{\"/_next/static/chunks/18rjjgwvewag2.css\":null},\"scriptResources\":{\"/_next/static/chunks/1x6obpmlu1_c2.js\":null,\"/_next/static/chunks/06bs-nf19b2js.js\":null,\"/_next/static/chunks/1vo0wohvofgd7.js\":null,\"/_next/static/chunks/2tdgz_eyr3s4k.js\":null,\"/_next/static/chunks/turbopack-3-ry682tkyiqk.js\":null,\"/_next/static/chunks/1tq6ppe__m8m-.js\":null,\"/_next/static/chunks/3f-s7v4glaivg.js\":null,\"/_next/static/chunks/08xtm-5tfxgx7.js\":null,\"/_next/static/chunks/33bi8b2ihtglq.js\":null,\"/_next/static/chunks/3w4isnprefrs4.js\":null},\"moduleUnknownResources\":{},\"moduleScriptResources\":{\"/_next/static/chunks/1x6obpmlu1_c2.js\":null}},\"replayNodes\":[[\"sl\",0,[[\"Context\",0,[[\"Context\",0,[[\"ServerInsertedHTMLProvider\",0,[[\"Context\",0,[[\"io\",0,[[\"aV\",0,[[\"az\",0,[[\"aq\",0,[[\"is\",0,[[\"Fragment\",0,[[\"Context\",2,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"Context\",0,[[\"aV\",0,[[\"az\",0,[[\"aq\",0,[[\"ai\",0,[[\"aa\",0,[[\"__next_root_layout_boundary__\",1,[[\"Fragment\",\"c\",[[\"html\",1,[[\"body\",1,[[null,0,[[\"Activity\",\"(workspace)\",[[\"Context\",\"(workspace)\",[[null,2,[[\"Fragment\",0,[[\"E\",0,[[\"D\",0,[[\"Fragment\",0,[[\"n\",0,[[\"m\",0,[[\"G\",0,[[\"Fragment\",0,[[null,0,[[\"l\",0,[[\"x\",0,[[\"w\",0,[[\"F\",0,[[\"Context\",0,[[\"Fragment\",\"c\",[[\"Suspense\",1,[],0,[\"Suspense Fallback\",1,[],null],0]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],null]],\"replaySlots\":null}]null",
   "segmentPaths": [
     "/_tree",
     "/_full",
-    "/teachers/$d$id/__PAGE__"
+    "/!KHdvcmtzcGFjZSk/teachers/$d$id/__PAGE__"
   ],
   "prefetchHints": {
-    "hints": 16448,
+    "hints": 64,
     "slots": {
       "children": {
-        "hints": 16480,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 16480,
+            "hints": 96,
             "slots": {
               "children": {
-                "hints": 16544,
-                "slots": null
+                "hints": 96,
+                "slots": {
+                  "children": {
+                    "hints": 160,
+                    "slots": null
+                  }
+                }
               }
             }
           }
@@ -31,10 +37,10 @@
     }
   },
   "routeCache": {
-    "key": "/route-cache/APP_PAGE/275dd51b164d791e6955cc5a988f6867c4c47fa5f422dbedcffa4d0b38a6db37/$/teachers/[id]",
+    "key": "/route-cache/APP_PAGE/bd34d61182cafbe45f3ec3f124492f14649260fe5b9e26ae6c21131ada6ea247/$/teachers/[id]",
     "owner": {
       "kind": "APP_PAGE",
-      "sourceRoute": "/teachers/[id]/page"
+      "sourceRoute": "/(workspace)/teachers/[id]/page"
     },
     "isFallback": true
   }

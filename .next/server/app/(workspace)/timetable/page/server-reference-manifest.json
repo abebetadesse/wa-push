@@ -1,0 +1,45 @@
+{
+  "node": {
+    "6058d0325bf172de1cbe8bfdefc70114bafdd2ec1f": {
+      "workers": {
+        "app/(workspace)/timetable/page": {
+          "moduleId": 45560,
+          "async": false
+        }
+      },
+      "exportedName": "assignScheduleTeacher",
+      "filename": "src/app/(workspace)/timetable/actions.ts"
+    },
+    "6043467ec403fbc77ed8ace471685f391a08faa54d": {
+      "workers": {
+        "app/(workspace)/timetable/page": {
+          "moduleId": 45560,
+          "async": false
+        }
+      },
+      "exportedName": "createScheduleEntry",
+      "filename": "src/app/(workspace)/timetable/actions.ts"
+    },
+    "40bc757de82af8618ff2bacffea530587c5c134033": {
+      "workers": {
+        "app/(workspace)/timetable/page": {
+          "moduleId": 45560,
+          "async": false
+        }
+      },
+      "exportedName": "deleteScheduleEntry",
+      "filename": "src/app/(workspace)/timetable/actions.ts"
+    },
+    "60bb323dd4e94b0d01376e8a11b3c322abb30a23b1": {
+      "workers": {
+        "app/(workspace)/timetable/page": {
+          "moduleId": 45560,
+          "async": false
+        }
+      },
+      "exportedName": "toggleScheduleCancelled",
+      "filename": "src/app/(workspace)/timetable/actions.ts"
+    }
+  },
+  "edge": {}
+}

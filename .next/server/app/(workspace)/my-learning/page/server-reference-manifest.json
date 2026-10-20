@@ -1,0 +1,15 @@
+{
+  "node": {
+    "60708cb0b4baa131f55bea752f6b3507b40feceda4": {
+      "workers": {
+        "app/(workspace)/my-learning/page": {
+          "moduleId": 10316,
+          "async": false
+        }
+      },
+      "exportedName": "submitAssessmentAttempt",
+      "filename": "src/app/(workspace)/assessments/actions.ts"
+    }
+  },
+  "edge": {}
+}
