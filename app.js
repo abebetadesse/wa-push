@@ -8,7 +8,7 @@
  */
 /* eslint-disable @typescript-eslint/no-require-imports -- Passenger loads this file as CommonJS. */
 const { createServer } = require("node:http");
-const { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
+const { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, readdirSync } = require("node:fs");
 const { join } = require("node:path");
 const { pathToFileURL } = require("node:url");
 const next = require("next");
@@ -56,15 +56,31 @@ async function start() {
   await app.prepare();
 
   const handle = app.getRequestHandler();
+  const staticChunksDir = join(__dirname, ".next", "static", "chunks");
+
+  function getActiveCssChunk() {
+    try {
+      if (existsSync(staticChunksDir)) {
+        const files = readdirSync(staticChunksDir).filter((f) => f.endsWith(".css"));
+        if (files.length > 0) {
+          return { name: files[0], path: join(staticChunksDir, files[0]) };
+        }
+      }
+    } catch {}
+    return null;
+  }
+
   const server = createServer((req, res) => {
     if (req.url) {
       const [pathname, search] = req.url.split("?");
       const query = search ? `?${search}` : "";
+
       if (pathname === "/school" || pathname === "/school/") {
         res.writeHead(307, { Location: `/${query}` });
         res.end();
         return;
       }
+
       if (pathname.startsWith("/school/")) {
         const strippedPath = pathname.slice(7);
         if (
@@ -84,7 +100,36 @@ async function start() {
           return;
         }
       }
+
+      // If a browser with a stale HTML page requests a missing CSS or JS chunk,
+      // prevent 404s by serving the active bundle or triggering a clean reload.
+      const [currentPath] = (req.url || "").split("?");
+      if (currentPath.startsWith("/_next/static/chunks/")) {
+        const chunkFileName = currentPath.slice("/_next/static/chunks/".length);
+        const chunkFilePath = join(staticChunksDir, chunkFileName);
+        if (!existsSync(chunkFilePath)) {
+          if (chunkFileName.endsWith(".css")) {
+            const activeCss = getActiveCssChunk();
+            if (activeCss && existsSync(activeCss.path)) {
+              res.writeHead(200, {
+                "Content-Type": "text/css; charset=UTF-8",
+                "Cache-Control": "public, max-age=31536000, immutable",
+              });
+              res.end(readFileSync(activeCss.path));
+              return;
+            }
+          } else if (chunkFileName.endsWith(".js")) {
+            res.writeHead(200, {
+              "Content-Type": "application/javascript; charset=UTF-8",
+              "Cache-Control": "no-cache",
+            });
+            res.end('/* outdated chunk */ if (typeof window !== "undefined" && !window.__reloaded) { window.__reloaded = true; window.location.reload(); }');
+            return;
+          }
+        }
+      }
     }
+
     handle(req, res).catch((error) => {
       console.error(JSON.stringify({ level: "error", time: new Date().toISOString(), message: error && error.message, path: (req.url || "").split("?")[0] }));
       if (!res.headersSent) res.statusCode = 500;
@@ -104,24 +149,72 @@ async function start() {
 }
 
 /**
- * Next.js saves rendered pages in .next/server/route-cache, keyed by route but not by build, and
- * serves them before the pages in the release. A Git deployment never removes that folder, so after
- * a release the old build's HTML (with its old asset URLs, e.g. /school/_next/...) would still be
- * served. Empty it whenever the build changes.
+ * Purges stale Next.js cache directories and legacy subpath route files on new deployments.
  */
 function clearCacheFromOtherBuilds() {
   const buildIdFile = join(__dirname, ".next", "BUILD_ID");
   if (!existsSync(buildIdFile)) return;
   const buildId = readFileSync(buildIdFile, "utf8").trim();
-  const marker = join(__dirname, ".next", "cache", "route-cache-build-id");
+  const marker = join(__dirname, ".next", "cache-cleared-build-" + buildId);
+
+  if (existsSync(marker)) return;
+
   try {
-    if (existsSync(marker) && readFileSync(marker, "utf8").trim() === buildId) return;
+    console.log(`[forma] new build detected (${buildId}), clearing stale caches...`);
+
+    // 1. Clear Next.js cache directories
+    rmSync(join(__dirname, ".next", "cache"), { recursive: true, force: true });
     rmSync(join(__dirname, ".next", "server", "route-cache"), { recursive: true, force: true });
-    mkdirSync(join(__dirname, ".next", "cache"), { recursive: true });
-    writeFileSync(marker, `${buildId}\n`);
-    console.log(`[forma] cleared cached pages from earlier builds (now ${buildId}).`);
+
+    // 2. Remove legacy subpath route directories from earlier /school builds
+    const legacyDirs = [
+      join(__dirname, ".next", "server", "app", "school"),
+      join(__dirname, ".next", "server", "pages", "school"),
+    ];
+    for (const dir of legacyDirs) {
+      if (existsSync(dir)) {
+        try {
+          rmSync(dir, { recursive: true, force: true });
+          console.log(`[forma] removed legacy subpath dir: ${dir}`);
+        } catch {}
+      }
+    }
+
+    // 3. Scan .next/server/app for any prerendered files with stale hashes
+    const serverAppDir = join(__dirname, ".next", "server", "app");
+    if (existsSync(serverAppDir)) {
+      try {
+        const entries = readdirSync(serverAppDir, { recursive: true });
+        for (const entry of entries) {
+          const str = typeof entry === "string" ? entry : (entry && entry.name);
+          if (str && (str.endsWith(".html") || str.endsWith(".rsc") || str.endsWith(".meta"))) {
+            const filePath = join(serverAppDir, str);
+            try {
+              const content = readFileSync(filePath, "utf8");
+              if (content.includes("2liei9r0rllnf") || content.includes("tkCSGXaHkFoazYJWoOxJd")) {
+                rmSync(filePath, { force: true });
+                console.log(`[forma] purged stale prerender file: ${str}`);
+              }
+            } catch {}
+          }
+        }
+      } catch (e) {
+        console.warn("[forma] scanning server/app:", e.message);
+      }
+    }
+
+    // 4. Touch tmp/restart.txt to signal worker restart
+    try {
+      const restartDir = join(__dirname, "tmp");
+      mkdirSync(restartDir, { recursive: true });
+      writeFileSync(join(restartDir, "restart.txt"), `${Date.now()}\n`);
+    } catch {}
+
+    mkdirSync(join(__dirname, ".next"), { recursive: true });
+    writeFileSync(marker, `${new Date().toISOString()}\n`);
+    console.log(`[forma] cache purge complete for build ${buildId}.`);
   } catch (error) {
-    console.error("[forma] could not clear cached pages:", error && error.message ? error.message : error);
+    console.error("[forma] clearCacheFromOtherBuilds error:", error && error.message ? error.message : error);
   }
 }
 

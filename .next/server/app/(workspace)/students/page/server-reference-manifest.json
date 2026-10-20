@@ -1,6 +1,6 @@
 {
   "node": {
-    "406236b3d3785d5cb09c2c8eea87347ba0777a1d74": {
+    "40a27451faf7542a5fd23eba5048aee2e551d1e1f9": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -10,17 +10,17 @@
       "exportedName": "changeStudentStatus",
       "filename": "src/app/(workspace)/students/actions.ts"
     },
-    "6018141cf34ab160e3cbaa8d453faaa58380b203bc": {
+    "602e34c354dfe9a9e88df5c8107b33ced0339e2771": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
           "async": false
         }
       },
-      "exportedName": "bulkImportStudents",
+      "exportedName": "registerStudent",
       "filename": "src/app/(workspace)/students/actions.ts"
     },
-    "6037ea779a879cde3626b989496fcfa88b2c0c997d": {
+    "6081cb01b64bc9aa923c6cfd299a6e1d948670cb6f": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -30,14 +30,14 @@
       "exportedName": "updateStudent",
       "filename": "src/app/(workspace)/students/actions.ts"
     },
-    "60acc2bbcc47b0180d49afbf076604d61092d1bc53": {
+    "60ed64d0807d615669d5d9ac9d7650f7f205227417": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
           "async": false
         }
       },
-      "exportedName": "registerStudent",
+      "exportedName": "bulkImportStudents",
       "filename": "src/app/(workspace)/students/actions.ts"
     }
   },
