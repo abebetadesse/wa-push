@@ -123,7 +123,9 @@ async function start() {
               "Content-Type": "application/javascript; charset=UTF-8",
               "Cache-Control": "no-cache",
             });
-            res.end('/* outdated chunk */ if (typeof window !== "undefined" && !window.__reloaded) { window.__reloaded = true; window.location.reload(); }');
+            // Reload once per tab: a window flag resets on reload, so a page whose cached HTML
+            // keeps naming missing chunks would otherwise reload forever.
+            res.end('/* outdated chunk */ (function () { try { if (typeof window === "undefined" || sessionStorage.getItem("forma-chunk-reload")) return; sessionStorage.setItem("forma-chunk-reload", "1"); window.location.reload(); } catch (e) {} })();');
             return;
           }
         }
