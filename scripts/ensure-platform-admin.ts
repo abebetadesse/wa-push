@@ -156,32 +156,94 @@ async function main() {
       ["staff_members", "school_staff_members"],
     ];
 
-    for (const [oldName, newName] of tablesToRename) {
-      try {
-        const [oldRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${oldName}'`);
-        const [newRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${newName}'`);
-        if (oldRows.length > 0 && newRows.length === 0) {
-          await connection.query(`RENAME TABLE \`${oldName}\` TO \`${newName}\``);
-          console.info(`✓ Renamed legacy table ${oldName} to ${newName}`);
+    await connection.query("SET FOREIGN_KEY_CHECKS = 0");
+    try {
+      for (const [oldName, newName] of tablesToRename) {
+        try {
+          const [oldRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${oldName}'`);
+          const [newRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${newName}'`);
+          if (oldRows.length > 0 && newRows.length === 0) {
+            await connection.query(`RENAME TABLE \`${oldName}\` TO \`${newName}\``);
+            console.info(`✓ Renamed legacy table ${oldName} to ${newName}`);
+          }
+        } catch (renameErr) {
+          console.warn(`[admin-setup] Notice on renaming ${oldName}:`, renameErr instanceof Error ? renameErr.message : renameErr);
         }
-      } catch {
-        // Table might not exist or already renamed
       }
+    } finally {
+      await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    // Check if school_auth_users exists; if not, apply migrations
+    // Check if school_auth_users exists; if not, create core authentication tables
     const [checkUsersTable] = await connection.query<RowDataPacket[]>(
       "SHOW TABLES LIKE 'school_auth_users'",
     );
     if (!checkUsersTable || checkUsersTable.length === 0) {
-      console.info("school_auth_users table does not exist. Running database migrations...");
-      const { migrate } = await import("drizzle-orm/mysql2/migrator");
-      const path = await import("node:path");
-      await migrate(drizzle(connection), {
-        migrationsFolder: path.join(process.cwd(), "drizzle"),
-        migrationsTable: "school_drizzle_migrations",
-      });
-      console.info("✓ Migrations applied successfully.");
+      console.info("school_auth_users table does not exist. Creating school authentication tables...");
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS \`school_auth_users\` (
+          \`id\` varchar(36) NOT NULL,
+          \`name\` varchar(255) NOT NULL,
+          \`email\` varchar(255) NOT NULL,
+          \`email_verified\` boolean NOT NULL DEFAULT false,
+          \`image\` text,
+          \`role\` varchar(255) NOT NULL DEFAULT 'user',
+          \`banned\` boolean NOT NULL DEFAULT false,
+          \`ban_reason\` text,
+          \`ban_expires\` timestamp NULL DEFAULT NULL,
+          \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY (\`id\`),
+          UNIQUE KEY \`school_auth_users_email_unique\` (\`email\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS \`school_auth_sessions\` (
+          \`id\` varchar(36) NOT NULL,
+          \`expires_at\` timestamp NOT NULL,
+          \`token\` varchar(255) NOT NULL,
+          \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          \`ip_address\` varchar(45) DEFAULT NULL,
+          \`user_agent\` text,
+          \`impersonated_by\` varchar(36) DEFAULT NULL,
+          \`user_id\` varchar(36) NOT NULL,
+          PRIMARY KEY (\`id\`),
+          UNIQUE KEY \`school_auth_sessions_token_unique\` (\`token\`),
+          KEY \`school_auth_sessions_user_idx\` (\`user_id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS \`school_auth_accounts\` (
+          \`id\` varchar(36) NOT NULL,
+          \`account_id\` varchar(255) NOT NULL,
+          \`provider_id\` varchar(255) NOT NULL,
+          \`user_id\` varchar(36) NOT NULL,
+          \`access_token\` text,
+          \`refresh_token\` text,
+          \`id_token\` text,
+          \`access_token_expires_at\` timestamp NULL DEFAULT NULL,
+          \`refresh_token_expires_at\` timestamp NULL DEFAULT NULL,
+          \`scope\` text,
+          \`password\` text,
+          \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY (\`id\`),
+          KEY \`school_auth_accounts_user_idx\` (\`user_id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS \`school_auth_verifications\` (
+          \`id\` varchar(36) NOT NULL,
+          \`identifier\` varchar(255) NOT NULL,
+          \`value\` text NOT NULL,
+          \`expires_at\` timestamp NOT NULL,
+          \`created_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          \`updated_at\` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY (\`id\`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      console.info("✓ Core authentication tables created.");
     }
 
     const db = drizzle(pool, { schema, mode: "default" });
