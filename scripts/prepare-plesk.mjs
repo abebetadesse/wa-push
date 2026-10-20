@@ -57,7 +57,7 @@ fs.cpSync(buildDir, path.join(out, ".next"), {
 fs.cpSync(path.join(root, "public"), path.join(out, "public"), { recursive: true });
 
 // 3. Start-up file, lockfile, environment template, guide, and migrations.
-for (const file of ["app.js", "package-lock.json", ".env.example"]) {
+for (const file of ["app.js", "cache-handler.js", "package-lock.json", ".env.example"]) {
   fs.copyFileSync(path.join(root, file), path.join(out, file));
 }
 fs.copyFileSync(path.join(root, "docs", "DEPLOYMENT.md"), path.join(out, "DEPLOYMENT.md"));

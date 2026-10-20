@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import type { NextConfig } from "next";
 
 // Set NEXT_PUBLIC_BASE_PATH=/school when this app is served under a path of another site's domain.
@@ -21,6 +22,11 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  // Rendered pages are cached in the server process's memory, never in .next/server/route-cache,
+  // so a page saved by an older release can't be served after a deployment. See cache-handler.js.
+  // The path is resolved from the working directory, which app.js sets to the application root.
+  cacheHandler: join(process.cwd(), "cache-handler.js"),
+  cacheMaxMemorySize: 0,
   turbopack: {
     root: process.cwd(),
     rules: {
