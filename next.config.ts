@@ -38,6 +38,10 @@ const nextConfig: NextConfig = {
         destination: "/_next/:path*",
       },
       {
+        source: "/school/api/:path*",
+        destination: "/api/:path*",
+      },
+      {
         source: "/school/favicon.ico",
         destination: "/favicon.ico",
       },
@@ -52,7 +56,7 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: "/school/:path((?!_next|favicon\\.ico).*)",
+        source: "/school/:path((?!_next|api|favicon\\.ico).*)",
         destination: "/:path*",
         permanent: false,
       },
