@@ -1,6 +1,6 @@
 {
   "node": {
-    "6079fd66c28858c7bdcac0e01882b14c84489bb168": {
+    "6021c7afb516d4dfc5441c6288109b465e2cb2f2a4": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -10,7 +10,7 @@
       "exportedName": "assignScheduleTeacher",
       "filename": "src/app/(workspace)/timetable/actions.ts"
     },
-    "60f365ce2fccb77c8b02a025a9c1cca555f91c0dcf": {
+    "602ae4f159702014a1090799fcb04289b8686a4c1f": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -20,7 +20,7 @@
       "exportedName": "createScheduleEntry",
       "filename": "src/app/(workspace)/timetable/actions.ts"
     },
-    "40aadf0c7e4ae36914c9fbd24363a1bd6f491e881b": {
+    "40503e8b51df5f8a5aa36b64aacd52505d8e8251d3": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -30,7 +30,7 @@
       "exportedName": "deleteScheduleEntry",
       "filename": "src/app/(workspace)/timetable/actions.ts"
     },
-    "602fe10be1e1f496b82b2d1355e0985da10de81e84": {
+    "60f8123f7503d314d76e0a9740b9d8a0ca9c749667": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
