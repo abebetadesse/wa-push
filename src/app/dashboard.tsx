@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { SignOutButton } from "./sign-out-button";
 
@@ -38,6 +41,9 @@ export default function Dashboard({
   userName: string;
   schools: DashboardSchool[];
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const closeSidebar = () => setSidebarOpen(false);
+
   const studentTotal = schools.reduce((total, school) => total + school.students, 0);
   const classTotal = schools.reduce((total, school) => total + school.classes, 0);
   const lessonTotal = schools.reduce((total, school) => total + school.lessons, 0);
@@ -51,10 +57,27 @@ export default function Dashboard({
 
   return (
     <main className="app-shell">
-      <aside className="sidebar">
-        <Link className="brand" href="/" aria-label="Forma home">
-          <span className="brand-mark">f</span><span>forma<span className="brand-dot">.</span></span>
-        </Link>
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={closeSidebar}
+          aria-hidden="true"
+        />
+      )}
+      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <div className="sidebar-header">
+          <Link className="brand" href="/" onClick={closeSidebar} aria-label="Forma home">
+            <span className="brand-mark">f</span><span>forma<span className="brand-dot">.</span></span>
+          </Link>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={closeSidebar}
+            aria-label="Close navigation menu"
+          >
+            <CloseIcon />
+          </button>
+        </div>
         <div className="workspace-label">WORKSPACE</div>
         <div className="school-switcher">
           <span className="switcher-icon"><SchoolIcon /></span>
@@ -62,23 +85,23 @@ export default function Dashboard({
         </div>
         <div className="nav-label">OVERVIEW</div>
         <nav className="nav-list" aria-label="Main navigation">
-          <Link className="nav-link active" href="/"><GridIcon /><span>Dashboard</span></Link>
-          <a className="nav-link" href="#schools"><SchoolIcon /><span>Schools</span><span className="nav-count">{schools.length}</span></a>
-          <Link className="nav-link" href="/students"><UsersIcon /><span>Students</span></Link>
-          <Link className="nav-link" href="/lessons"><BookIcon /><span>Learning</span></Link>
-          <Link className="nav-link" href="/resources"><BookIcon /><span>Resources</span></Link>
-          <Link className="nav-link" href="/assessments"><ChartIcon /><span>Quizzes &amp; tests</span></Link>
-          {isStudent && <Link className="nav-link" href="/my-learning"><BookIcon /><span>My assessments</span></Link>}
-          <Link className="nav-link" href="/team"><UsersIcon /><span>Team</span></Link>
-          {isStaff && <Link className="nav-link" href="/teachers"><UsersIcon /><span>Teachers</span></Link>}
-          {isStaff && <Link className="nav-link" href="/timetable"><CalendarIcon /><span>Timetable</span></Link>}
-          {isStaff && <Link className="nav-link" href="/attendance"><CalendarIcon /><span>Attendance</span></Link>}
-          {isStaff && <Link className="nav-link" href="/reports"><ChartIcon /><span>Results &amp; reports</span></Link>}
+          <Link className="nav-link active" href="/" onClick={closeSidebar}><GridIcon /><span>Dashboard</span></Link>
+          <a className="nav-link" href="#schools" onClick={closeSidebar}><SchoolIcon /><span>Schools</span><span className="nav-count">{schools.length}</span></a>
+          <Link className="nav-link" href="/students" onClick={closeSidebar}><UsersIcon /><span>Students</span></Link>
+          <Link className="nav-link" href="/lessons" onClick={closeSidebar}><BookIcon /><span>Learning</span></Link>
+          <Link className="nav-link" href="/resources" onClick={closeSidebar}><BookIcon /><span>Resources</span></Link>
+          <Link className="nav-link" href="/assessments" onClick={closeSidebar}><ChartIcon /><span>Quizzes &amp; tests</span></Link>
+          {isStudent && <Link className="nav-link" href="/my-learning" onClick={closeSidebar}><BookIcon /><span>My assessments</span></Link>}
+          <Link className="nav-link" href="/team" onClick={closeSidebar}><UsersIcon /><span>Team</span></Link>
+          {isStaff && <Link className="nav-link" href="/teachers" onClick={closeSidebar}><UsersIcon /><span>Teachers</span></Link>}
+          {isStaff && <Link className="nav-link" href="/timetable" onClick={closeSidebar}><CalendarIcon /><span>Timetable</span></Link>}
+          {isStaff && <Link className="nav-link" href="/attendance" onClick={closeSidebar}><CalendarIcon /><span>Attendance</span></Link>}
+          {isStaff && <Link className="nav-link" href="/reports" onClick={closeSidebar}><ChartIcon /><span>Results &amp; reports</span></Link>}
         </nav>
         <div className="nav-label operations-label">OPERATIONS</div>
         <nav className="nav-list" aria-label="Operations navigation">
-          {isInventoryManager && <Link className="nav-link" href="/inventory"><BoxIcon /><span>Inventory</span></Link>}
-          {isHrManager && <Link className="nav-link" href="/hr"><BriefcaseIcon /><span>Human resources</span></Link>}
+          {isInventoryManager && <Link className="nav-link" href="/inventory" onClick={closeSidebar}><BoxIcon /><span>Inventory</span></Link>}
+          {isHrManager && <Link className="nav-link" href="/hr" onClick={closeSidebar}><BriefcaseIcon /><span>Human resources</span></Link>}
         </nav>
         <div className="sidebar-bottom">
           <div className="profile">
@@ -91,7 +114,18 @@ export default function Dashboard({
 
       <section className="main-panel" id="dashboard">
         <header className="topbar">
-          <div className="breadcrumb">Workspace <ChevronIcon /><strong>Dashboard</strong></div>
+          <div className="topbar-left">
+            <button
+              type="button"
+              className="mobile-nav-toggle"
+              onClick={() => setSidebarOpen((open) => !open)}
+              aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+              aria-expanded={sidebarOpen}
+            >
+              {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
+            </button>
+            <div className="breadcrumb">Workspace <ChevronIcon /><strong>Dashboard</strong></div>
+          </div>
           <div className="topbar-actions"><div className="avatar avatar-admin top-avatar" aria-label={userName}>{initials}</div></div>
         </header>
         <div className="content">
@@ -178,3 +212,5 @@ function BoxIcon() { return <Icon><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3
 function BriefcaseIcon() { return <Icon><rect x="3" y="7" width="18" height="14" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" /></Icon>; }
 function ChevronIcon() { return <Icon size={15}><path d="m9 18 6-6-6-6" /></Icon>; }
 function ArrowIcon() { return <Icon size={15}><path d="M5 12h14M12 5l7 7-7 7" /></Icon>; }
+function MenuIcon() { return <Icon size={18}><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></Icon>; }
+function CloseIcon() { return <Icon size={18}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></Icon>; }

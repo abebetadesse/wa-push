@@ -79,7 +79,10 @@ await esbuild.build({
   logLevel: "warning",
 });
 await esbuild.build({
-  entryPoints: { "create-platform-admin": path.join(root, "scripts", "create-platform-admin.ts") },
+  entryPoints: {
+    "create-platform-admin": path.join(root, "scripts", "create-platform-admin.ts"),
+    "ensure-platform-admin": path.join(root, "scripts", "ensure-platform-admin.ts"),
+  },
   outdir: path.join(out, "scripts"),
   outExtension: { ".js": ".cjs" },
   bundle: true,
@@ -98,6 +101,7 @@ pkg.scripts = {
   start: "node app.js",
   "db:migrate": "node scripts/migrate.mjs",
   "auth:create-admin": "node scripts/create-platform-admin.cjs",
+  "auth:ensure-admin": "node scripts/ensure-platform-admin.cjs",
 };
 pkg.engines = { node: ">=20.9.0" };
 fs.writeFileSync(path.join(out, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
