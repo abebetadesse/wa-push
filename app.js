@@ -8,7 +8,7 @@
  */
 /* eslint-disable @typescript-eslint/no-require-imports -- Passenger loads this file as CommonJS. */
 const { createServer } = require("node:http");
-const { existsSync } = require("node:fs");
+const { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { pathToFileURL } = require("node:url");
 const next = require("next");
@@ -49,6 +49,8 @@ async function start() {
     }
   }
 
+  clearCacheFromOtherBuilds();
+
   const port = Number(process.env.PORT) || 3000;
   const app = next({ dev: false, dir: __dirname, hostname: process.env.HOSTNAME || "0.0.0.0", port });
   await app.prepare();
@@ -71,6 +73,28 @@ async function start() {
   };
   process.on("SIGTERM", () => stop("SIGTERM"));
   process.on("SIGINT", () => stop("SIGINT"));
+}
+
+/**
+ * Next.js saves rendered pages in .next/server/route-cache, keyed by route but not by build, and
+ * serves them before the pages in the release. A Git deployment never removes that folder, so after
+ * a release the old build's HTML (with its old asset URLs, e.g. /school/_next/...) would still be
+ * served. Empty it whenever the build changes.
+ */
+function clearCacheFromOtherBuilds() {
+  const buildIdFile = join(__dirname, ".next", "BUILD_ID");
+  if (!existsSync(buildIdFile)) return;
+  const buildId = readFileSync(buildIdFile, "utf8").trim();
+  const marker = join(__dirname, ".next", "cache", "route-cache-build-id");
+  try {
+    if (existsSync(marker) && readFileSync(marker, "utf8").trim() === buildId) return;
+    rmSync(join(__dirname, ".next", "server", "route-cache"), { recursive: true, force: true });
+    mkdirSync(join(__dirname, ".next", "cache"), { recursive: true });
+    writeFileSync(marker, `${buildId}\n`);
+    console.log(`[forma] cleared cached pages from earlier builds (now ${buildId}).`);
+  } catch (error) {
+    console.error("[forma] could not clear cached pages:", error && error.message ? error.message : error);
+  }
 }
 
 start().catch((error) => {
