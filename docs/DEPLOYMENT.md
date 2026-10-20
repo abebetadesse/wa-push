@@ -51,9 +51,13 @@ git push origin plesk-release
    export PATH=/opt/plesk/node/22/bin:$PATH
    npm ci --omit=dev
    npm run db:migrate
+   rm -rf .next/server/route-cache
    mkdir -p tmp && touch tmp/restart.txt
    ```
    (Adjust the Node.js path if your Plesk shows a different one under Node.js.)
+   `.next/server/route-cache` holds pages Next.js rendered at run time. Git never removes it, so a
+   new release would keep serving the previous build's pages (and their old `/_next/...` asset
+   URLs, which then fail to load). `app.js` also empties it when it starts a different build.
 4. **Node.js.** On the subdomain: Node.js → *Enable Node.js*:
    - Node.js version: 22.x
    - Application mode: `production`
