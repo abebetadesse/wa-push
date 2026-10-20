@@ -57,6 +57,23 @@ async function start() {
 
   const handle = app.getRequestHandler();
   const server = createServer((req, res) => {
+    if (req.url) {
+      if (req.url === "/school" || req.url === "/school/") {
+        res.writeHead(307, { Location: "/" });
+        res.end();
+        return;
+      }
+      if (req.url.startsWith("/school/")) {
+        const stripped = req.url.slice(7);
+        if (stripped.startsWith("/_next/") || stripped.startsWith("/favicon.ico")) {
+          req.url = stripped;
+        } else {
+          res.writeHead(307, { Location: stripped });
+          res.end();
+          return;
+        }
+      }
+    }
     handle(req, res).catch((error) => {
       console.error(JSON.stringify({ level: "error", time: new Date().toISOString(), message: error && error.message, path: (req.url || "").split("?")[0] }));
       if (!res.headersSent) res.statusCode = 500;
