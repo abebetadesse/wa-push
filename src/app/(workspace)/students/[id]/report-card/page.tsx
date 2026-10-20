@@ -576,10 +576,15 @@ async function ReportCardContent({ studentId }: { studentId: string }) {
   );
 }
 
+async function ReportCardRoute({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <ReportCardContent studentId={id} />;
+}
+
 export default function ReportCardPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<main className="auth-page"><p>Generating report card...</p></main>}>
-      {params.then(({ id }) => <ReportCardContent studentId={id} />)}
+      <ReportCardRoute params={params} />
     </Suspense>
   );
 }

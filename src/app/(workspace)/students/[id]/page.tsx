@@ -119,10 +119,15 @@ async function StudentDetail({ studentId }: { studentId: string }) {
   );
 }
 
+async function StudentDetailRoute({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <StudentDetail studentId={id} />;
+}
+
 export default function StudentPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<main className="auth-page"><p>Loading student record...</p></main>}>
-      {params.then(({ id }) => <StudentDetail studentId={id} />)}
+      <StudentDetailRoute params={params} />
     </Suspense>
   );
 }

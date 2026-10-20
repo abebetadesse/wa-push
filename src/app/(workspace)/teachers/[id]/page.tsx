@@ -68,10 +68,15 @@ async function TeacherDetail({ teacherId }: { teacherId: string }) {
   );
 }
 
+async function TeacherDetailRoute({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <TeacherDetail teacherId={id} />;
+}
+
 export default function TeacherPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<main className="auth-page"><p>Loading teacher profile...</p></main>}>
-      {params.then(({ id }) => <TeacherDetail teacherId={id} />)}
+      <TeacherDetailRoute params={params} />
     </Suspense>
   );
 }

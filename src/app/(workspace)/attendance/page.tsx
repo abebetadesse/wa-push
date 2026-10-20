@@ -150,7 +150,11 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
             </div>
           </div>
           {classRows.length === 0
-            ? <p className="empty-state">Set up a current academic year and classes before recording attendance.</p>
+            ? <p className="empty-state">
+              {platformAdmin || memberships.some(({ schoolId, role }) => schoolId === selectedSchoolId && role === "school_admin")
+                ? <>Set up a current academic year and classes in <Link className="text-link" href="/academic-setup">Academic setup</Link> before recording attendance.</>
+                : "This school has no classes in its current academic year yet. Ask a school administrator to set them up before recording attendance."}
+            </p>
             : roster.length === 0
               ? <p className="empty-state">No active students are enrolled in this class.</p>
               : <AttendanceForm schoolId={selectedSchoolId} classroomId={classroomId} date={date} roster={roster} />}

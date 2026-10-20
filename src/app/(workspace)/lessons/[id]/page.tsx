@@ -139,10 +139,15 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
   );
 }
 
+async function LessonDetailRoute({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <LessonDetail lessonId={id} />;
+}
+
 export default function LessonPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<main className="auth-page"><p>Loading lesson plan...</p></main>}>
-      {params.then(({ id }) => <LessonDetail lessonId={id} />)}
+      <LessonDetailRoute params={params} />
     </Suspense>
   );
 }
