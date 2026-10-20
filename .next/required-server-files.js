@@ -354,7 +354,33 @@ self.__SERVER_FILES_MANIFEST={
       }
     },
     "repoRoot": "/home/runner/work/wa-push/wa-push",
-    "distDirRoot": ".next"
+    "distDirRoot": ".next",
+    "_originalRewrites": {
+      "beforeFiles": [],
+      "afterFiles": [
+        {
+          "source": "/school/_next/:path*",
+          "destination": "/_next/:path*"
+        },
+        {
+          "source": "/school/favicon.ico",
+          "destination": "/favicon.ico"
+        }
+      ],
+      "fallback": []
+    },
+    "_originalRedirects": [
+      {
+        "source": "/school",
+        "destination": "/",
+        "permanent": false
+      },
+      {
+        "source": "/school/:path((?!_next|favicon\\.ico).*)",
+        "destination": "/:path*",
+        "permanent": false
+      }
+    ]
   },
   "appDir": "/home/runner/work/wa-push/wa-push",
   "relativeAppDir": "",

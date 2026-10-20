@@ -12,13 +12,36 @@
       "priority": true,
       "statusCode": 308,
       "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    },
+    {
+      "source": "/school",
+      "destination": "/",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/school(?:/)?$"
+    },
+    {
+      "source": "/school/:path((?!_next|favicon\\.ico).*)",
+      "destination": "/:path*",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/school(?:/((?!_next|favicon\\.ico).*))(?:/)?$"
     }
   ],
   "headers": [],
   "onMatchHeaders": [],
   "rewrites": {
     "beforeFiles": [],
-    "afterFiles": [],
+    "afterFiles": [
+      {
+        "source": "/school/_next/:path*",
+        "destination": "/_next/:path*",
+        "regex": "^/school/_next(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      },
+      {
+        "source": "/school/favicon.ico",
+        "destination": "/favicon.ico",
+        "regex": "^/school/favicon\\.ico(?:/)?$"
+      }
+    ],
     "fallback": []
   },
   "dynamicRoutes": [

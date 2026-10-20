@@ -1,6 +1,6 @@
 {
   "node": {
-    "40cc81110e6cee21e00e6a24bfe3b3527ed2b8ec28": {
+    "40949704cc1741fc46c46c18e2609bcdfecc47fa05": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,
@@ -10,7 +10,7 @@
       "exportedName": "changeTeacherStatus",
       "filename": "src/app/(workspace)/teachers/actions.ts"
     },
-    "601949df294306dab1ae60eccc83f7ff286dfb8be0": {
+    "60543eed1127689e4d21ab56154677087f67505890": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,
@@ -20,7 +20,7 @@
       "exportedName": "updateTeacher",
       "filename": "src/app/(workspace)/teachers/actions.ts"
     },
-    "60849d6ee9cf35a9ee10f0c67a73e758ba615a1194": {
+    "60ab79ccc6c70f5999f11d977da46a6fddc85951fd": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,

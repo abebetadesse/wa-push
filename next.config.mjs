@@ -22,6 +22,34 @@ var nextConfig = {
         as: "*.css"
       }
     }
+  },
+  async rewrites() {
+    if (basePath === "/school") return [];
+    return [
+      {
+        source: "/school/_next/:path*",
+        destination: "/_next/:path*"
+      },
+      {
+        source: "/school/favicon.ico",
+        destination: "/favicon.ico"
+      }
+    ];
+  },
+  async redirects() {
+    if (basePath === "/school") return [];
+    return [
+      {
+        source: "/school",
+        destination: "/",
+        permanent: false
+      },
+      {
+        source: "/school/:path((?!_next|favicon\\.ico).*)",
+        destination: "/:path*",
+        permanent: false
+      }
+    ];
   }
 };
 var next_config_default = nextConfig;
