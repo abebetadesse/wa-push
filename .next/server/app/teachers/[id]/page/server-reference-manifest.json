@@ -1,6 +1,6 @@
 {
   "node": {
-    "606af43805a9626a9f60847cd32fcfe40e10fd1362": {
+    "60a7eaaf9ea0251ded2afdf0f1b805c5aeb8389351": {
       "workers": {
         "app/teachers/[id]/page": {
           "moduleId": 37870,
@@ -10,7 +10,7 @@
       "exportedName": "createTeacher",
       "filename": "src/app/teachers/actions.ts"
     },
-    "60f26abc11c276c4dddedc528611082f075281bf72": {
+    "609e8420d70de9cbebc7a20a290c4da7e18f304dd8": {
       "workers": {
         "app/teachers/[id]/page": {
           "moduleId": 37870,

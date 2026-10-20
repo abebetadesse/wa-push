@@ -6,7 +6,8 @@
     "build": "node -e \"console.log('[build] Pre-built release; nothing to compile.')\"",
     "start": "node app.js",
     "db:migrate": "node scripts/migrate.mjs",
-    "auth:create-admin": "node scripts/create-platform-admin.cjs"
+    "auth:create-admin": "node scripts/create-platform-admin.cjs",
+    "auth:ensure-admin": "node scripts/ensure-platform-admin.cjs"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.10",
