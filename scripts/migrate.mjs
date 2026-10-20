@@ -70,17 +70,22 @@ export async function runMigrations() {
     `);
 
     // 2. Check if legacy unprefixed tables exist and rename them to school_ prefix
-    for (const [oldName, newName] of tablesToRename) {
-      try {
-        const [oldRows] = await connection.query(`SHOW TABLES LIKE '${oldName}'`);
-        const [newRows] = await connection.query(`SHOW TABLES LIKE '${newName}'`);
-        if (Array.isArray(oldRows) && oldRows.length > 0 && Array.isArray(newRows) && newRows.length === 0) {
-          await connection.query(`RENAME TABLE \`${oldName}\` TO \`${newName}\``);
-          console.log(`[migrate] Renamed legacy table ${oldName} to ${newName}`);
+    await connection.query("SET FOREIGN_KEY_CHECKS = 0");
+    try {
+      for (const [oldName, newName] of tablesToRename) {
+        try {
+          const [oldRows] = await connection.query(`SHOW TABLES LIKE '${oldName}'`);
+          const [newRows] = await connection.query(`SHOW TABLES LIKE '${newName}'`);
+          if (Array.isArray(oldRows) && oldRows.length > 0 && Array.isArray(newRows) && newRows.length === 0) {
+            await connection.query(`RENAME TABLE \`${oldName}\` TO \`${newName}\``);
+            console.log(`[migrate] Renamed legacy table ${oldName} to ${newName}`);
+          }
+        } catch (renameErr) {
+          console.warn(`[migrate] Notice on renaming ${oldName}:`, renameErr instanceof Error ? renameErr.message : renameErr);
         }
-      } catch (renameErr) {
-        console.warn(`[migrate] Notice on renaming ${oldName}:`, renameErr instanceof Error ? renameErr.message : renameErr);
       }
+    } finally {
+      await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
 
     // 3. If any tables were renamed or already exist with school_ prefix, sync migration history
