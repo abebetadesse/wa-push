@@ -21,12 +21,20 @@ loadEnvConfig(process.cwd());
 
 function getArgument(name: string) {
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1]?.trim() : undefined;
+  if (index < 0) return undefined;
+  const parts: string[] = [];
+  for (let i = index + 1; i < process.argv.length; i++) {
+    if (process.argv[i]?.startsWith("--")) break;
+    parts.push(process.argv[i]);
+  }
+  return parts.length > 0 ? parts.join(" ").trim() : undefined;
 }
 
 function readSecret(prompt: string) {
   if (!stdin.isTTY) {
-    throw new Error("Run this command in an interactive terminal to enter the password securely.");
+    throw new Error(
+      "No interactive terminal detected. Please pass --password <your_password> or set PLATFORM_ADMIN_PASSWORD in environment.",
+    );
   }
 
   stdout.write(prompt);
@@ -79,14 +87,18 @@ async function main() {
   const name = getArgument("--name");
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !name || name.length > 255) {
     throw new Error(
-      "Usage: npm run auth:ensure-admin -- --email admin@example.com --name \"Platform Admin\"",
+      "Usage: npm run auth:ensure-admin -- --email admin@example.com --name \"Platform Admin\" [--password secret]",
     );
   }
 
+  const passwordFromArg = getArgument("--password");
   const passwordFromEnvironment = process.env.PLATFORM_ADMIN_PASSWORD;
   delete process.env.PLATFORM_ADMIN_PASSWORD;
-  const password = passwordFromEnvironment ?? await readSecret("Platform-admin password (input hidden): ");
-  if (passwordFromEnvironment === undefined) {
+  const password =
+    passwordFromArg ??
+    passwordFromEnvironment ??
+    (await readSecret("Platform-admin password (input hidden): "));
+  if (!passwordFromArg && !passwordFromEnvironment) {
     const confirmation = await readSecret("Confirm password (input hidden): ");
     if (password !== confirmation) throw new Error("Passwords do not match.");
   }
