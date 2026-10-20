@@ -1,4 +1,5 @@
 // next.config.ts
+import { join } from "node:path";
 var basePath = "".trim().replace(/\/+$/, "");
 if (basePath && !/^\/[A-Za-z0-9._~\-/]*$/.test(basePath)) {
   throw new Error("NEXT_PUBLIC_BASE_PATH must be a path such as /school.");
@@ -14,6 +15,11 @@ var nextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  // Rendered pages are cached in the server process's memory, never in .next/server/route-cache,
+  // so a page saved by an older release can't be served after a deployment. See cache-handler.js.
+  // The path is resolved from the working directory, which app.js sets to the application root.
+  cacheHandler: join(process.cwd(), "cache-handler.js"),
+  cacheMaxMemorySize: 0,
   turbopack: {
     root: process.cwd(),
     rules: {
