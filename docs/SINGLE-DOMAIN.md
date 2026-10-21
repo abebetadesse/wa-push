@@ -66,6 +66,7 @@ Plesk → `wisdomcourse.com.et` (the domain that serves `www`) → **Apache & ng
 ```nginx
 # Portal page listing every app
 location = /apps {
+    passenger_enabled off;
     default_type text/html;
     alias /var/www/vhosts/wisdomcourse.com.et/portal/index.html;
 }
@@ -73,6 +74,7 @@ location = /apps/ { return 301 /apps; }
 
 # Forma — school management
 location ~ ^/school(/|$) {
+    passenger_enabled off;
     proxy_pass https://school.wisdomcourse.com.et;
     proxy_ssl_server_name on;
     proxy_set_header Host school.wisdomcourse.com.et;
@@ -86,7 +88,12 @@ location ~ ^/school(/|$) {
 ```
 
 `proxy_pass` has no path after the host, so the request keeps its `/school/…` path, which is
-what the rebuilt app expects. Click **OK**; Plesk checks the configuration before applying it.
+what the rebuilt app expects. `passenger_enabled off;` is required: NiniMed runs as a Node.js app,
+so Plesk enables Passenger for the whole site and, without it, NiniMed keeps answering these paths
+(its 404 page). Click **OK**; Plesk checks the configuration before applying it.
+
+Before rebuilding Forma, check the forwarding: `https://www.wisdomcourse.com.et/school/api/health`
+must return Forma's JSON health report, not a NiniMed page.
 `https://www.wisdomcourse.com.et/apps` now shows the portal.
 
 For each other app, add a copy of the Forma block **when that app is ready for its path** (see
