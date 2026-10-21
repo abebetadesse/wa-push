@@ -1,6 +1,6 @@
 {
   "node": {
-    "6086df0daf4ba5d343316149dc50331fb19883cd85": {
+    "60228b8db88f16342e794d2fb100503cc6c3f64856": {
       "workers": {
         "app/(workspace)/hr/page": {
           "moduleId": 70420,
@@ -10,7 +10,7 @@
       "exportedName": "createStaffMember",
       "filename": "src/app/(workspace)/hr/actions.ts"
     },
-    "4033b01bba19ea14aed16d5779a1d3779d384f9889": {
+    "404ec5a4f57e1dde55de652290e9124b0f6fb3f873": {
       "workers": {
         "app/(workspace)/hr/page": {
           "moduleId": 70420,
