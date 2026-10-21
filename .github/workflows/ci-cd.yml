@@ -12,7 +12,7 @@ name: CI / CD
 #   variable PUBLIC_URL             Public origin the release is built for
 #                                   (default https://school.wisdomcourse.com.et).
 #   variable BASE_PATH              Path Forma is served under, e.g. /school for
-#                                   https://wisdomcourse.com.et/school (default: the site root).
+#                                   https://www.wisdomcourse.com.et/school (default: the site root).
 #                                   See docs/SINGLE-DOMAIN.md before changing it.
 #   variable HEALTH_URL             Health endpoint checked after deployment
 #                                   (default <PUBLIC_URL><BASE_PATH>/api/health).

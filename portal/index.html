@@ -72,7 +72,7 @@
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">W</span>Wisdom Course</a>
+      <a class="brand" href="/apps"><span class="brand-mark" aria-hidden="true">W</span>Wisdom Course</a>
       <label class="search">
         <span aria-hidden="true">⌕</span>
         <input id="search" type="search" placeholder="Search apps…" aria-label="Search apps">
@@ -83,7 +83,7 @@
   <main>
     <section class="hero">
       <h1>Everything you need, <span>in one place</span></h1>
-      <p>Pick an app to get started. Each one opens on this site, so your bookmarks and links stay under wisdomcourse.com.et.</p>
+      <p>Pick an app to get started. Each one opens on this site, so your bookmarks and links stay under www.wisdomcourse.com.et.</p>
     </section>
 
     <div class="tabs" role="tablist" aria-label="App categories" id="tabs"></div>
@@ -92,20 +92,23 @@
 
   <footer>
     <span>© <span id="year"></span> Wisdom Course</span>
-    <span>One sign-in per app · All apps at wisdomcourse.com.et</span>
+    <span>One sign-in per app · All apps at www.wisdomcourse.com.et/apps</span>
   </footer>
 
   <script>
-    // Edit this list to add, rename or recategorize apps. "path" is where the app is served.
+    // Edit this list to add, rename or recategorize apps. "path" is where the app is served on
+    // www.wisdomcourse.com.et (this page itself is at /apps).
     const apps = [
-      { name: "School management", path: "/school/", category: "Education", icon: "🏫", tint: "#efecff",
+      { name: "Forma — School management", path: "/school", category: "Education", icon: "🏫", tint: "#efecff",
         description: "Run your school: students, teachers, lesson plans, timetables, attendance, assessments and report cards." },
-      { name: "Wellness platform", path: "/app/", category: "Health & wellness", icon: "🌿", tint: "#e8f6ef",
-        description: "Appointments, wellness programs and guidance from the Ethio Wellness Platform." },
-      { name: "Feud", path: "/feud/", category: "Games", icon: "🎯", tint: "#fff2e3",
-        description: "A fast, team-based quiz game for classrooms, events and friends." },
-      { name: "Paraphrase", path: "/paraphrase/", category: "Writing tools", icon: "✍️", tint: "#e8f1fd",
-        description: "Rewrite text in clearer words while keeping its meaning." },
+      { name: "NiniMed", path: "/", category: "Health & wellness", icon: "🩺", tint: "#fdeeee",
+        description: "24/7 primary and urgent healthcare network." },
+      { name: "Ethiopian Wisdom", path: "/app", category: "Culture & heritage", icon: "🌿", tint: "#e8f6ef",
+        description: "Traditional healers and cultural makers, in one directory." },
+      { name: "Family Feud", path: "/feud", category: "Games", icon: "🎯", tint: "#fff2e3",
+        description: "The team survey game for classrooms, events and friends." },
+      { name: "VERITAS AI", path: "/paraphrase", category: "Writing tools", icon: "✍️", tint: "#e8f1fd",
+        description: "Humanizer and paraphraser studio: rewrite text clearly while keeping its meaning." },
     ];
 
     const tabsEl = document.getElementById("tabs");
