@@ -1,6 +1,6 @@
 {
   "node": {
-    "60c1bfd101ff2a7f4a1835ffabef3b660f1f329c44": {
+    "60bb9409203a194a36b7cb1b8b91a8326b6cb04e6f": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -10,7 +10,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createAcademicYear"
     },
-    "6005bf8a14c4c3d8a0eb414342d26cb8f224131d73": {
+    "609bb82744bea889e130160e043722b657570a5238": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -20,7 +20,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createClassroom"
     },
-    "6047169127587509a543c6fa55369641c1d093276a": {
+    "60c462aa28e851f9e2a86b49d0b4d88733852d939b": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -30,7 +30,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createGradeLevel"
     },
-    "60dd9c45486d1b098168fa518b9c51b23173ae49b6": {
+    "60d601390f1cd90ad2cf18dfbd0ebb04209116e004": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -40,7 +40,7 @@
       "filename": "src/app/(workspace)/academic-setup/actions.ts",
       "exportedName": "createSubject"
     },
-    "605fdbb7c4e8cffd5efb25a9ca7463529188c5bd2b": {
+    "6026d8005e717df616a9ac38257f81c2cdaa911183": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -50,7 +50,7 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "createAssessment"
     },
-    "40b1973504632c1f2f36d673843f02273adaf39e67": {
+    "408d7b78d9af89a0c7aa0a76ea2bcdf0acf5c3931e": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -60,17 +60,7 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "changeAssessmentStatus"
     },
-    "60651d2986ede070cb56371075e8f6d860b1268d49": {
-      "workers": {
-        "app/(workspace)/assessments/page": {
-          "moduleId": 44789,
-          "async": false
-        }
-      },
-      "filename": "src/app/(workspace)/assessments/actions.ts",
-      "exportedName": "recordAssessmentResult"
-    },
-    "60fb489d0cf0df7a252ebe772e3760e363d45781ca": {
+    "60d927ab30b03330521afa37246eee0f6a17b70cb0": {
       "workers": {
         "app/(workspace)/assessments/page": {
           "moduleId": 44789,
@@ -84,7 +74,17 @@
       "filename": "src/app/(workspace)/assessments/actions.ts",
       "exportedName": "submitAssessmentAttempt"
     },
-    "60b37873217b2e92ca8b7f3d2cfdba7b99d710287a": {
+    "60e19485e5fc94ccd0dc40a67f6c0098a27da7f1e9": {
+      "workers": {
+        "app/(workspace)/assessments/page": {
+          "moduleId": 44789,
+          "async": false
+        }
+      },
+      "filename": "src/app/(workspace)/assessments/actions.ts",
+      "exportedName": "recordAssessmentResult"
+    },
+    "6032f9bab1e84ddfcde48422f09abd69bc2a3ebe6b": {
       "workers": {
         "app/(workspace)/attendance/page": {
           "moduleId": 31040,
@@ -94,7 +94,7 @@
       "filename": "src/app/(workspace)/attendance/actions.ts",
       "exportedName": "saveAttendance"
     },
-    "60c0ae0e8dc96abc6e32ec967d55c488027147ffab": {
+    "609e10ba604cd61c79650c27718bf36be180c2d7b1": {
       "workers": {
         "app/(workspace)/hr/page": {
           "moduleId": 70420,
@@ -104,7 +104,7 @@
       "filename": "src/app/(workspace)/hr/actions.ts",
       "exportedName": "createStaffMember"
     },
-    "404cb49e144160430e503cc53ea59a71f330f0a9bf": {
+    "40c347b52f4840199da190d23f8f44382470e89f94": {
       "workers": {
         "app/(workspace)/hr/page": {
           "moduleId": 70420,
@@ -114,7 +114,7 @@
       "filename": "src/app/(workspace)/hr/actions.ts",
       "exportedName": "changeStaffStatus"
     },
-    "4073021e808d760a64629aaa67a51fd3c8c3ad74c1": {
+    "40f0356b0ef7b9c72b25bff16eeb73d4726758d2fb": {
       "workers": {
         "app/(workspace)/inventory/page": {
           "moduleId": 68577,
@@ -124,7 +124,7 @@
       "filename": "src/app/(workspace)/inventory/actions.ts",
       "exportedName": "changeInventoryItemStatus"
     },
-    "6067e3b680606016bc3ca448a76a889447ebb6a1e8": {
+    "6064721e49550ea27e81f97ade9c79829cd7e11ff7": {
       "workers": {
         "app/(workspace)/inventory/page": {
           "moduleId": 68577,
@@ -134,7 +134,7 @@
       "filename": "src/app/(workspace)/inventory/actions.ts",
       "exportedName": "createInventoryItem"
     },
-    "60e44b0dd9ac17f84faed595d97849248fac7dcf03": {
+    "603fc8668935ba161b47a1aa88ee1873184f6097e2": {
       "workers": {
         "app/(workspace)/inventory/page": {
           "moduleId": 68577,
@@ -144,7 +144,7 @@
       "filename": "src/app/(workspace)/inventory/actions.ts",
       "exportedName": "recordInventoryMovement"
     },
-    "40983ecce84dcd395d4d24c3c1c8571ca0a6a56d6d": {
+    "40a33be107e7e73ad980a231dd90493b4c8a1de528": {
       "workers": {
         "app/(workspace)/lessons/[id]/page": {
           "moduleId": 44991,
@@ -158,21 +158,7 @@
       "filename": "src/app/(workspace)/lessons/actions.ts",
       "exportedName": "updateLessonStatus"
     },
-    "60349222de20e490572f393eec08ede5a3aa638217": {
-      "workers": {
-        "app/(workspace)/lessons/[id]/page": {
-          "moduleId": 44991,
-          "async": false
-        },
-        "app/(workspace)/lessons/page": {
-          "moduleId": 60985,
-          "async": false
-        }
-      },
-      "filename": "src/app/(workspace)/lessons/actions.ts",
-      "exportedName": "updateLesson"
-    },
-    "60ab34be6bf501d2092c54a40f67d6e8538721906f": {
+    "6073d7c545a62f38738e979343134a2cf9e8ce0a85": {
       "workers": {
         "app/(workspace)/lessons/[id]/page": {
           "moduleId": 44991,
@@ -186,7 +172,21 @@
       "filename": "src/app/(workspace)/lessons/actions.ts",
       "exportedName": "createLesson"
     },
-    "40780bc63d188123a5898897da276fbed5e0f45878": {
+    "60fb8aba263aeb4d48c35fca397fd3eda02a487208": {
+      "workers": {
+        "app/(workspace)/lessons/[id]/page": {
+          "moduleId": 44991,
+          "async": false
+        },
+        "app/(workspace)/lessons/page": {
+          "moduleId": 60985,
+          "async": false
+        }
+      },
+      "filename": "src/app/(workspace)/lessons/actions.ts",
+      "exportedName": "updateLesson"
+    },
+    "40bce27564b5cbc6b38b70eaf69aa2feab7e0152ff": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -196,7 +196,7 @@
       "filename": "src/app/(workspace)/students/actions.ts",
       "exportedName": "changeStudentStatus"
     },
-    "604c522ac191aaf43484945e5fa084947c668fa386": {
+    "600b093441bfe799d1cc66b2f9763997009161c2e5": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -204,9 +204,9 @@
         }
       },
       "filename": "src/app/(workspace)/students/actions.ts",
-      "exportedName": "registerStudent"
+      "exportedName": "bulkImportStudents"
     },
-    "605528a1f6e517ef759541060ea650b70f32bf28e8": {
+    "602ed4bd78338a5081f74d1122d132879b2e126795": {
       "workers": {
         "app/(workspace)/students/[id]/page": {
           "moduleId": 74490,
@@ -220,7 +220,7 @@
       "filename": "src/app/(workspace)/students/actions.ts",
       "exportedName": "updateStudent"
     },
-    "60b08aa59669a56aa0e16d75a254cffb8b09f4d86c": {
+    "609370b716579187d51cf4c339d554fd03410a77a8": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -228,9 +228,9 @@
         }
       },
       "filename": "src/app/(workspace)/students/actions.ts",
-      "exportedName": "bulkImportStudents"
+      "exportedName": "registerStudent"
     },
-    "40c58dab2fab062ee8b78869541b409ea5b21be2a1": {
+    "4069cacb2983d4e789b87b73dc180ffb8855c1efa6": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,
@@ -240,7 +240,7 @@
       "filename": "src/app/(workspace)/teachers/actions.ts",
       "exportedName": "changeTeacherStatus"
     },
-    "603a1bbb749d7d7a114511d30446de22d0fbb0c69b": {
+    "602af807742aa47d4b1067ea7afa30dde4d63430d5": {
       "workers": {
         "app/(workspace)/teachers/[id]/page": {
           "moduleId": 9691,
@@ -254,7 +254,7 @@
       "filename": "src/app/(workspace)/teachers/actions.ts",
       "exportedName": "updateTeacher"
     },
-    "607ff274d421d7518380962eb8b762423f694a3a59": {
+    "60c85fef4bb924cfa68f0c9b95c0d3dcfdd14fca2e": {
       "workers": {
         "app/(workspace)/teachers/[id]/page": {
           "moduleId": 9691,
@@ -268,7 +268,7 @@
       "filename": "src/app/(workspace)/teachers/actions.ts",
       "exportedName": "createTeacher"
     },
-    "6007bbac3e4fb2000ea8182b5a39acf353be215256": {
+    "608ca3c94bd7faf2ebfb88c5e0f44a509539b3669e": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -278,7 +278,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "inviteMember"
     },
-    "409c758e188c9a3eeda834760e4cda5d48ba37cdae": {
+    "40c7508e6620245fab00a613c417def0826e0953c2": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -288,7 +288,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "changeMemberRole"
     },
-    "401fc4d8b305fa66e5c2f9be2a615514a1bdd6e891": {
+    "40610e9e3bd1cfc6d912e80e4f14275c0859f02777": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -298,7 +298,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "removeMember"
     },
-    "40ba7f9f5b1b96cabb772a2846010dac4075d02d54": {
+    "403053cf109810c2df9527099fa2d13ce54889a554": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -308,7 +308,7 @@
       "filename": "src/app/(workspace)/team/actions.ts",
       "exportedName": "revokeInvitation"
     },
-    "60e627f89e3558f3e1ec81962e19d1e127fb2a0b1e": {
+    "6024dfc2bb4ac8863b7a7fb599f756181e83afe8e8": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -318,7 +318,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "assignScheduleTeacher"
     },
-    "606f76820aa90a3b75050df144bb9f111a9fe4658e": {
+    "604f97e0bae45a3338a257074d63ce9ce1b5ad229b": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -328,7 +328,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "createScheduleEntry"
     },
-    "40acee865d4848b155d3ecfd00817caad0595f87d5": {
+    "40598b298ecc75dc651311b527380a7c2e65490797": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -338,7 +338,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "deleteScheduleEntry"
     },
-    "60887044d765bd2feb359f76d2e2e66e1f2b8451d3": {
+    "60837ba29cabc8555c5755b8141853ba4838e440d5": {
       "workers": {
         "app/(workspace)/timetable/page": {
           "moduleId": 45560,
@@ -348,7 +348,7 @@
       "filename": "src/app/(workspace)/timetable/actions.ts",
       "exportedName": "toggleScheduleCancelled"
     },
-    "40fe25b3767bb6a7d5016ef43d8b48d7c61e9ac2bf": {
+    "40518398800fc70c6bf54190ce6ed311d4e6f80e52": {
       "workers": {
         "app/accept-invite/page": {
           "moduleId": 84570,
@@ -358,7 +358,7 @@
       "filename": "src/app/accept-invite/actions.ts",
       "exportedName": "acceptInvitationForCurrentUser"
     },
-    "60a9554536a23842eef520d8f2f4afd848b84732d8": {
+    "60dd2c4b72580321f72db7f3939832f6004d65f3ec": {
       "workers": {
         "app/setup-school/page": {
           "moduleId": 5617,
@@ -370,5 +370,5 @@
     }
   },
   "edge": {},
-  "encryptionKey": "7j2w5LwszvGoERQvMoUTxNe3+53tuNNjiBza+/qIIho="
+  "encryptionKey": "8TvqaMRH92jilb2WT/UvkOsdYHMH5WWLp8Fx/78ALVI="
 }
