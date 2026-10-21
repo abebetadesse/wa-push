@@ -241,11 +241,44 @@ async function checkAuthTables() {
       }
     }
 
+    // "Create school" writes these three rows in one transaction; try them the same way and roll back,
+    // so a failing school setup shows its database error here.
+    let schoolWrite: { ok: boolean; code?: string; error?: string; skipped?: string } = { ok: false, skipped: "No administrator found." };
+    if (admins[0]?.id) {
+      await db.beginTransaction();
+      try {
+        const schoolId = "healthcheck-school-000000000000000";
+        await db.query(
+          "INSERT INTO school_schools (id, name, slug, country) VALUES (?, ?, ?, ?)",
+          [schoolId, "Health check school", `health-check-${Date.now()}`, null],
+        );
+        await db.query(
+          "INSERT INTO school_memberships (id, school_id, user_id, role) VALUES (?, ?, ?, 'school_admin')",
+          ["healthcheck-membership-00000000000", schoolId, admins[0].id],
+        );
+        await db.query(
+          "INSERT INTO school_activity_events (id, school_id, user_id, detail) VALUES (?, ?, ?, ?)",
+          ["healthcheck-activity-0000000000000", schoolId, admins[0].id, "Health check"],
+        );
+        schoolWrite = { ok: true };
+      } catch (error) {
+        const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+        schoolWrite = { ok: false, code, error: error instanceof Error ? error.message : String(error) };
+      } finally {
+        await db.rollback().catch(() => {});
+        // A table that doesn't support transactions keeps its row through the rollback; remove it.
+        await db.query("DELETE FROM school_activity_events WHERE id = 'healthcheck-activity-0000000000000'").catch(() => {});
+        await db.query("DELETE FROM school_memberships WHERE id = 'healthcheck-membership-00000000000'").catch(() => {});
+        await db.query("DELETE FROM school_schools WHERE id = 'healthcheck-school-000000000000000'").catch(() => {});
+      }
+    }
+
     return {
-      ok: problems.length === 0 && sessionWrite.ok,
+      ok: problems.length === 0 && sessionWrite.ok && schoolWrite.ok,
       problems,
       administrators: Number(lengths[0]?.admins ?? 0),
       sessionWrite,
+      schoolWrite,
     };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) };

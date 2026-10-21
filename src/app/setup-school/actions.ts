@@ -43,24 +43,33 @@ export async function createSchool(
     .slice(0, 88) || "school";
   const slug = `${slugBase}-${randomUUID().slice(0, 8)}`;
 
-  await db.transaction(async (tx) => {
-    await tx.insert(schools).values({
-      id: schoolId,
-      name,
-      slug,
-      country: country || null,
+  try {
+    await db.transaction(async (tx) => {
+      await tx.insert(schools).values({
+        id: schoolId,
+        name,
+        slug,
+        country: country || null,
+      });
+      await tx.insert(schoolMemberships).values({
+        schoolId,
+        userId: session.user.id,
+        role: "school_admin",
+      });
+      await tx.insert(activityEvents).values({
+        schoolId,
+        userId: session.user.id,
+        detail: `Created school ${name}`,
+      });
     });
-    await tx.insert(schoolMemberships).values({
-      schoolId,
-      userId: session.user.id,
-      role: "school_admin",
-    });
-    await tx.insert(activityEvents).values({
-      schoolId,
-      userId: session.user.id,
-      detail: `Created school ${name}`,
-    });
-  });
+  } catch (error) {
+    // Previously this surfaced only as a bare 500. Tell the platform admin what the database said.
+    const cause = (error as { cause?: { code?: string; sqlMessage?: string } })?.cause ?? (error as { code?: string; sqlMessage?: string });
+    console.error("[forma] creating a school failed:", error);
+    return {
+      error: `The school could not be saved${cause?.code ? ` (${cause.code}${cause.sqlMessage ? `: ${cause.sqlMessage}` : ""})` : ""}. Open /api/health for details.`,
+    };
+  }
 
   redirect("/");
 }
