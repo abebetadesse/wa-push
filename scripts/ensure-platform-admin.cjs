@@ -665,9 +665,10 @@ async function main() {
       ["inventory_movements", "school_inventory_movements"],
       ["staff_members", "school_staff_members"]
     ];
-    await connection.query("SET FOREIGN_KEY_CHECKS = 0");
+    const renameLegacyTables = process.env.FORMA_RENAME_LEGACY_TABLES === "1";
+    if (renameLegacyTables) await connection.query("SET FOREIGN_KEY_CHECKS = 0");
     try {
-      for (const [oldName, newName] of tablesToRename) {
+      for (const [oldName, newName] of renameLegacyTables ? tablesToRename : []) {
         try {
           const [oldRows] = await connection.query(`SHOW TABLES LIKE '${oldName}'`);
           const [newRows] = await connection.query(`SHOW TABLES LIKE '${newName}'`);
@@ -680,7 +681,7 @@ async function main() {
         }
       }
     } finally {
-      await connection.query("SET FOREIGN_KEY_CHECKS = 1");
+      if (renameLegacyTables) await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
     let [checkUsersTable] = await connection.query(
       "SHOW TABLES LIKE 'school_auth_users'"
