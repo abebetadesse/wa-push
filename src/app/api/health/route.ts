@@ -166,22 +166,112 @@ async function hasEnvFile() {
   return false;
 }
 
+// Columns the sign-in tables must have, as defined in src/db/schema.ts: [name, type, max length].
+const authTableColumns: Record<string, [string, string, number?][]> = {
+  school_auth_users: [["id", "varchar", 36], ["name", "varchar", 255], ["email", "varchar", 255], ["email_verified", "tinyint"], ["image", "text"], ["role", "varchar", 255], ["banned", "tinyint"], ["ban_reason", "text"], ["ban_expires", "timestamp"], ["created_at", "timestamp"], ["updated_at", "timestamp"]],
+  school_auth_sessions: [["id", "varchar", 36], ["expires_at", "timestamp"], ["token", "varchar", 255], ["created_at", "timestamp"], ["updated_at", "timestamp"], ["ip_address", "varchar", 45], ["user_agent", "text"], ["impersonated_by", "varchar", 36], ["user_id", "varchar", 36]],
+  school_auth_accounts: [["id", "varchar", 36], ["account_id", "varchar", 255], ["provider_id", "varchar", 100], ["user_id", "varchar", 36], ["access_token", "text"], ["refresh_token", "text"], ["id_token", "text"], ["access_token_expires_at", "timestamp"], ["refresh_token_expires_at", "timestamp"], ["scope", "text"], ["password", "text"], ["created_at", "timestamp"], ["updated_at", "timestamp"]],
+  school_auth_verifications: [["id", "varchar", 36], ["identifier", "varchar", 255], ["value", "text"], ["expires_at", "timestamp"], ["created_at", "timestamp"], ["updated_at", "timestamp"]],
+};
+
+/**
+ * Sign-in writes a row to school_auth_sessions. Report, without values, how the sign-in tables differ
+ * from what the app expects, and try that write for an administrator inside a transaction that is
+ * always rolled back, so a failing sign-in shows its database error here.
+ */
+async function checkAuthTables() {
+  if (!process.env.DATABASE_URL) return { ok: false, error: "DATABASE_URL is not set." };
+  let db: mysql.Connection | undefined;
+  try {
+    db = await mysql.createConnection({ uri: process.env.DATABASE_URL, connectTimeout: 5000 });
+    const [columns] = await db.query<mysql.RowDataPacket[]>(
+      `SELECT TABLE_NAME AS t, COLUMN_NAME AS c, DATA_TYPE AS type, CHARACTER_MAXIMUM_LENGTH AS len,
+              IS_NULLABLE AS nullable, COLUMN_DEFAULT AS def, EXTRA AS extra
+         FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (?)`,
+      [Object.keys(authTableColumns)],
+    );
+    const problems: string[] = [];
+    for (const [table, expected] of Object.entries(authTableColumns)) {
+      const actual = columns.filter((column) => column.t === table);
+      if (actual.length === 0) {
+        problems.push(`${table} is missing.`);
+        continue;
+      }
+      for (const [name, type, length] of expected) {
+        const column = actual.find((candidate) => candidate.c === name);
+        if (!column) problems.push(`${table}.${name} is missing.`);
+        else if (String(column.type) !== type) problems.push(`${table}.${name} is ${column.type}, expected ${type}.`);
+        else if (length && Number(column.len) < length) problems.push(`${table}.${name} holds ${column.len} characters, expected ${length}.`);
+      }
+      // A required column the app doesn't know about makes every insert fail.
+      for (const column of actual) {
+        const known = expected.some(([name]) => name === column.c);
+        if (!known && column.nullable === "NO" && column.def === null && !String(column.extra).includes("auto_increment")) {
+          problems.push(`${table}.${column.c} is required but unknown to the app.`);
+        }
+      }
+    }
+
+    const [lengths] = await db.query<mysql.RowDataPacket[]>(
+      "SELECT MAX(CHAR_LENGTH(id)) AS userIdLength, SUM(role LIKE '%admin%') AS admins FROM school_auth_users",
+    ).catch(() => [[{}] as mysql.RowDataPacket[]]);
+    const userIdLength = Number(lengths[0]?.userIdLength ?? 0);
+    if (userIdLength > 36) problems.push(`Some user IDs are ${userIdLength} characters, longer than the 36 sessions can store.`);
+
+    let sessionWrite: { ok: boolean; code?: string; error?: string; skipped?: string } = { ok: false, skipped: "No administrator found." };
+    const [admins] = await db.query<mysql.RowDataPacket[]>(
+      "SELECT id FROM school_auth_users WHERE role LIKE '%admin%' LIMIT 1",
+    ).catch(() => [[] as mysql.RowDataPacket[]]);
+    if (admins[0]?.id) {
+      await db.beginTransaction();
+      try {
+        const token = `health-check-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        await db.query(
+          `INSERT INTO school_auth_sessions (id, expires_at, token, created_at, updated_at, ip_address, user_agent, user_id)
+           VALUES (?, DATE_ADD(NOW(), INTERVAL 1 MINUTE), ?, NOW(), NOW(), ?, ?, ?)`,
+          ["healthcheck00000000000000000000x", token, "203.0.113.10", "forma-health-check", admins[0].id],
+        );
+        sessionWrite = { ok: true };
+      } catch (error) {
+        const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+        sessionWrite = { ok: false, code, error: error instanceof Error ? error.message : String(error) };
+      } finally {
+        await db.rollback().catch(() => {});
+      }
+    }
+
+    return {
+      ok: problems.length === 0 && sessionWrite.ok,
+      problems,
+      administrators: Number(lengths[0]?.admins ?? 0),
+      sessionWrite,
+    };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  } finally {
+    await db?.end().catch(() => {});
+  }
+}
+
 export async function GET() {
   await connection();
-  const [settings, database, uploads, release, envFile] = await Promise.all([
+  const [settings, database, uploads, release, envFile, auth] = await Promise.all([
     Promise.resolve(checkSettings()),
     checkDatabase(),
     checkUploads(),
     readRelease(),
     hasEnvFile(),
+    checkAuthTables(),
   ]);
-  const ok = settings.ok && database.ok && uploads.ok;
+  const ok = settings.ok && database.ok && uploads.ok && auth.ok;
   return Response.json(
     {
       status: ok ? "ok" : "error",
       release,
       settings: { ...settings, envFileBesideApp: envFile },
       database,
+      auth,
       uploads,
       time: new Date().toISOString(),
     },
