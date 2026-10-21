@@ -156,9 +156,12 @@ async function main() {
       ["staff_members", "school_staff_members"],
     ];
 
-    await connection.query("SET FOREIGN_KEY_CHECKS = 0");
+    // Only when asked to: the production database is shared with another application whose tables
+    // use these same unprefixed names, and renaming them moves its data (users included) into Forma.
+    const renameLegacyTables = process.env.FORMA_RENAME_LEGACY_TABLES === "1";
+    if (renameLegacyTables) await connection.query("SET FOREIGN_KEY_CHECKS = 0");
     try {
-      for (const [oldName, newName] of tablesToRename) {
+      for (const [oldName, newName] of renameLegacyTables ? tablesToRename : []) {
         try {
           const [oldRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${oldName}'`);
           const [newRows] = await connection.query<RowDataPacket[]>(`SHOW TABLES LIKE '${newName}'`);
@@ -171,7 +174,7 @@ async function main() {
         }
       }
     } finally {
-      await connection.query("SET FOREIGN_KEY_CHECKS = 1");
+      if (renameLegacyTables) await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
 
     // Check if school_auth_users exists; if not, run migrations first

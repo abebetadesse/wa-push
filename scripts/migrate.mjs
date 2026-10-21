@@ -69,10 +69,15 @@ export async function runMigrations() {
       )
     `);
 
-    // 2. Check if legacy unprefixed tables exist and rename them to school_ prefix
-    await connection.query("SET FOREIGN_KEY_CHECKS = 0");
+    // 2. Rename legacy unprefixed tables to the school_ prefix — only when asked to.
+    //    The production database is shared with another application whose tables have the same
+    //    unprefixed names (auth_users, auth_sessions, …). Renaming them unasked moves that
+    //    application's data into Forma, and breaks it. Set FORMA_RENAME_LEGACY_TABLES=1 for a
+    //    database that holds only Forma's old unprefixed tables.
+    const renameLegacyTables = process.env.FORMA_RENAME_LEGACY_TABLES === "1";
+    if (renameLegacyTables) await connection.query("SET FOREIGN_KEY_CHECKS = 0");
     try {
-      for (const [oldName, newName] of tablesToRename) {
+      for (const [oldName, newName] of renameLegacyTables ? tablesToRename : []) {
         try {
           const [oldRows] = await connection.query(`SHOW TABLES LIKE '${oldName}'`);
           const [newRows] = await connection.query(`SHOW TABLES LIKE '${newName}'`);
@@ -85,7 +90,7 @@ export async function runMigrations() {
         }
       }
     } finally {
-      await connection.query("SET FOREIGN_KEY_CHECKS = 1");
+      if (renameLegacyTables) await connection.query("SET FOREIGN_KEY_CHECKS = 1");
     }
 
     // 3. Inspect if our tables actually exist.
