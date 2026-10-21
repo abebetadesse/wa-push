@@ -1,6 +1,6 @@
 {
   "node": {
-    "40a26be8c6286486338a701dd38c2113e636a5eb14": {
+    "403d7405f3484e6f622d471ed8e659befe84a41a00": {
       "workers": {
         "app/(workspace)/lessons/page": {
           "moduleId": 60985,
@@ -10,17 +10,7 @@
       "exportedName": "updateLessonStatus",
       "filename": "src/app/(workspace)/lessons/actions.ts"
     },
-    "60b4bf8d087dacde2f7662c152f29411eba26970ab": {
-      "workers": {
-        "app/(workspace)/lessons/page": {
-          "moduleId": 60985,
-          "async": false
-        }
-      },
-      "exportedName": "updateLesson",
-      "filename": "src/app/(workspace)/lessons/actions.ts"
-    },
-    "60e98fd21ff66b882f38580860f7bfeb861c75450f": {
+    "60af2d13c286580254e172deb0358d0b25b4d122bb": {
       "workers": {
         "app/(workspace)/lessons/page": {
           "moduleId": 60985,
@@ -28,6 +18,16 @@
         }
       },
       "exportedName": "createLesson",
+      "filename": "src/app/(workspace)/lessons/actions.ts"
+    },
+    "60cb4e849a5f44e4567b97b3c7818558ab10f1fce8": {
+      "workers": {
+        "app/(workspace)/lessons/page": {
+          "moduleId": 60985,
+          "async": false
+        }
+      },
+      "exportedName": "updateLesson",
       "filename": "src/app/(workspace)/lessons/actions.ts"
     }
   },
