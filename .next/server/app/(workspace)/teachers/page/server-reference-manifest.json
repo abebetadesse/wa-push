@@ -1,6 +1,6 @@
 {
   "node": {
-    "409d02fe03a5f44b2ce8bc61584a9986b11262ce4d": {
+    "409353f07603c597af3d1392780ebdbe53cf332b09": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,
@@ -10,17 +10,7 @@
       "exportedName": "changeTeacherStatus",
       "filename": "src/app/(workspace)/teachers/actions.ts"
     },
-    "6015bd3f4e87fdb731143a5ef56ac55b7a94380e89": {
-      "workers": {
-        "app/(workspace)/teachers/page": {
-          "moduleId": 42304,
-          "async": false
-        }
-      },
-      "exportedName": "updateTeacher",
-      "filename": "src/app/(workspace)/teachers/actions.ts"
-    },
-    "60327935cb781175d9b3a06a87196e30a5761d1cf1": {
+    "601412d60639e0884585209be85d01ed80787faf31": {
       "workers": {
         "app/(workspace)/teachers/page": {
           "moduleId": 42304,
@@ -28,6 +18,16 @@
         }
       },
       "exportedName": "createTeacher",
+      "filename": "src/app/(workspace)/teachers/actions.ts"
+    },
+    "60d13064745ea96240dc908862763c071bdde6c292": {
+      "workers": {
+        "app/(workspace)/teachers/page": {
+          "moduleId": 42304,
+          "async": false
+        }
+      },
+      "exportedName": "updateTeacher",
       "filename": "src/app/(workspace)/teachers/actions.ts"
     }
   },
