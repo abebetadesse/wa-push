@@ -70,18 +70,23 @@ async function start() {
     return null;
   }
 
+  // The path this build is served under ("" for the site root, "/school" behind wisdomcourse.com.et).
+  const basePath = readBuildBasePath();
+
   const server = createServer((req, res) => {
     if (req.url) {
       const [pathname, search] = req.url.split("?");
       const query = search ? `?${search}` : "";
 
-      if (pathname === "/school" || pathname === "/school/") {
+      // A root build answers old /school/... links from the time Forma lived under that path. A
+      // /school build owns those URLs itself and must receive them unchanged.
+      if (basePath === "" && (pathname === "/school" || pathname === "/school/")) {
         res.writeHead(307, { Location: `/${query}` });
         res.end();
         return;
       }
 
-      if (pathname.startsWith("/school/")) {
+      if (basePath === "" && pathname.startsWith("/school/")) {
         const strippedPath = pathname.slice(7);
         if (
           strippedPath.startsWith("/_next/") ||
@@ -104,8 +109,9 @@ async function start() {
       // If a browser with a stale HTML page requests a missing CSS or JS chunk,
       // prevent 404s by serving the active bundle or triggering a clean reload.
       const [currentPath] = (req.url || "").split("?");
-      if (currentPath.startsWith("/_next/static/chunks/")) {
-        const chunkFileName = currentPath.slice("/_next/static/chunks/".length);
+      const chunksPrefix = `${basePath}/_next/static/chunks/`;
+      if (currentPath.startsWith(chunksPrefix)) {
+        const chunkFileName = currentPath.slice(chunksPrefix.length);
         const chunkFilePath = join(staticChunksDir, chunkFileName);
         if (!existsSync(chunkFilePath)) {
           if (chunkFileName.endsWith(".css")) {
@@ -150,6 +156,19 @@ async function start() {
   process.on("SIGINT", () => stop("SIGINT"));
   // Restarting into a newly deployed release is done by src/lib/release-watcher.ts, which Next.js
   // starts from instrumentation.ts, so it also runs when the host launches `next start` directly.
+}
+
+/**
+ * The base path the release was built for, from RELEASE.json (written by npm run deploy:plesk);
+ * outside a release, the NEXT_PUBLIC_BASE_PATH the build used. "/" and unset both mean the root.
+ */
+function readBuildBasePath() {
+  let value = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  try {
+    const release = JSON.parse(readFileSync(join(__dirname, "RELEASE.json"), "utf8"));
+    if (typeof release.basePath === "string") value = release.basePath;
+  } catch {}
+  return value.trim().replace(/\/+$/, "");
 }
 
 /**

@@ -36,6 +36,10 @@ export const auth = betterAuth({
   basePath: authBasePath,
   trustedOrigins: [authUrl.origin],
   secret: authSecret,
+  // Forma shares wisdomcourse.com.et with other apps (see docs/SINGLE-DOMAIN.md). Cookies are per
+  // domain, not per path, so a distinct prefix keeps another better-auth app's session cookie from
+  // replacing Forma's. Changing it signs everyone out once.
+  advanced: { cookiePrefix: "forma" },
   database: drizzleAdapter(db, {
     provider: "mysql",
     schema: {

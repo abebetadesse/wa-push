@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wisdom Course</title>
+  <meta name="description" content="All Wisdom Course apps in one place: school management, learning games, writing tools and more.">
+  <meta name="theme-color" content="#6352d6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f6fa; --surface: #fff; --surface-2: #f9f9fc; --line: #e8e8f0;
+      --ink: #1c1c2b; --ink-2: #48485c; --muted: #74748a;
+      --brand: #6352d6; --brand-strong: #5240c4; --brand-soft: #efecff; --brand-ink: #5240c4;
+      --shadow: 0 1px 2px rgb(20 20 40 / 5%); --shadow-lg: 0 18px 50px rgb(20 20 40 / 12%);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0f0f17; --surface: #171722; --surface-2: #1c1c29; --line: #2a2a3e;
+        --ink: #ececf5; --ink-2: #c4c4d6; --muted: #9191a8;
+        --brand: #8676ff; --brand-strong: #9d90ff; --brand-soft: #262046; --brand-ink: #bdb3ff;
+        --shadow: 0 1px 2px rgb(0 0 0 / 30%); --shadow-lg: 0 18px 50px rgb(0 0 0 / 50%);
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Ethiopic", Arial, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(12px); }
+    .topbar-inner, main, footer { width: min(1120px, 100%); margin: 0 auto; padding: 0 16px; }
+    .topbar-inner { display: flex; height: 64px; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 800; letter-spacing: -.03em; text-decoration: none; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: linear-gradient(135deg, var(--brand), #a48fff); color: #fff; font-size: 18px; }
+    .search { display: flex; width: min(320px, 46vw); align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); padding: 0 12px; color: var(--muted); }
+    .search input { width: 100%; min-width: 0; height: 40px; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14px; }
+
+    .hero { padding: 48px 0 26px; }
+    .hero h1 { margin: 0 0 10px; font-size: clamp(28px, 4.4vw, 44px); line-height: 1.1; letter-spacing: -.035em; }
+    .hero h1 span { background: linear-gradient(135deg, var(--brand), #b18cff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { max-width: 620px; margin: 0; color: var(--muted); font-size: 17px; }
+
+    .tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 22px; padding: 4px 0; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 9px 16px; color: var(--ink-2); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+    .tab:hover { border-color: color-mix(in srgb, var(--brand) 40%, var(--line)); color: var(--brand-ink); }
+    .tab[aria-selected="true"] { border-color: var(--brand); background: var(--brand); color: #fff; }
+    .tab .count { margin-left: 6px; opacity: .7; font-weight: 500; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding-bottom: 40px; }
+    .card { display: flex; flex-direction: column; gap: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); padding: 22px; text-decoration: none; box-shadow: var(--shadow); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--brand) 35%, var(--line)); box-shadow: var(--shadow-lg); }
+    .card-head { display: flex; align-items: center; gap: 14px; }
+    .icon { display: grid; width: 48px; height: 48px; flex: 0 0 auto; place-items: center; border-radius: 13px; font-size: 24px; }
+    .card h2 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+    .badge { display: inline-block; margin-top: 2px; border-radius: 999px; background: var(--brand-soft); padding: 1px 9px; color: var(--brand-ink); font-size: 12px; font-weight: 600; }
+    .card p { flex: 1; margin: 0; color: var(--muted); font-size: 14.5px; }
+    .open { display: inline-flex; align-items: center; gap: 6px; color: var(--brand-ink); font-size: 14px; font-weight: 700; }
+    .card:hover .open span { transform: translateX(3px); }
+    .open span { transition: transform .15s; }
+    .empty { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 16px; padding: 36px; color: var(--muted); text-align: center; }
+
+    footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; border-top: 1px solid var(--line); padding-top: 18px; padding-bottom: 28px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 560px) { .search { display: none; } .hero { padding-top: 32px; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">W</span>Wisdom Course</a>
+      <label class="search">
+        <span aria-hidden="true">⌕</span>
+        <input id="search" type="search" placeholder="Search apps…" aria-label="Search apps">
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Everything you need, <span>in one place</span></h1>
+      <p>Pick an app to get started. Each one opens on this site, so your bookmarks and links stay under wisdomcourse.com.et.</p>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="App categories" id="tabs"></div>
+    <section class="grid" id="apps" role="tabpanel" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> Wisdom Course</span>
+    <span>One sign-in per app · All apps at wisdomcourse.com.et</span>
+  </footer>
+
+  <script>
+    // Edit this list to add, rename or recategorize apps. "path" is where the app is served.
+    const apps = [
+      { name: "School management", path: "/school/", category: "Education", icon: "🏫", tint: "#efecff",
+        description: "Run your school: students, teachers, lesson plans, timetables, attendance, assessments and report cards." },
+      { name: "Wellness platform", path: "/app/", category: "Health & wellness", icon: "🌿", tint: "#e8f6ef",
+        description: "Appointments, wellness programs and guidance from the Ethio Wellness Platform." },
+      { name: "Feud", path: "/feud/", category: "Games", icon: "🎯", tint: "#fff2e3",
+        description: "A fast, team-based quiz game for classrooms, events and friends." },
+      { name: "Paraphrase", path: "/paraphrase/", category: "Writing tools", icon: "✍️", tint: "#e8f1fd",
+        description: "Rewrite text in clearer words while keeping its meaning." },
+    ];
+
+    const tabsEl = document.getElementById("tabs");
+    const appsEl = document.getElementById("apps");
+    const searchEl = document.getElementById("search");
+    const categories = ["All", ...new Set(apps.map((app) => app.category))];
+    let active = new URLSearchParams(location.search).get("category") || "All";
+    if (!categories.includes(active)) active = "All";
+
+    function renderTabs() {
+      tabsEl.replaceChildren(...categories.map((category) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tab";
+        button.role = "tab";
+        button.setAttribute("aria-selected", String(category === active));
+        const total = category === "All" ? apps.length : apps.filter((app) => app.category === category).length;
+        button.innerHTML = `${category}<span class="count">${total}</span>`;
+        button.addEventListener("click", () => {
+          active = category;
+          const url = new URL(location.href);
+          if (category === "All") url.searchParams.delete("category"); else url.searchParams.set("category", category);
+          history.replaceState(null, "", url);
+          render();
+        });
+        return button;
+      }));
+    }
+
+    function renderApps() {
+      const terms = searchEl.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const shown = apps.filter((app) =>
+        (active === "All" || app.category === active) &&
+        terms.every((term) => `${app.name} ${app.category} ${app.description}`.toLowerCase().includes(term)));
+      if (shown.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty";
+        empty.textContent = "No apps match your search.";
+        appsEl.replaceChildren(empty);
+        return;
+      }
+      appsEl.replaceChildren(...shown.map((app) => {
+        const card = document.createElement("a");
+        card.className = "card";
+        card.href = app.path;
+        const head = document.createElement("div");
+        head.className = "card-head";
+        const icon = document.createElement("span");
+        icon.className = "icon";
+        icon.style.background = app.tint;
+        icon.textContent = app.icon;
+        icon.setAttribute("aria-hidden", "true");
+        const titles = document.createElement("div");
+        const title = document.createElement("h2");
+        title.textContent = app.name;
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = app.category;
+        titles.append(title, badge);
+        head.append(icon, titles);
+        const description = document.createElement("p");
+        description.textContent = app.description;
+        const open = document.createElement("span");
+        open.className = "open";
+        open.innerHTML = 'Open app <span aria-hidden="true">→</span>';
+        card.append(head, description, open);
+        return card;
+      }));
+    }
+
+    function render() { renderTabs(); renderApps(); }
+    searchEl.addEventListener("input", renderApps);
+    document.getElementById("year").textContent = new Date().getFullYear();
+    render();
+  </script>
+</body>
+</html>
