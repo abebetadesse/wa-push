@@ -1,6 +1,6 @@
 {
   "node": {
-    "602946276df17ba22f39310a5f0c76ff4380447e83": {
+    "609c3572149e9a69b800e93422d4f94ab1df616199": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -10,7 +10,7 @@
       "exportedName": "inviteMember",
       "filename": "src/app/(workspace)/team/actions.ts"
     },
-    "40c907bb577d4ea209bb2fe3adac82a857e1dd0133": {
+    "407befe91db697c693d1a28ecc743652f3cd06fa19": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -20,7 +20,7 @@
       "exportedName": "changeMemberRole",
       "filename": "src/app/(workspace)/team/actions.ts"
     },
-    "40f06c729c1322a8342bbe81bc621b7b5e481b5e52": {
+    "40ad841f72b321003780a4e3aa8742974fd443a9d5": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
@@ -30,7 +30,7 @@
       "exportedName": "removeMember",
       "filename": "src/app/(workspace)/team/actions.ts"
     },
-    "4051365eb7e8f1fad574daf81e77d25de3ffc9fa10": {
+    "4021588268c9e4fbb6f54e31f6be3b33616da505e7": {
       "workers": {
         "app/(workspace)/team/page": {
           "moduleId": 13099,
