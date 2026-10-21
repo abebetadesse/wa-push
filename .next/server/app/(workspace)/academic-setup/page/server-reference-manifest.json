@@ -1,6 +1,6 @@
 {
   "node": {
-    "60c414c9cb469afc6f0ffffb52564c77d96eaf7adf": {
+    "60c1bfd101ff2a7f4a1835ffabef3b660f1f329c44": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -10,7 +10,7 @@
       "exportedName": "createAcademicYear",
       "filename": "src/app/(workspace)/academic-setup/actions.ts"
     },
-    "600fa4a445f1f78bf0036634a8310a8622fdecb637": {
+    "6005bf8a14c4c3d8a0eb414342d26cb8f224131d73": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -20,7 +20,7 @@
       "exportedName": "createClassroom",
       "filename": "src/app/(workspace)/academic-setup/actions.ts"
     },
-    "6011f22d11c5ca47e866807f68b2ff1b6af7b0b27b": {
+    "6047169127587509a543c6fa55369641c1d093276a": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,
@@ -30,7 +30,7 @@
       "exportedName": "createGradeLevel",
       "filename": "src/app/(workspace)/academic-setup/actions.ts"
     },
-    "608be412ae7711366b99e179ba2279f66ccc9ae744": {
+    "60dd9c45486d1b098168fa518b9c51b23173ae49b6": {
       "workers": {
         "app/(workspace)/academic-setup/page": {
           "moduleId": 38198,

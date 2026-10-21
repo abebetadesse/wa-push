@@ -132,6 +132,9 @@ export async function runMigrations() {
       migrationsTable: "school_drizzle_migrations",
     });
 
+    // 5. Make sure the session table is Forma's own.
+    await repairSessionTable(connection);
+
     let applied = 0;
     try {
       const [rows] = await connection.query("SELECT COUNT(*) AS applied FROM `school_drizzle_migrations`");
@@ -147,6 +150,60 @@ export async function runMigrations() {
   } finally {
     await connection.end();
   }
+}
+
+/**
+ * On the shared production database, school_auth_sessions ended up being the other application's
+ * session table (token_hash, last_seen_at, datetime columns) instead of Forma's, so every sign-in
+ * failed when it saved the session. If the table lacks Forma's columns, move it aside under a
+ * dated name — keeping its rows — and create Forma's table. Sessions are short-lived, so starting
+ * with an empty table only means signing in again.
+ */
+export async function repairSessionTable(connection) {
+  const [columns] = await connection.query(
+    "SELECT COLUMN_NAME AS name FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_auth_sessions'",
+  );
+  if (!Array.isArray(columns) || columns.length === 0) return;
+  const names = new Set(columns.map((column) => column.name));
+  const required = ["id", "expires_at", "token", "created_at", "updated_at", "ip_address", "user_agent", "impersonated_by", "user_id"];
+  if (required.every((name) => names.has(name))) return;
+
+  const stamp = new Date().toISOString().slice(0, 19).replace(/\D/g, "");
+  const asideName = `school_auth_sessions_foreign_${stamp}`;
+  console.warn(`[migrate] school_auth_sessions is not Forma's session table; moving it to ${asideName}.`);
+  await connection.query(`RENAME TABLE \`school_auth_sessions\` TO \`${asideName}\``);
+
+  // Match the users table's character set so the foreign key can be created.
+  const [userTable] = await connection.query(
+    "SELECT TABLE_COLLATION AS collation FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_auth_users'",
+  );
+  const collation = /^[a-z0-9_]+$/.test(userTable?.[0]?.collation ?? "") ? userTable[0].collation : "utf8mb4_unicode_ci";
+  const charset = collation.split("_")[0];
+  await connection.query(`
+    CREATE TABLE \`school_auth_sessions\` (
+      \`id\` varchar(36) NOT NULL,
+      \`expires_at\` timestamp NOT NULL,
+      \`token\` varchar(255) NOT NULL,
+      \`created_at\` timestamp NOT NULL DEFAULT (now()),
+      \`updated_at\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      \`ip_address\` varchar(45),
+      \`user_agent\` text,
+      \`impersonated_by\` varchar(36),
+      \`user_id\` varchar(36) NOT NULL,
+      CONSTRAINT \`school_auth_sessions_id\` PRIMARY KEY (\`id\`),
+      CONSTRAINT \`school_auth_sessions_token_unique\` UNIQUE (\`token\`),
+      KEY \`school_auth_sessions_user_idx\` (\`user_id\`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=${charset} COLLATE=${collation}
+  `);
+  try {
+    await connection.query(
+      "ALTER TABLE `school_auth_sessions` ADD CONSTRAINT `school_auth_sessions_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `school_auth_users`(`id`) ON DELETE CASCADE",
+    );
+  } catch (error) {
+    // Sign-in works without it; the key only removes a deleted user's sessions automatically.
+    console.warn("[migrate] could not add the session → user foreign key:", error instanceof Error ? error.message : error);
+  }
+  console.log("[migrate] created Forma's school_auth_sessions table.");
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

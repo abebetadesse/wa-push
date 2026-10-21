@@ -1,6 +1,6 @@
 {
   "node": {
-    "40d410df4c7f3481e7df29fb2168e92ff646440fe6": {
+    "40983ecce84dcd395d4d24c3c1c8571ca0a6a56d6d": {
       "workers": {
         "app/(workspace)/lessons/[id]/page": {
           "moduleId": 44991,
@@ -10,17 +10,7 @@
       "exportedName": "updateLessonStatus",
       "filename": "src/app/(workspace)/lessons/actions.ts"
     },
-    "6013b1feeb6203a7945bf55eb0a96aafca45cc78fb": {
-      "workers": {
-        "app/(workspace)/lessons/[id]/page": {
-          "moduleId": 44991,
-          "async": false
-        }
-      },
-      "exportedName": "createLesson",
-      "filename": "src/app/(workspace)/lessons/actions.ts"
-    },
-    "602cf30b3e5e79459ca0b3753a4f0c70112b9098b1": {
+    "60349222de20e490572f393eec08ede5a3aa638217": {
       "workers": {
         "app/(workspace)/lessons/[id]/page": {
           "moduleId": 44991,
@@ -28,6 +18,16 @@
         }
       },
       "exportedName": "updateLesson",
+      "filename": "src/app/(workspace)/lessons/actions.ts"
+    },
+    "60ab34be6bf501d2092c54a40f67d6e8538721906f": {
+      "workers": {
+        "app/(workspace)/lessons/[id]/page": {
+          "moduleId": 44991,
+          "async": false
+        }
+      },
+      "exportedName": "createLesson",
       "filename": "src/app/(workspace)/lessons/actions.ts"
     }
   },
