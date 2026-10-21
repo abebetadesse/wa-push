@@ -10,6 +10,28 @@ import { join } from "node:path";
  *
  * Started from instrumentation.ts, so it runs however the server is launched (app.js or next start).
  */
+/**
+ * Passenger exposes a PhusionPassenger global only to apps it loads through its own Node.js loader;
+ * under `next start` it is absent, so also look for the variables Passenger sets for every app.
+ */
+export function underPassenger() {
+  return Boolean(
+    (globalThis as { PhusionPassenger?: unknown }).PhusionPassenger
+      || process.env.IN_PASSENGER === "1"
+      || process.env.PASSENGER_APP_ENV,
+  );
+}
+
+export type RunningProcess = { startedAt: string; buildId: string; underPassenger: boolean };
+
+/**
+ * What this server process loaded at startup, for /api/health. Kept on globalThis because the route
+ * and instrumentation are bundled separately and don't share module state.
+ */
+export function runningProcess(): RunningProcess | undefined {
+  return (globalThis as { __formaProcess?: RunningProcess }).__formaProcess;
+}
+
 export function restartWhenReleaseChanges() {
   const root = /* turbopackIgnore: true */ process.cwd();
   const buildIdFile = join(root, ".next", "BUILD_ID");
@@ -22,6 +44,11 @@ export function restartWhenReleaseChanges() {
   };
 
   const running = readBuildId();
+  (globalThis as { __formaProcess?: RunningProcess }).__formaProcess = {
+    startedAt: new Date().toISOString(),
+    buildId: running,
+    underPassenger: underPassenger(),
+  };
   if (!running) return;
 
   let pending = "";
@@ -48,7 +75,7 @@ export function restartWhenReleaseChanges() {
     } catch {
       // Passenger may not watch this folder; the exit below still restarts the app.
     }
-    if ((globalThis as { PhusionPassenger?: unknown }).PhusionPassenger) {
+    if (underPassenger()) {
       // Give requests in flight a moment to finish; Passenger serves the next one from a new process.
       setTimeout(() => process.exit(0), 3_000);
     }

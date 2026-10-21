@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import mysql from "mysql2/promise";
 import { connection } from "next/server";
+import { runningProcess, underPassenger } from "@/lib/release-watcher";
 
 // Public deployment check: reports which settings are missing and whether the database is ready,
 // without revealing any values. It deliberately does not import @/lib/auth or @/db, which throw at
@@ -302,6 +303,8 @@ export async function GET() {
     {
       status: ok ? "ok" : "error",
       release,
+      // The release on disk can be newer than the one this process loaded; these tell them apart.
+      process: runningProcess() ?? { underPassenger: underPassenger(), note: "Startup tasks did not run in this process." },
       settings: { ...settings, envFileBesideApp: envFile },
       database,
       auth,
