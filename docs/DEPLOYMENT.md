@@ -4,6 +4,8 @@ Forma (the school management app) runs as its own website at **`https://school.w
 on its own Node.js application in Plesk. It does not depend on the Ethio Wellness Platform ("wa") or
 any other site: it has its own code, releases, database, sign-in, and settings.
 
+To move all apps to a new server and database service, follow [MIGRATION.md](MIGRATION.md).
+
 To serve Forma at `https://www.wisdomcourse.com.et/school` alongside the other apps, with a portal
 page at `/apps`, follow [SINGLE-DOMAIN.md](SINGLE-DOMAIN.md).
 
