@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -10,7 +12,7 @@ import { isDuplicateEntry } from "@/lib/db-errors";
 
 export type InventoryActionState = { error?: string; success?: string };
 
-export async function createInventoryItem(
+async function createInventoryItemImpl(
   _previous: InventoryActionState,
   formData: FormData,
 ): Promise<InventoryActionState> {
@@ -60,7 +62,7 @@ export async function createInventoryItem(
   return { success: `${name} was added to inventory.` };
 }
 
-export async function recordInventoryMovement(
+async function recordInventoryMovementImpl(
   _previous: InventoryActionState,
   formData: FormData,
 ): Promise<InventoryActionState> {
@@ -119,19 +121,19 @@ export async function recordInventoryMovement(
   return { success: "Stock movement recorded." };
 }
 
-export async function changeInventoryItemStatus(formData: FormData): Promise<void> {
+async function changeInventoryItemStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const itemId = String(formData.get("itemId") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
   if (!schoolId || !itemId || (status !== "active" && status !== "inactive")) {
-    throw new Error("Invalid inventory status update.");
+    throw new UserError("Invalid inventory status update.");
   }
   const { session } = await requireSchoolRole(schoolId, ["school_admin", "inventory_manager"]);
   const [item] = await db.select({ name: inventoryItems.name })
     .from(inventoryItems)
     .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.schoolId, schoolId)))
     .limit(1);
-  if (!item) throw new Error("Inventory item not found in this school.");
+  if (!item) throw new UserError("Inventory item not found in this school.");
   await db.transaction(async (tx) => {
     await tx.update(inventoryItems)
       .set({ status })
@@ -143,4 +145,17 @@ export async function changeInventoryItemStatus(formData: FormData): Promise<voi
     });
   });
   revalidatePath("/inventory");
+  return {};
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createInventoryItem(...args: Parameters<typeof createInventoryItemImpl>) {
+  return guardAction(() => createInventoryItemImpl(...args));
+}
+export async function recordInventoryMovement(...args: Parameters<typeof recordInventoryMovementImpl>) {
+  return guardAction(() => recordInventoryMovementImpl(...args));
+}
+export async function changeInventoryItemStatus(...args: Parameters<typeof changeInventoryItemStatusImpl>) {
+  return guardAction(() => changeInventoryItemStatusImpl(...args));
 }

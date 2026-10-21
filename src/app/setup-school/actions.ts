@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -12,7 +14,7 @@ export type CreateSchoolState = {
   error?: string;
 };
 
-export async function createSchool(
+async function createSchoolImpl(
   _previousState: CreateSchoolState,
   formData: FormData,
 ): Promise<CreateSchoolState> {
@@ -72,4 +74,10 @@ export async function createSchool(
   }
 
   redirect("/");
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createSchool(...args: Parameters<typeof createSchoolImpl>) {
+  return guardAction(() => createSchoolImpl(...args));
 }

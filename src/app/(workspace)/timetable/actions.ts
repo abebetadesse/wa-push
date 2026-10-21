@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq, gt, lt, ne, type SQL } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -72,7 +74,7 @@ async function findAssignableTeacher(schoolId: string, teacherId: string) {
   return { teacher };
 }
 
-export async function createScheduleEntry(
+async function createScheduleEntryImpl(
   _previous: TimetableActionState,
   formData: FormData,
 ): Promise<TimetableActionState> {
@@ -147,7 +149,7 @@ export async function createScheduleEntry(
 async function loadEntry(formData: FormData) {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const entryId = String(formData.get("entryId") ?? "").trim();
-  if (!schoolId || !entryId) throw new Error("Invalid timetable request.");
+  if (!schoolId || !entryId) throw new UserError("Invalid timetable request.");
   const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
   const [entry] = await db
     .select({
@@ -168,11 +170,11 @@ async function loadEntry(formData: FormData) {
     .innerJoin(subjects, eq(classSchedules.subjectId, subjects.id))
     .where(and(eq(classSchedules.id, entryId), eq(classSchedules.schoolId, schoolId)))
     .limit(1);
-  if (!entry) throw new Error("Timetable entry not found in this school.");
+  if (!entry) throw new UserError("Timetable entry not found in this school.");
   return { schoolId, session, entry };
 }
 
-export async function toggleScheduleCancelled(
+async function toggleScheduleCancelledImpl(
   _previous: TimetableActionState,
   formData: FormData,
 ): Promise<TimetableActionState> {
@@ -198,7 +200,7 @@ export async function toggleScheduleCancelled(
   return {};
 }
 
-export async function assignScheduleTeacher(
+async function assignScheduleTeacherImpl(
   _previous: TimetableActionState,
   formData: FormData,
 ): Promise<TimetableActionState> {
@@ -228,7 +230,7 @@ export async function assignScheduleTeacher(
   return {};
 }
 
-export async function deleteScheduleEntry(formData: FormData): Promise<void> {
+async function deleteScheduleEntryImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const { schoolId, session, entry } = await loadEntry(formData);
   await db.transaction(async (tx) => {
     await tx.delete(classSchedules)
@@ -241,4 +243,20 @@ export async function deleteScheduleEntry(formData: FormData): Promise<void> {
   });
   revalidatePath("/timetable");
   revalidatePath("/teachers");
+  return {};
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createScheduleEntry(...args: Parameters<typeof createScheduleEntryImpl>) {
+  return guardAction(() => createScheduleEntryImpl(...args));
+}
+export async function toggleScheduleCancelled(...args: Parameters<typeof toggleScheduleCancelledImpl>) {
+  return guardAction(() => toggleScheduleCancelledImpl(...args));
+}
+export async function assignScheduleTeacher(...args: Parameters<typeof assignScheduleTeacherImpl>) {
+  return guardAction(() => assignScheduleTeacherImpl(...args));
+}
+export async function deleteScheduleEntry(...args: Parameters<typeof deleteScheduleEntryImpl>) {
+  return guardAction(() => deleteScheduleEntryImpl(...args));
 }

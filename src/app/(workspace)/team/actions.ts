@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomBytes, randomUUID } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -22,7 +24,7 @@ function isInviteRole(value: string): value is InviteRole {
   return inviteRoles.some((candidate) => candidate === value);
 }
 
-export async function inviteMember(_previous: InviteState, formData: FormData): Promise<InviteState> {
+async function inviteMemberImpl(_previous: InviteState, formData: FormData): Promise<InviteState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role") ?? "").trim();
@@ -111,10 +113,10 @@ function isStaffRole(value: string): value is StaffRole {
   return staffRoles.some((candidate) => candidate === value);
 }
 
-export async function revokeInvitation(formData: FormData): Promise<void> {
+async function revokeInvitationImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const invitationId = String(formData.get("invitationId") ?? "").trim();
-  if (!schoolId || !invitationId) throw new Error("Invalid invitation request.");
+  if (!schoolId || !invitationId) throw new UserError("Invalid invitation request.");
   const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
 
   const [invitation] = await db
@@ -126,7 +128,7 @@ export async function revokeInvitation(formData: FormData): Promise<void> {
       isNull(schoolInvitations.acceptedAt),
     ))
     .limit(1);
-  if (!invitation) throw new Error("Pending invitation not found in this school.");
+  if (!invitation) throw new UserError("Pending invitation not found in this school.");
 
   await db.transaction(async (tx) => {
     await tx.delete(schoolInvitations).where(and(
@@ -141,36 +143,37 @@ export async function revokeInvitation(formData: FormData): Promise<void> {
     });
   });
   revalidatePath("/team");
+  return {};
 }
 
 async function loadManagedMember(schoolId: string, userId: string) {
   const access = await requireSchoolRole(schoolId, ["school_admin"]);
-  if (userId === access.session.user.id) throw new Error("You cannot change your own school access.");
+  if (userId === access.session.user.id) throw new UserError("You cannot change your own school access.");
   const [member] = await db
     .select({ id: schoolMemberships.id, role: schoolMemberships.role, name: authUsers.name })
     .from(schoolMemberships)
     .innerJoin(authUsers, eq(schoolMemberships.userId, authUsers.id))
     .where(and(eq(schoolMemberships.schoolId, schoolId), eq(schoolMemberships.userId, userId)))
     .limit(1);
-  if (!member) throw new Error("Member not found in this school.");
+  if (!member) throw new UserError("Member not found in this school.");
   if (member.role === "school_admin" && !isPlatformAdmin(access.session)) {
-    throw new Error("Only a platform administrator can change a school administrator's access.");
+    throw new UserError("Only a platform administrator can change a school administrator's access.");
   }
   return { ...access, member };
 }
 
-export async function changeMemberRole(formData: FormData): Promise<void> {
+async function changeMemberRoleImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const userId = String(formData.get("userId") ?? "").trim();
   const role = String(formData.get("role") ?? "").trim();
-  if (!schoolId || !userId || !isStaffRole(role)) throw new Error("Invalid role change request.");
+  if (!schoolId || !userId || !isStaffRole(role)) throw new UserError("Invalid role change request.");
 
   const { session, member } = await loadManagedMember(schoolId, userId);
-  if (!isStaffRole(member.role)) throw new Error("Student and guardian accounts cannot be given staff roles.");
+  if (!isStaffRole(member.role)) throw new UserError("Student and guardian accounts cannot be given staff roles.");
   if (role === "school_admin" && !isPlatformAdmin(session)) {
-    throw new Error("Only a platform administrator can assign the school administrator role.");
+    throw new UserError("Only a platform administrator can assign the school administrator role.");
   }
-  if (member.role === role) return;
+  if (member.role === role) return {};
 
   await db.transaction(async (tx) => {
     await tx
@@ -184,12 +187,13 @@ export async function changeMemberRole(formData: FormData): Promise<void> {
     });
   });
   revalidatePath("/team");
+  return {};
 }
 
-export async function removeMember(formData: FormData): Promise<void> {
+async function removeMemberImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const userId = String(formData.get("userId") ?? "").trim();
-  if (!schoolId || !userId) throw new Error("Invalid member removal request.");
+  if (!schoolId || !userId) throw new UserError("Invalid member removal request.");
 
   const { session, member } = await loadManagedMember(schoolId, userId);
   await db.transaction(async (tx) => {
@@ -213,4 +217,20 @@ export async function removeMember(formData: FormData): Promise<void> {
   });
   revalidatePath("/team");
   revalidatePath("/");
+  return {};
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function inviteMember(...args: Parameters<typeof inviteMemberImpl>) {
+  return guardAction(() => inviteMemberImpl(...args));
+}
+export async function revokeInvitation(...args: Parameters<typeof revokeInvitationImpl>) {
+  return guardAction(() => revokeInvitationImpl(...args));
+}
+export async function changeMemberRole(...args: Parameters<typeof changeMemberRoleImpl>) {
+  return guardAction(() => changeMemberRoleImpl(...args));
+}
+export async function removeMember(...args: Parameters<typeof removeMemberImpl>) {
+  return guardAction(() => removeMemberImpl(...args));
 }

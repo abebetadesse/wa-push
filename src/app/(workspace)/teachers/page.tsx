@@ -1,3 +1,4 @@
+import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, count, eq, inArray, ne } from "drizzle-orm";
 import Link from "next/link";
@@ -93,12 +94,12 @@ async function TeachersContent() {
                     </small>
                   </div>
                   <span className={`role-badge status-${teacher.status}`}>{teacher.status.replaceAll("_", " ")}</span>
-                  {canManage && <form action={changeTeacherStatus}>
+                  {canManage && <ActionForm action={changeTeacherStatus}>
                     <input name="schoolId" type="hidden" value={teacher.schoolId} />
                     <input name="teacherId" type="hidden" value={teacher.id} />
                     <input name="status" type="hidden" value={teacher.status === "active" ? "on_leave" : "active"} />
                     <SubmitButton pendingLabel="Saving…">{teacher.status === "active" ? "Set on leave" : "Set active"}</SubmitButton>
-                  </form>}
+                  </ActionForm>}
                   {canManage && <Link className="secondary-button record-action" href={`/teachers/${teacher.id}`}>Edit</Link>}
                 </div>
               );

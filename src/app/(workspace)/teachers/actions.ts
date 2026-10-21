@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -65,7 +67,7 @@ async function findLinkableTeacherAccount(schoolId: string, email: string, exclu
   return existing ? null : member.userId;
 }
 
-export async function createTeacher(
+async function createTeacherImpl(
   _previous: TeacherActionState,
   formData: FormData,
 ): Promise<TeacherActionState> {
@@ -104,7 +106,7 @@ export async function createTeacher(
   };
 }
 
-export async function updateTeacher(
+async function updateTeacherImpl(
   _previous: TeacherActionState,
   formData: FormData,
 ): Promise<TeacherActionState> {
@@ -154,18 +156,18 @@ export async function updateTeacher(
   return { success: "Teacher profile saved." };
 }
 
-export async function changeTeacherStatus(formData: FormData): Promise<void> {
+async function changeTeacherStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const teacherId = String(formData.get("teacherId") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
-  if (!schoolId || !teacherId || !isTeacherStatus(status)) throw new Error("Invalid teacher status update.");
+  if (!schoolId || !teacherId || !isTeacherStatus(status)) throw new UserError("Invalid teacher status update.");
   const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
   const [teacher] = await db
     .select({ firstName: teachers.firstName, lastName: teachers.lastName })
     .from(teachers)
     .where(and(eq(teachers.id, teacherId), eq(teachers.schoolId, schoolId)))
     .limit(1);
-  if (!teacher) throw new Error("Teacher not found in this school.");
+  if (!teacher) throw new UserError("Teacher not found in this school.");
   await db.transaction(async (tx) => {
     await tx.update(teachers)
       .set({ status })
@@ -178,4 +180,17 @@ export async function changeTeacherStatus(formData: FormData): Promise<void> {
   });
   revalidatePath("/teachers");
   revalidatePath("/timetable");
+  return {};
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createTeacher(...args: Parameters<typeof createTeacherImpl>) {
+  return guardAction(() => createTeacherImpl(...args));
+}
+export async function updateTeacher(...args: Parameters<typeof updateTeacherImpl>) {
+  return guardAction(() => updateTeacherImpl(...args));
+}
+export async function changeTeacherStatus(...args: Parameters<typeof changeTeacherStatusImpl>) {
+  return guardAction(() => changeTeacherStatusImpl(...args));
 }

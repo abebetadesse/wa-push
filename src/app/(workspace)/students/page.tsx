@@ -1,3 +1,4 @@
+import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
@@ -105,7 +106,7 @@ async function StudentsContent() {
                   <span className={`role-badge status-${student.status}`}>{student.status.replaceAll("_", " ")}</span>
                   <Link className="secondary-button record-action" href={`/students/${student.id}/report-card`}>Report card</Link>
                   {canManage && (
-                    <form action={changeStudentStatus}>
+                    <ActionForm action={changeStudentStatus}>
                       <input name="schoolId" type="hidden" value={student.schoolId} />
                       <input name="studentId" type="hidden" value={student.id} />
                       <input name="status" type="hidden" value={student.status === "active" ? "inactive" : "active"} />
@@ -115,7 +116,7 @@ async function StudentsContent() {
                       >
                         {student.status === "active" ? "Deactivate" : "Activate"}
                       </SubmitButton>
-                    </form>
+                    </ActionForm>
                   )}
                   {canManage && <Link className="secondary-button record-action" href={`/students/${student.id}`}>Edit</Link>}
                 </div>

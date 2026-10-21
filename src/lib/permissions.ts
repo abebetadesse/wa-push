@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { cache } from "react";
 import { db } from "@/db";
 import { schoolMemberships, schools } from "@/db/schema";
+import { UserError } from "@/lib/action-result";
 import { auth } from "@/lib/auth";
 
 export type SchoolRole = (typeof schoolMemberships.$inferSelect)["role"];
@@ -13,7 +14,7 @@ export const getSession = cache(async () => auth.api.getSession({ headers: await
 
 export async function requireSession() {
   const session = await getSession();
-  if (!session) throw new Error("Authentication required.");
+  if (!session) throw new UserError("Your session has expired. Sign in again and retry.");
   return session;
 }
 
@@ -36,8 +37,8 @@ export async function requireSchoolRole(
     .where(eq(schools.id, schoolId))
     .limit(1);
 
-  if (!school) throw new Error("School not found.");
-  if (school.status === "suspended") throw new Error("This school account is suspended.");
+  if (!school) throw new UserError("School not found.");
+  if (school.status === "suspended") throw new UserError("This school account is suspended.");
   if (isPlatformAdmin(session)) return { session, school, role: "platform_admin" as const };
 
   const [membership] = await db
@@ -49,9 +50,9 @@ export async function requireSchoolRole(
     ))
     .limit(1);
 
-  if (!membership) throw new Error("You do not have access to this school.");
+  if (!membership) throw new UserError("You do not have access to this school.");
   if (allowedRoles && !allowedRoles.includes(membership.role)) {
-    throw new Error("You do not have permission to perform this action.");
+    throw new UserError("You do not have permission to perform this action.");
   }
 
   return { session, school, role: membership.role };

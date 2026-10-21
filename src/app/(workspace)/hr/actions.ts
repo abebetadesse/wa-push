@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -16,7 +18,7 @@ function isDate(value: string) {
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
-export async function createStaffMember(
+async function createStaffMemberImpl(
   _previous: HrActionState,
   formData: FormData,
 ): Promise<HrActionState> {
@@ -68,19 +70,19 @@ export async function createStaffMember(
   return { success: `${firstName} ${lastName} was added to the staff directory.` };
 }
 
-export async function changeStaffStatus(formData: FormData): Promise<void> {
+async function changeStaffStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const staffId = String(formData.get("staffId") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
   if (!schoolId || !staffId || (status !== "active" && status !== "on_leave" && status !== "inactive")) {
-    throw new Error("Invalid staff status update.");
+    throw new UserError("Invalid staff status update.");
   }
   const { session } = await requireSchoolRole(schoolId, ["school_admin", "hr_manager"]);
   const [staff] = await db.select({ firstName: staffMembers.firstName, lastName: staffMembers.lastName })
     .from(staffMembers)
     .where(and(eq(staffMembers.id, staffId), eq(staffMembers.schoolId, schoolId)))
     .limit(1);
-  if (!staff) throw new Error("Staff member not found in this school.");
+  if (!staff) throw new UserError("Staff member not found in this school.");
   await db.transaction(async (tx) => {
     await tx.update(staffMembers)
       .set({ status })
@@ -92,4 +94,14 @@ export async function changeStaffStatus(formData: FormData): Promise<void> {
     });
   });
   revalidatePath("/hr");
+  return {};
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createStaffMember(...args: Parameters<typeof createStaffMemberImpl>) {
+  return guardAction(() => createStaffMemberImpl(...args));
+}
+export async function changeStaffStatus(...args: Parameters<typeof changeStaffStatusImpl>) {
+  return guardAction(() => changeStaffStatusImpl(...args));
 }

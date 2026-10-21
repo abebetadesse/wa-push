@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -10,7 +12,7 @@ import { isDuplicateEntry } from "@/lib/db-errors";
 
 export type AcademicSetupState = { error?: string; success?: string };
 
-export async function createAcademicYear(
+async function createAcademicYearImpl(
   _previous: AcademicSetupState,
   formData: FormData,
 ): Promise<AcademicSetupState> {
@@ -27,7 +29,7 @@ export async function createAcademicYear(
   try {
     await db.transaction(async (tx) => {
       const [school] = await tx.select({ id: schools.id }).from(schools).where(eq(schools.id, schoolId)).for("update").limit(1);
-      if (!school) throw new Error("School not found.");
+      if (!school) throw new UserError("School not found.");
       if (isCurrent) {
         await tx.update(academicYears).set({ isCurrent: false }).where(eq(academicYears.schoolId, schoolId));
       }
@@ -55,7 +57,7 @@ export async function createAcademicYear(
   return { success: `Academic year ${name} created.` };
 }
 
-export async function createGradeLevel(
+async function createGradeLevelImpl(
   _previous: AcademicSetupState,
   formData: FormData,
 ): Promise<AcademicSetupState> {
@@ -89,7 +91,7 @@ export async function createGradeLevel(
   return { success: `Grade level ${name} added.` };
 }
 
-export async function createSubject(
+async function createSubjectImpl(
   _previous: AcademicSetupState,
   formData: FormData,
 ): Promise<AcademicSetupState> {
@@ -125,7 +127,7 @@ export async function createSubject(
   return { success: `Subject ${name} added.` };
 }
 
-export async function createClassroom(
+async function createClassroomImpl(
   _previous: AcademicSetupState,
   formData: FormData,
 ): Promise<AcademicSetupState> {
@@ -180,4 +182,19 @@ function isDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00.000Z`);
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createAcademicYear(...args: Parameters<typeof createAcademicYearImpl>) {
+  return guardAction(() => createAcademicYearImpl(...args));
+}
+export async function createGradeLevel(...args: Parameters<typeof createGradeLevelImpl>) {
+  return guardAction(() => createGradeLevelImpl(...args));
+}
+export async function createSubject(...args: Parameters<typeof createSubjectImpl>) {
+  return guardAction(() => createSubjectImpl(...args));
+}
+export async function createClassroom(...args: Parameters<typeof createClassroomImpl>) {
+  return guardAction(() => createClassroomImpl(...args));
 }

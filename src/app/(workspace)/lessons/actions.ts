@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -17,7 +19,7 @@ import { canEditLesson, type LessonStatus } from "./lesson-access";
 
 export type LessonActionState = { error?: string; success?: string };
 
-export async function createLesson(
+async function createLessonImpl(
   _previous: LessonActionState,
   formData: FormData,
 ): Promise<LessonActionState> {
@@ -81,11 +83,11 @@ export async function createLesson(
   return { success: `Lesson plan “${title}” saved as a draft.` };
 }
 
-export async function updateLessonStatus(formData: FormData): Promise<void> {
+async function updateLessonStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const lessonId = String(formData.get("lessonId") ?? "").trim();
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const nextStatus = String(formData.get("status") ?? "").trim();
-  if (!lessonId || !schoolId || !isLessonStatus(nextStatus)) throw new Error("Invalid lesson status request.");
+  if (!lessonId || !schoolId || !isLessonStatus(nextStatus)) throw new UserError("Invalid lesson status request.");
 
   const { session, role } = await requireSchoolRole(schoolId, ["school_admin", "teacher"]);
   const [lesson] = await db
@@ -97,7 +99,7 @@ export async function updateLessonStatus(formData: FormData): Promise<void> {
     .from(lessonPlans)
     .where(and(eq(lessonPlans.id, lessonId), eq(lessonPlans.schoolId, schoolId)))
     .limit(1);
-  if (!lesson) throw new Error("Lesson plan not found in this school.");
+  if (!lesson) throw new UserError("Lesson plan not found in this school.");
 
   const platformAdmin = isPlatformAdmin(session);
   const isTeacherOwner = role === "teacher" && lesson.createdBy === session.user.id;
@@ -109,7 +111,7 @@ export async function updateLessonStatus(formData: FormData): Promise<void> {
       nextStatus === "archived"
     )) ||
     (isTeacherOwner && lesson.status === "draft" && nextStatus === "submitted");
-  if (!permitted) throw new Error("You do not have permission to make this lesson status change.");
+  if (!permitted) throw new UserError("You do not have permission to make this lesson status change.");
 
   await db.transaction(async (tx) => {
     await tx
@@ -125,6 +127,7 @@ export async function updateLessonStatus(formData: FormData): Promise<void> {
   revalidatePath("/");
   revalidatePath("/lessons");
   revalidatePath(`/lessons/${lessonId}`);
+  return {};
 }
 
 const lessonTextFields = [
@@ -139,7 +142,7 @@ const lessonTextFields = [
   "notes",
 ] as const;
 
-export async function updateLesson(
+async function updateLessonImpl(
   _previous: LessonActionState,
   formData: FormData,
 ): Promise<LessonActionState> {
@@ -244,4 +247,16 @@ function isDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00.000Z`);
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createLesson(...args: Parameters<typeof createLessonImpl>) {
+  return guardAction(() => createLessonImpl(...args));
+}
+export async function updateLesson(...args: Parameters<typeof updateLessonImpl>) {
+  return guardAction(() => updateLessonImpl(...args));
+}
+export async function updateLessonStatus(...args: Parameters<typeof updateLessonStatusImpl>) {
+  return guardAction(() => updateLessonStatusImpl(...args));
 }

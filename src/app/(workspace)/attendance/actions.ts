@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -21,7 +23,7 @@ function isDate(value: string) {
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
-export async function saveAttendance(
+async function saveAttendanceImpl(
   _previous: AttendanceActionState,
   formData: FormData,
 ): Promise<AttendanceActionState> {
@@ -113,4 +115,10 @@ export async function saveAttendance(
   revalidatePath("/attendance");
   revalidatePath("/reports");
   return { success: `Attendance saved for ${parsedEntries.length} students.` };
+}
+
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function saveAttendance(...args: Parameters<typeof saveAttendanceImpl>) {
+  return guardAction(() => saveAttendanceImpl(...args));
 }

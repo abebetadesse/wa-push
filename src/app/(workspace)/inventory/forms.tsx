@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/action-form";
 import { useActionState } from "react";
 import { SubmitButton } from "@/components/submit-button";
 import {
@@ -69,11 +70,11 @@ export function InventoryItemStatusForm({
   active: boolean;
 }) {
   return (
-    <form action={changeInventoryItemStatus}>
+    <ActionForm action={changeInventoryItemStatus}>
       <input name="schoolId" type="hidden" value={schoolId} />
       <input name="itemId" type="hidden" value={itemId} />
       <input name="status" type="hidden" value={active ? "inactive" : "active"} />
       <SubmitButton pendingLabel={active ? "Deactivating…" : "Activating…"}>{active ? "Deactivate" : "Activate"}</SubmitButton>
-    </form>
+    </ActionForm>
   );
 }

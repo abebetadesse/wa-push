@@ -1,3 +1,4 @@
+import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
@@ -221,7 +222,7 @@ async function AssessmentsContent() {
                     </div>
                     {assessment.instructions && <p className="assessment-instructions">{assessment.instructions}</p>}
                     {(canPublish || canClose) && (
-                      <form action={changeAssessmentStatus} className="assessment-status-form">
+                      <ActionForm action={changeAssessmentStatus} className="assessment-status-form">
                         <input name="schoolId" type="hidden" value={assessment.schoolId} />
                         <input name="assessmentId" type="hidden" value={assessment.id} />
                         <input name="status" type="hidden" value={canPublish ? "published" : "closed"} />
@@ -232,7 +233,7 @@ async function AssessmentsContent() {
                         >
                           {canPublish ? "Publish assessment" : "Close assessment"}
                         </SubmitButton>
-                      </form>
+                      </ActionForm>
                     )}
                     {(assessment.status === "published" || assessment.status === "closed") && (
                       <details className="assessment-results">

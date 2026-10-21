@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/action-form";
 import type { FormEvent } from "react";
 import { SubmitButton } from "@/components/submit-button";
 import { changeMemberRole, removeMember, revokeInvitation } from "./actions";
@@ -33,7 +34,7 @@ export function MemberActions({
   const isStaff = role in roleLabels;
   return (
     <>
-      {isStaff && <form action={changeMemberRole} className="stock-movement-form">
+      {isStaff && <ActionForm action={changeMemberRole} className="stock-movement-form">
         <input name="schoolId" type="hidden" value={schoolId} />
         <input name="userId" type="hidden" value={userId} />
         <label><span className="visually-hidden">Role for {name}</span>
@@ -44,12 +45,12 @@ export function MemberActions({
           </select>
         </label>
         <SubmitButton pendingLabel="Saving…">Change role</SubmitButton>
-      </form>}
-      <form action={removeMember} onSubmit={confirmSubmit(`Remove ${name} from this school? They will lose access immediately.`)}>
+      </ActionForm>}
+      <ActionForm action={removeMember} onSubmit={confirmSubmit(`Remove ${name} from this school? They will lose access immediately.`)}>
         <input name="schoolId" type="hidden" value={schoolId} />
         <input name="userId" type="hidden" value={userId} />
         <SubmitButton pendingLabel="Removing…">Remove</SubmitButton>
-      </form>
+      </ActionForm>
     </>
   );
 }
@@ -64,10 +65,10 @@ export function RevokeInvitationButton({
   email: string;
 }) {
   return (
-    <form action={revokeInvitation} onSubmit={confirmSubmit(`Revoke the invitation for ${email}? The emailed link will stop working.`)}>
+    <ActionForm action={revokeInvitation} onSubmit={confirmSubmit(`Revoke the invitation for ${email}? The emailed link will stop working.`)}>
       <input name="schoolId" type="hidden" value={schoolId} />
       <input name="invitationId" type="hidden" value={invitationId} />
       <SubmitButton pendingLabel="Revoking…">Revoke</SubmitButton>
-    </form>
+    </ActionForm>
   );
 }

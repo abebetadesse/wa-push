@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -21,7 +23,7 @@ function isDate(value: string) {
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
-export async function registerStudent(
+async function registerStudentImpl(
   _previous: StudentActionState,
   formData: FormData,
 ): Promise<StudentActionState> {
@@ -97,12 +99,12 @@ export async function registerStudent(
   return { success: `${firstName} ${lastName} was registered.` };
 }
 
-export async function changeStudentStatus(formData: FormData): Promise<void> {
+async function changeStudentStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const studentId = String(formData.get("studentId") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
   if (!schoolId || !studentId || !isStudentStatus(status)) {
-    throw new Error("Invalid student status request.");
+    throw new UserError("Invalid student status request.");
   }
   const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
   const [student] = await db
@@ -110,7 +112,7 @@ export async function changeStudentStatus(formData: FormData): Promise<void> {
     .from(students)
     .where(and(eq(students.id, studentId), eq(students.schoolId, schoolId)))
     .limit(1);
-  if (!student) throw new Error("Student not found in this school.");
+  if (!student) throw new UserError("Student not found in this school.");
 
   await db.transaction(async (tx) => {
     await tx
@@ -125,9 +127,10 @@ export async function changeStudentStatus(formData: FormData): Promise<void> {
   });
   revalidatePath("/");
   revalidatePath("/students");
+  return {};
 }
 
-export async function updateStudent(
+async function updateStudentImpl(
   _previous: StudentActionState,
   formData: FormData,
 ): Promise<StudentActionState> {
@@ -242,7 +245,7 @@ export type BulkImportActionState = {
   details?: string[];
 };
 
-export async function bulkImportStudents(
+async function bulkImportStudentsImpl(
   _previous: BulkImportActionState,
   formData: FormData,
 ): Promise<BulkImportActionState> {
@@ -415,3 +418,17 @@ export async function bulkImportStudents(
   };
 }
 
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function registerStudent(...args: Parameters<typeof registerStudentImpl>) {
+  return guardAction(() => registerStudentImpl(...args));
+}
+export async function updateStudent(...args: Parameters<typeof updateStudentImpl>) {
+  return guardAction(() => updateStudentImpl(...args));
+}
+export async function bulkImportStudents(...args: Parameters<typeof bulkImportStudentsImpl>) {
+  return guardAction(() => bulkImportStudentsImpl(...args));
+}
+export async function changeStudentStatus(...args: Parameters<typeof changeStudentStatusImpl>) {
+  return guardAction(() => changeStudentStatusImpl(...args));
+}

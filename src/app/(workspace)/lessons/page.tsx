@@ -1,3 +1,4 @@
+import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { desc, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
@@ -101,14 +102,14 @@ async function LessonsContent() {
                     {plan.unitTopic && <small>{plan.unitTopic}</small>}
                   </div>
                   <span className={`role-badge status-${plan.status}`}>{plan.status}</span>
-                  {nextStatus && (canSubmit || canReview) && <form action={updateLessonStatus}>
+                  {nextStatus && (canSubmit || canReview) && <ActionForm action={updateLessonStatus}>
                     <input name="lessonId" type="hidden" value={plan.id} />
                     <input name="schoolId" type="hidden" value={plan.schoolId} />
                     <input name="status" type="hidden" value={nextStatus} />
                     <SubmitButton pendingLabel="Saving…">
                       {nextStatus === "submitted" ? "Submit for review" : nextStatus === "approved" ? "Approve" : "Publish"}
                     </SubmitButton>
-                  </form>}
+                  </ActionForm>}
                 </div>
               );
             })}

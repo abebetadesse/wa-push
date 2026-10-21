@@ -1,3 +1,4 @@
+import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, eq } from "drizzle-orm";
 import Link from "next/link";
@@ -106,12 +107,12 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
           </div>
           {statusActions.length > 0 && <div className="modal-actions">
             {statusActions.map((item) => (
-              <form action={updateLessonStatus} key={item.status}>
+              <ActionForm action={updateLessonStatus} key={item.status}>
                 <input name="lessonId" type="hidden" value={plan.id} />
                 <input name="schoolId" type="hidden" value={plan.schoolId} />
                 <input name="status" type="hidden" value={item.status} />
                 <SubmitButton pendingLabel="Saving…">{item.label}</SubmitButton>
-              </form>
+              </ActionForm>
             ))}
           </div>}
           {lessonSections.every((section) => !plan[section.name])

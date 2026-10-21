@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionForm } from "@/components/action-form";
 import type { FormEvent } from "react";
 import { useActionState } from "react";
 import { SubmitButton } from "@/components/submit-button";
@@ -108,11 +109,11 @@ export function ScheduleEntryActions({
         <input name="entryId" type="hidden" value={entryId} />
         <button className="secondary-button record-action" disabled={pending} type="submit">{cancelled ? "Restore" : "Cancel"}</button>
       </form>
-      <form action={deleteScheduleEntry} onSubmit={confirmDelete}>
+      <ActionForm action={deleteScheduleEntry} onSubmit={confirmDelete}>
         <input name="schoolId" type="hidden" value={schoolId} />
         <input name="entryId" type="hidden" value={entryId} />
         <SubmitButton pendingLabel="Removing…">Remove</SubmitButton>
-      </form>
+      </ActionForm>
       {state.error && <span className="result-message result-error" role="alert">{state.error}</span>}
     </div>
   );

@@ -1,5 +1,7 @@
 "use server";
 
+import { guardAction, UserError, type ActionState } from "@/lib/action-result";
+
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -111,7 +113,7 @@ async function parseQuestions(
   return { questions, skipped: 0 };
 }
 
-export async function createAssessment(
+async function createAssessmentImpl(
   _previous: AssessmentActionState,
   formData: FormData,
 ): Promise<AssessmentActionState> {
@@ -193,17 +195,17 @@ export async function createAssessment(
   };
 }
 
-export async function changeAssessmentStatus(formData: FormData): Promise<void> {
+async function changeAssessmentStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const assessmentId = String(formData.get("assessmentId") ?? "").trim();
   const nextStatus = String(formData.get("status") ?? "").trim();
   if (!schoolId || !assessmentId || !["published", "closed"].includes(nextStatus)) {
-    throw new Error("Invalid assessment status request.");
+    throw new UserError("Invalid assessment status request.");
   }
 
   const { session, role } = await requireSchoolRole(schoolId, ["school_admin", "teacher"]);
   if (role !== "school_admin" && !isPlatformAdmin(session)) {
-    throw new Error("Only a school administrator can publish or close an assessment.");
+    throw new UserError("Only a school administrator can publish or close an assessment.");
   }
 
   const [assessment] = await db
@@ -211,11 +213,11 @@ export async function changeAssessmentStatus(formData: FormData): Promise<void> 
     .from(assessments)
     .where(and(eq(assessments.id, assessmentId), eq(assessments.schoolId, schoolId)))
     .limit(1);
-  if (!assessment) throw new Error("Assessment not found in this school.");
+  if (!assessment) throw new UserError("Assessment not found in this school.");
   const validTransition =
     (assessment.status === "draft" && nextStatus === "published") ||
     (assessment.status === "published" && nextStatus === "closed");
-  if (!validTransition) throw new Error("This assessment cannot be moved to that status.");
+  if (!validTransition) throw new UserError("This assessment cannot be moved to that status.");
 
   await db.transaction(async (tx) => {
     await tx.update(assessments)
@@ -229,9 +231,10 @@ export async function changeAssessmentStatus(formData: FormData): Promise<void> 
   });
   revalidatePath("/");
   revalidatePath("/assessments");
+  return {};
 }
 
-export async function recordAssessmentResult(
+async function recordAssessmentResultImpl(
   _previous: AssessmentActionState,
   formData: FormData,
 ): Promise<AssessmentActionState> {
@@ -306,7 +309,7 @@ export async function recordAssessmentResult(
   return { success: "Assessment result saved." };
 }
 
-export async function submitAssessmentAttempt(
+async function submitAssessmentAttemptImpl(
   _previous: AssessmentActionState,
   formData: FormData,
 ): Promise<AssessmentActionState> {
@@ -380,7 +383,7 @@ export async function submitAssessmentAttempt(
         .for("update")
         .limit(1);
       if (!lockedAssessment || lockedAssessment.status !== "published") {
-        throw new Error("This assessment is no longer open.");
+        throw new UserError("This assessment is no longer open.");
       }
 
       const questions = await tx
@@ -393,10 +396,10 @@ export async function submitAssessmentAttempt(
         .where(eq(assessmentQuestions.assessmentId, assessment.id))
         .orderBy(assessmentQuestions.sortOrder);
       if (questions.length === 0 || questions.length !== answers.length) {
-        throw new Error("Answer every question before submitting.");
+        throw new UserError("Answer every question before submitting.");
       }
       if (answers.some((answer, index) => !questions[index]?.options[answer]?.trim())) {
-        throw new Error("One or more selected answers are invalid.");
+        throw new UserError("One or more selected answers are invalid.");
       }
 
       const earned = questions.reduce(
@@ -437,3 +440,17 @@ export async function submitAssessmentAttempt(
   }
 }
 
+// Every action runs through guardAction, so a failure reaches the form as a message instead of
+// a blank HTTP 500 (Next.js hides thrown messages in production).
+export async function createAssessment(...args: Parameters<typeof createAssessmentImpl>) {
+  return guardAction(() => createAssessmentImpl(...args));
+}
+export async function recordAssessmentResult(...args: Parameters<typeof recordAssessmentResultImpl>) {
+  return guardAction(() => recordAssessmentResultImpl(...args));
+}
+export async function submitAssessmentAttempt(...args: Parameters<typeof submitAssessmentAttemptImpl>) {
+  return guardAction(() => submitAssessmentAttemptImpl(...args));
+}
+export async function changeAssessmentStatus(...args: Parameters<typeof changeAssessmentStatusImpl>) {
+  return guardAction(() => changeAssessmentStatusImpl(...args));
+}
