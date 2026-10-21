@@ -12,7 +12,7 @@ const signInMessages: Record<string, string> = {
   PASSWORD_TOO_LONG: "That password is longer than allowed (128 characters).",
   EMAIL_NOT_VERIFIED: "Verify your email address before signing in.",
   BANNED_USER: "This account has been suspended. Contact your school administrator.",
-  INVALID_ORIGIN: "Sign-in was blocked because the page address didn't match the site. Open the site from its usual address and try again.",
+  INVALID_ORIGIN: "Sign-in was blocked because this page's address isn't trusted by the server. Open the site at its usual https:// address and try again.",
   MISSING_OR_NULL_ORIGIN: "Sign-in was blocked by the browser's privacy settings. Reload the page and try again.",
 };
 

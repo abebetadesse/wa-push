@@ -34,7 +34,16 @@ export const auth = betterAuth({
   appName: "Forma",
   baseURL: authUrl.origin,
   basePath: authBasePath,
-  trustedOrigins: [authUrl.origin],
+  // The public origin, plus the origin the browser used to reach this server. While Forma moves to
+  // www.wisdomcourse.com.et/school, BETTER_AUTH_URL names www but people still sign in at
+  // school.wisdomcourse.com.et (or over http:// before the HTTPS redirect), which was rejected with
+  // INVALID_ORIGIN. A browser always sends its page's origin, so another site still can't pass.
+  trustedOrigins: (request) => {
+    const origins = [authUrl.origin];
+    const host = request?.headers.get("x-forwarded-host")?.split(",")[0]?.trim() || request?.headers.get("host");
+    if (host && /^[a-z0-9.-]+(:\d+)?$/i.test(host)) origins.push(`https://${host}`, `http://${host}`);
+    return origins;
+  },
   secret: authSecret,
   // Forma shares www.wisdomcourse.com.et with other apps (see docs/SINGLE-DOMAIN.md). Cookies are per
   // domain, not per path, so a distinct prefix keeps another better-auth app's session cookie from
