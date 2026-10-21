@@ -156,22 +156,27 @@ export async function runMigrations() {
  * On the shared production database, school_auth_sessions ended up being the other application's
  * session table (token_hash, last_seen_at, datetime columns) instead of Forma's, so every sign-in
  * failed when it saved the session. If the table lacks Forma's columns, move it aside under a
- * dated name — keeping its rows — and create Forma's table. Sessions are short-lived, so starting
- * with an empty table only means signing in again.
+ * dated name — keeping its rows — and create Forma's table; if it is missing, create it. Sessions
+ * are short-lived, so starting with an empty table only means signing in again.
  */
 export async function repairSessionTable(connection) {
   const [columns] = await connection.query(
     "SELECT COLUMN_NAME AS name FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_auth_sessions'",
   );
-  if (!Array.isArray(columns) || columns.length === 0) return;
-  const names = new Set(columns.map((column) => column.name));
-  const required = ["id", "expires_at", "token", "created_at", "updated_at", "ip_address", "user_agent", "impersonated_by", "user_id"];
-  if (required.every((name) => names.has(name))) return;
+  if (!Array.isArray(columns) || columns.length === 0) {
+    // Missing although the migrations are recorded as applied, e.g. after copying Forma's tables
+    // into a new database without the foreign session table. Nothing else would recreate it.
+    console.warn("[migrate] school_auth_sessions is missing; creating it.");
+  } else {
+    const names = new Set(columns.map((column) => column.name));
+    const required = ["id", "expires_at", "token", "created_at", "updated_at", "ip_address", "user_agent", "impersonated_by", "user_id"];
+    if (required.every((name) => names.has(name))) return;
 
-  const stamp = new Date().toISOString().slice(0, 19).replace(/\D/g, "");
-  const asideName = `school_auth_sessions_foreign_${stamp}`;
-  console.warn(`[migrate] school_auth_sessions is not Forma's session table; moving it to ${asideName}.`);
-  await connection.query(`RENAME TABLE \`school_auth_sessions\` TO \`${asideName}\``);
+    const stamp = new Date().toISOString().slice(0, 19).replace(/\D/g, "");
+    const asideName = `school_auth_sessions_foreign_${stamp}`;
+    console.warn(`[migrate] school_auth_sessions is not Forma's session table; moving it to ${asideName}.`);
+    await connection.query(`RENAME TABLE \`school_auth_sessions\` TO \`${asideName}\``);
+  }
 
   // Match the users table's character set so the foreign key can be created.
   const [userTable] = await connection.query(
