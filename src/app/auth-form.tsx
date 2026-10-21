@@ -8,7 +8,7 @@ import { withBasePath } from "@/lib/base-path";
 
 const signInMessages: Record<string, string> = {
   INVALID_EMAIL_OR_PASSWORD: "Email or password is incorrect.",
-  INVALID_EMAIL: "Enter a valid email address.",
+  INVALID_EMAIL: "Enter your full email address, for example name@gmail.com.",
   PASSWORD_TOO_LONG: "That password is longer than allowed (128 characters).",
   EMAIL_NOT_VERIFIED: "Verify your email address before signing in.",
   BANNED_USER: "This account has been suspended. Contact your school administrator.",
@@ -19,6 +19,10 @@ const signInMessages: Record<string, string> = {
 // Each rejection gets its real reason, plus its code so a failure can be reported precisely.
 function signInErrorMessage(error: { status?: number; code?: string; message?: string }) {
   if (error.status === 429) return "Too many sign-in attempts. Please wait a minute and try again.";
+  // A server-side failure (for example the database refusing to save the session), not bad input.
+  if (error.status && error.status >= 500) {
+    return `The server couldn't complete sign-in. This isn't a problem with your details. Please try again later, and tell your administrator if it continues (error ${error.status}).`;
+  }
   const known = error.code ? signInMessages[error.code] : undefined;
   if (known) return known;
   const detail = error.message || "The sign-in request was rejected.";
@@ -90,8 +94,12 @@ export function AuthForm() {
               inputMode="email"
               name="email"
               onChange={(event) => setEmail(event.target.value)}
+              // The browser accepts "name@gmail"; the sign-in service needs a full domain such as
+              // gmail.com, so check for it here instead of sending a request that will be rejected.
+              pattern="[^@\s]+@[^@\s]+\.[^@\s]{2,}"
               placeholder="you@school.edu"
               required
+              title="Enter your full email address, for example name@gmail.com"
               type="email"
               value={email}
             />
