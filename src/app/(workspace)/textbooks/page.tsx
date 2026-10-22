@@ -121,7 +121,9 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
                         <span>{book.title} <span className="role-badge">uploaded</span></span>
                         <span className="inline-actions">
                           <a className="text-link" href={withBasePath(`/api/resources/${book.id}`)} rel="noreferrer" target="_blank">Open</a>
-                          <Link className="text-link" href={`/studio?resourceId=${book.id}`}>Prepare with AI →</Link>
+                          <Link className="text-link" href={`/studio?resourceId=${book.id}`}>AI Studio →</Link>
+                          <Link className="text-link" style={{ color: "#166534" }} href={`/lessons/generate?resourceId=${book.id}${book.gradeLevelId ? `&gradeLevelId=${book.gradeLevelId}` : ""}${book.subjectId ? `&subjectId=${book.subjectId}` : ""}`}>⚡ Lessons</Link>
+                          <Link className="text-link" style={{ color: "#7e22ce" }} href={`/assessments/generate?resourceId=${book.id}${book.gradeLevelId ? `&gradeLevelId=${book.gradeLevelId}` : ""}${book.subjectId ? `&subjectId=${book.subjectId}` : ""}`}>✨ Quiz</Link>
                         </span>
                       </li>
                     ))}
@@ -177,7 +179,9 @@ function CatalogOption({ entry, libraryBookId, schoolId }: { entry: CatalogEntry
           <>
             <span className="role-badge status-active">in library</span>
             <a className="text-link" href={withBasePath(`/api/resources/${libraryBookId}`)} rel="noreferrer" target="_blank">Open</a>
-            <Link className="text-link" href={`/studio?resourceId=${libraryBookId}`}>Prepare with AI →</Link>
+            <Link className="text-link" href={`/studio?resourceId=${libraryBookId}`}>AI Studio →</Link>
+            <Link className="text-link" style={{ color: "#166534" }} href={`/lessons/generate?resourceId=${libraryBookId}&gradeLevelId=${entry.grade ? "" : ""}`}>⚡ Lessons</Link>
+            <Link className="text-link" style={{ color: "#7e22ce" }} href={`/assessments/generate?resourceId=${libraryBookId}`}>✨ Quiz</Link>
           </>
         ) : downloadable ? (
           <AddToLibraryButton catalogEntryId={entry.id} schoolId={schoolId} sizeLabel={formatBytes(entry.sizeBytes)} />
