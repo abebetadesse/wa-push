@@ -17,6 +17,7 @@ import {
   teachers,
 } from "@/db/schema";
 import { PageSkeleton } from "@/components/page-skeleton";
+import { STAFF_ROLES } from "@/lib/roles";
 import { getWorkspaceContext } from "@/lib/workspace";
 import Dashboard, { type DashboardActivity, type DashboardSchool, type SetupStep } from "./dashboard";
 
@@ -46,7 +47,7 @@ async function AuthenticatedDashboard() {
   }
   if (!access.dashboard) redirect(access.student ? "/my-learning" : "/no-access");
 
-  const staffRoles = new Set(["school_admin", "teacher", "inventory_manager", "hr_manager"]);
+  const staffRoles = new Set<string>(STAFF_ROLES);
   const visibleSchoolIds = platformAdmin
     ? context.schools.map((school) => school.id)
     : roles.filter(({ role }) => staffRoles.has(role)).map(({ schoolId }) => schoolId);

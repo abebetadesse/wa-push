@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { authUsers, schoolInvitations, schoolMemberships, staffMembers, students } from "@/db/schema";
+import { isStaffRole } from "@/lib/roles";
 
 export function hashInvitationToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -68,7 +69,7 @@ export async function acceptInvitation(token: string, email: string, userId: str
         .update(students)
         .set({ userId })
         .where(and(eq(students.id, studentRows[0].id), eq(students.schoolId, invitation.schoolId)));
-    } else if (["teacher", "inventory_manager", "hr_manager"].includes(invitation.role)) {
+    } else if (isStaffRole(invitation.role) && invitation.role !== "school_admin") {
       const matchingStaff = await tx
         .select({ id: staffMembers.id, userId: staffMembers.userId })
         .from(staffMembers)

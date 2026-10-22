@@ -2,25 +2,18 @@ import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 import { PageSkeleton } from "@/components/page-skeleton";
+import { ROLE_LABELS, STAFF_ROLES } from "@/lib/roles";
 import type { SchoolRole } from "@/lib/permissions";
 import { getWorkspaceContext } from "@/lib/workspace";
 
-const roleLabels: Record<SchoolRole, string> = {
-  school_admin: "School administrator",
-  teacher: "Teacher",
-  inventory_manager: "Inventory manager",
-  hr_manager: "HR manager",
-  student: "Student",
-  guardian: "Guardian",
-};
-const rolePriority: SchoolRole[] = ["school_admin", "teacher", "inventory_manager", "hr_manager", "student", "guardian"];
+const rolePriority: SchoolRole[] = [...STAFF_ROLES, "student", "guardian"];
 
 async function Workspace({ children }: { children: ReactNode }) {
   const context = await getWorkspaceContext();
   if (!context) redirect("/login");
 
   const topRole = rolePriority.find((role) => context.roles.some((membership) => membership.role === role));
-  const roleLabel = context.platformAdmin ? "Platform administrator" : topRole ? roleLabels[topRole] : "Member";
+  const roleLabel = context.platformAdmin ? "Platform administrator" : topRole ? ROLE_LABELS[topRole] : "Member";
 
   return (
     <AppShell

@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { schoolMemberships } from "@/db/schema";
 import { getAccessibleSchools, getSession, isPlatformAdmin, type SchoolRole } from "@/lib/permissions";
 import type { WorkspaceAccess } from "@/lib/navigation";
+import { STAFF_ROLES } from "@/lib/roles";
 
 export type WorkspaceContext = {
   userId: string;
@@ -20,11 +21,16 @@ export type WorkspaceContext = {
 // Who may open each group of workspace pages. The pages and the sidebar (through getAccess) both
 // read these lists, so a link is shown exactly when its page lets the user in.
 export const pageRoles = {
-  dashboard: ["school_admin", "teacher", "inventory_manager", "hr_manager"],
+  dashboard: STAFF_ROLES,
   academics: ["school_admin", "teacher"],
   schoolAdmin: ["school_admin"],
   inventory: ["school_admin", "inventory_manager"],
   hr: ["school_admin", "hr_manager"],
+  library: ["school_admin", "librarian"],
+  lab: ["school_admin", "lab_technician"],
+  workshop: ["school_admin", "workshop_manager"],
+  community: ["school_admin", "community_officer"],
+  pr: ["school_admin", "pr_officer"],
 } as const satisfies Record<string, readonly SchoolRole[]>;
 
 // One lookup per request, shared by the workspace layout and the page it renders.
@@ -95,6 +101,11 @@ function getAccess(platformAdmin: boolean, roles: SchoolRole[]): WorkspaceAccess
     schoolAdmin: has(pageRoles.schoolAdmin),
     inventory: has(pageRoles.inventory),
     hr: has(pageRoles.hr),
+    library: has(pageRoles.library),
+    lab: has(pageRoles.lab),
+    workshop: has(pageRoles.workshop),
+    community: has(pageRoles.community),
+    pr: has(pageRoles.pr),
     student: roles.includes("student"),
   };
 }

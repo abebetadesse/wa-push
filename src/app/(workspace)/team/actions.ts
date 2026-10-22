@@ -11,17 +11,17 @@ import { sendEmail } from "@/lib/email";
 import { withBasePath } from "@/lib/base-path";
 import { hashInvitationToken } from "@/lib/invitations";
 import { isPlatformAdmin, requireSchoolRole } from "@/lib/permissions";
+import { INVITE_ROLES, isStaffRole } from "@/lib/roles";
 
 export type InviteState = {
   error?: string;
   success?: string;
 };
 
-const inviteRoles = ["school_admin", "teacher", "student", "inventory_manager", "hr_manager"] as const;
-type InviteRole = (typeof inviteRoles)[number];
+type InviteRole = (typeof INVITE_ROLES)[number];
 
 function isInviteRole(value: string): value is InviteRole {
-  return inviteRoles.some((candidate) => candidate === value);
+  return INVITE_ROLES.some((candidate) => candidate === value);
 }
 
 async function inviteMemberImpl(_previous: InviteState, formData: FormData): Promise<InviteState> {
@@ -106,12 +106,6 @@ async function inviteMemberImpl(_previous: InviteState, formData: FormData): Pro
   return { success: `Invitation sent to ${email}.` };
 }
 
-const staffRoles = ["school_admin", "teacher", "inventory_manager", "hr_manager"] as const;
-type StaffRole = (typeof staffRoles)[number];
-
-function isStaffRole(value: string): value is StaffRole {
-  return staffRoles.some((candidate) => candidate === value);
-}
 
 async function revokeInvitationImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();

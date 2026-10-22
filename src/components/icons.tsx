@@ -25,6 +25,11 @@ const navPaths: Record<NavIcon, ReactNode> = {
   briefcase: <><rect x="3" y="7" width="18" height="14" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" /></>,
   school: <><path d="m3 10 9-7 9 7" /><path d="M5 9v11h14V9M9 20v-6h6v6" /></>,
   graduation: <><path d="m2 9 10-5 10 5-10 5Z" /><path d="M6 11v5c3 2 9 2 12 0v-5M22 9v6" /></>,
+  shelf: <><path d="M4 4v16M20 4v16M4 20h16" /><path d="M7 17V7M10 17V5M14 17l-2-9M17 17V9" /></>,
+  flask: <><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3" /><path d="M7 15h10" /></>,
+  wrench: <><path d="M14.7 6.3a4 4 0 0 0 5 5L21 13l-8 8-3-3 8-8-1.3-1.3a4 4 0 0 1-5-5l2.6 2.6 2-2Z" /><path d="m3 21 6-6" /></>,
+  handshake: <><path d="m11 17 2 2a1.5 1.5 0 0 0 2-2" /><path d="m14 14 2.5 2.5a1.5 1.5 0 0 0 2-2L15 11" /><path d="M2 11l5-5 5 3 3-2 7 5-3 3" /><path d="m7 13 4 4" /></>,
+  megaphone: <><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1Z" /><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12" /></>,
 };
 
 export function NavGlyph({ name, size }: { name: NavIcon; size?: number }) {

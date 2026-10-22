@@ -12,20 +12,26 @@ export type WorkspaceAccess = {
   schoolAdmin: boolean;
   inventory: boolean;
   hr: boolean;
+  library: boolean;
+  lab: boolean;
+  workshop: boolean;
+  community: boolean;
+  pr: boolean;
   /** Has a student membership (the My learning portal). */
   student: boolean;
 };
 
 export type NavIcon =
   | "grid" | "users" | "teacher" | "book" | "folder" | "quiz" | "calendar" | "check"
-  | "chart" | "layers" | "team" | "box" | "briefcase" | "school" | "graduation";
+  | "chart" | "layers" | "team" | "box" | "briefcase" | "school" | "graduation"
+  | "shelf" | "flask" | "wrench" | "handshake" | "megaphone";
 
 export type NavItem = {
   href: string;
   label: string;
   description: string;
   icon: NavIcon;
-  section: "Overview" | "Teaching" | "Administration" | "Operations";
+  section: "Overview" | "Teaching" | "Administration" | "Operations" | "Engagement";
   keywords?: string;
   allow: (access: WorkspaceAccess) => boolean;
 };
@@ -47,7 +53,12 @@ export const navItems: NavItem[] = [
   { href: "/team", label: "Team & access", description: "Invite staff and manage roles", icon: "team", section: "Administration", keywords: "invite members roles permissions", allow: (a) => a.schoolAdmin },
   { href: "/setup-school", label: "Add a school", description: "Create a new school workspace", icon: "school", section: "Administration", keywords: "new school create workspace", allow: (a) => a.platformAdmin },
   { href: "/inventory", label: "Inventory", description: "Stock, supplies and movements", icon: "box", section: "Operations", keywords: "stock supplies assets", allow: (a) => a.inventory },
-  { href: "/hr", label: "Human resources", description: "Staff records and employment status", icon: "briefcase", section: "Operations", keywords: "hr staff employees", allow: (a) => a.hr },
+  { href: "/hr", label: "Human resources", description: "Staff records, leave, contracts and attendance", icon: "briefcase", section: "Operations", keywords: "hr staff employees leave contract attendance", allow: (a) => a.hr },
+  { href: "/library", label: "Library", description: "Book catalog, copies and loans", icon: "shelf", section: "Operations", keywords: "books borrow loans return overdue", allow: (a) => a.library },
+  { href: "/lab", label: "Laboratories", description: "Equipment, chemicals, bookings and safety", icon: "flask", section: "Operations", keywords: "laboratory science chemicals equipment booking incident", allow: (a) => a.lab },
+  { href: "/workshop", label: "Workshops", description: "Tools, sessions and maintenance", icon: "wrench", section: "Operations", keywords: "technical vocational tools maintenance booking", allow: (a) => a.workshop },
+  { href: "/community", label: "Community", description: "Partners, events, meetings and volunteers", icon: "handshake", section: "Engagement", keywords: "parents ptsa partners volunteers events meetings", allow: (a) => a.community },
+  { href: "/pr", label: "Public relations", description: "News, announcements and the public school page", icon: "megaphone", section: "Engagement", keywords: "news announcements media website public page", allow: (a) => a.pr },
 ];
 
 export function visibleNavItems(access: WorkspaceAccess) {

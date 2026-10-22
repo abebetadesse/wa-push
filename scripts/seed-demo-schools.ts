@@ -16,10 +16,11 @@ import { join } from "node:path";
 import { randomBytes, randomUUID } from "node:crypto";
 import type { Connection, RowDataPacket } from "mysql2/promise";
 import { CURRICULUM_SUBJECTS } from "../src/lib/ethiopian-curriculum";
+import type { SchoolRoleName } from "../src/lib/roles";
 
 loadEnvConfig(process.cwd());
 
-type Role = "school_admin" | "teacher" | "student" | "guardian" | "inventory_manager" | "hr_manager";
+type Role = SchoolRoleName;
 
 type DemoSchool = {
   name: string;
@@ -43,6 +44,11 @@ const PEOPLE: Record<Role, { local: string; first: string; last: string; title: 
   guardian: [{ local: "guardian", first: "Tesfaye", last: "Girma", title: "Guardian" }],
   inventory_manager: [{ local: "inventory", first: "Mulugeta", last: "Abebe", title: "Store keeper" }],
   hr_manager: [{ local: "hr", first: "Meron", last: "Alemu", title: "HR officer" }],
+  librarian: [{ local: "library", first: "Tigist", last: "Mekonnen", title: "Librarian" }],
+  lab_technician: [{ local: "lab", first: "Yonas", last: "Desta", title: "Laboratory technician" }],
+  workshop_manager: [{ local: "workshop", first: "Bekele", last: "Gemechu", title: "Workshop manager" }],
+  community_officer: [{ local: "community", first: "Almaz", last: "Tadesse", title: "Community engagement officer" }],
+  pr_officer: [{ local: "pr", first: "Hirut", last: "Wolde", title: "Public relations officer" }],
 };
 
 // Prefix of each person's student, teacher or employee number.
@@ -53,6 +59,11 @@ const ROLE_CODES: Record<Role, string> = {
   guardian: "G",
   inventory_manager: "I",
   hr_manager: "H",
+  librarian: "L",
+  lab_technician: "B",
+  workshop_manager: "W",
+  community_officer: "C",
+  pr_officer: "P",
 };
 
 function emailFor(local: string, slug: string) {

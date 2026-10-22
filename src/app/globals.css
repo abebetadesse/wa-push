@@ -3466,3 +3466,54 @@ ol.material-list {
     display: none;
   }
 }
+
+/* Section tabs within a page */
+.page-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.page-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.page-tab:hover {
+  color: var(--ink);
+  background: var(--brand-soft);
+}
+
+.page-tab[aria-current="page"] {
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+}
+
+.page-tab-count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  color: var(--ink);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+/* A form field that spans both columns of .form-two-columns. */
+.form-two-columns > .form-wide {
+  grid-column: 1 / -1;
+}

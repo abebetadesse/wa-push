@@ -14,6 +14,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 import { randomUUID } from "node:crypto";
+import { SCHOOL_ROLES } from "../lib/roles";
 
 const id = () => varchar("id", { length: 36 }).primaryKey().$defaultFn(() => randomUUID());
 const createdAt = () => timestamp("created_at").notNull().defaultNow();
@@ -111,7 +112,7 @@ export const schoolMemberships = mysqlTable(
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
     userId: varchar("user_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
-    role: mysqlEnum("role", ["school_admin", "teacher", "student", "guardian", "inventory_manager", "hr_manager"]).notNull(),
+    role: mysqlEnum("role", SCHOOL_ROLES).notNull(),
     createdAt: createdAt(),
   },
   (table) => [
@@ -127,7 +128,7 @@ export const schoolInvitations = mysqlTable(
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
     invitedBy: varchar("invited_by", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "restrict" }),
     email: varchar("email", { length: 254 }).notNull(),
-    role: mysqlEnum("role", ["school_admin", "teacher", "student", "guardian", "inventory_manager", "hr_manager"]).notNull(),
+    role: mysqlEnum("role", SCHOOL_ROLES).notNull(),
     tokenHash: varchar("token_hash", { length: 64 }).notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     acceptedAt: timestamp("accepted_at"),
@@ -624,5 +625,63 @@ export const staffMembers = mysqlTable(
     uniqueIndex("school_staff_members_school_employee_unique").on(table.schoolId, table.employeeNumber),
     uniqueIndex("school_staff_members_school_user_unique").on(table.schoolId, table.userId),
     index("school_staff_members_school_name_idx").on(table.schoolId, table.lastName, table.firstName),
+  ],
+);
+
+export const staffLeave = mysqlTable(
+  "school_staff_leave",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    staffId: varchar("staff_id", { length: 36 }).notNull().references(() => staffMembers.id, { onDelete: "cascade" }),
+    leaveType: mysqlEnum("leave_type", ["annual", "sick", "maternity", "paternity", "bereavement", "study", "unpaid", "other"]).notNull(),
+    startsOn: date("starts_on", { mode: "string" }).notNull(),
+    endsOn: date("ends_on", { mode: "string" }).notNull(),
+    reason: varchar("reason", { length: 500 }),
+    status: mysqlEnum("status", ["requested", "approved", "rejected", "cancelled"]).notNull().default("requested"),
+    decidedBy: varchar("decided_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    decidedAt: timestamp("decided_at"),
+    createdBy: varchar("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index("school_staff_leave_school_start_idx").on(table.schoolId, table.startsOn),
+    index("school_staff_leave_staff_idx").on(table.staffId),
+  ],
+);
+
+// Employment terms only; pay and other sensitive records stay outside Forma.
+export const staffContracts = mysqlTable(
+  "school_staff_contracts",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    staffId: varchar("staff_id", { length: 36 }).notNull().references(() => staffMembers.id, { onDelete: "cascade" }),
+    contractType: mysqlEnum("contract_type", ["permanent", "fixed_term", "temporary", "part_time", "volunteer"]).notNull(),
+    position: varchar("position", { length: 120 }).notNull(),
+    startsOn: date("starts_on", { mode: "string" }).notNull(),
+    endsOn: date("ends_on", { mode: "string" }),
+    notes: varchar("notes", { length: 500 }),
+    status: mysqlEnum("status", ["active", "ended"]).notNull().default("active"),
+    createdAt: createdAt(),
+  },
+  (table) => [index("school_staff_contracts_school_staff_idx").on(table.schoolId, table.staffId)],
+);
+
+export const staffAttendance = mysqlTable(
+  "school_staff_attendance",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    staffId: varchar("staff_id", { length: 36 }).notNull().references(() => staffMembers.id, { onDelete: "cascade" }),
+    date: date("date", { mode: "string" }).notNull(),
+    status: mysqlEnum("status", ["present", "absent", "late", "on_leave"]).notNull(),
+    remarks: varchar("remarks", { length: 255 }),
+    recordedBy: varchar("recorded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex("school_staff_attendance_staff_date_unique").on(table.staffId, table.date),
+    index("school_staff_attendance_school_date_idx").on(table.schoolId, table.date),
   ],
 );

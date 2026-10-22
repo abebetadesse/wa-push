@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { INVITE_ROLES, ROLE_LABELS } from "@/lib/roles";
 import { inviteMember, type InviteState } from "./actions";
 
 export function InviteForm({
@@ -22,11 +23,9 @@ export function InviteForm({
       <label>
         School role
         <select name="role" required defaultValue="teacher">
-          {allowSchoolAdmin && <option value="school_admin">School administrator</option>}
-          <option value="teacher">Teacher</option>
-          <option value="student">Student</option>
-          <option value="inventory_manager">Inventory manager</option>
-          <option value="hr_manager">Human resources manager</option>
+          {INVITE_ROLES.filter((role) => allowSchoolAdmin || role !== "school_admin").map((role) => (
+            <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+          ))}
         </select>
       </label>
       {state.error && <p className="auth-error" role="alert">{state.error}</p>}
