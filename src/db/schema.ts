@@ -685,3 +685,51 @@ export const staffAttendance = mysqlTable(
     index("school_staff_attendance_school_date_idx").on(table.schoolId, table.date),
   ],
 );
+
+export const libraryBooks = mysqlTable(
+  "school_library_books",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    author: varchar("author", { length: 160 }),
+    isbn: varchar("isbn", { length: 20 }),
+    publisher: varchar("publisher", { length: 160 }),
+    publishedYear: int("published_year"),
+    category: varchar("category", { length: 80 }),
+    language: varchar("language", { length: 40 }),
+    gradeLevelId: varchar("grade_level_id", { length: 36 }).references(() => gradeLevels.id, { onDelete: "set null" }),
+    subjectId: varchar("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
+    shelf: varchar("shelf", { length: 40 }),
+    copies: int("copies").notNull().default(1),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    uniqueIndex("school_library_books_school_isbn_unique").on(table.schoolId, table.isbn),
+    index("school_library_books_school_title_idx").on(table.schoolId, table.title),
+  ],
+);
+
+export const libraryLoans = mysqlTable(
+  "school_library_loans",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    bookId: varchar("book_id", { length: 36 }).notNull().references(() => libraryBooks.id, { onDelete: "cascade" }),
+    borrowerType: mysqlEnum("borrower_type", ["student", "staff"]).notNull(),
+    studentId: varchar("student_id", { length: 36 }).references(() => students.id, { onDelete: "set null" }),
+    staffId: varchar("staff_id", { length: 36 }).references(() => staffMembers.id, { onDelete: "set null" }),
+    /** Kept so the record stays readable if the student or staff record is removed. */
+    borrowerName: varchar("borrower_name", { length: 200 }).notNull(),
+    loanedOn: date("loaned_on", { mode: "string" }).notNull(),
+    dueOn: date("due_on", { mode: "string" }).notNull(),
+    returnedOn: date("returned_on", { mode: "string" }),
+    issuedBy: varchar("issued_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index("school_library_loans_school_returned_idx").on(table.schoolId, table.returnedOn),
+    index("school_library_loans_book_idx").on(table.bookId),
+  ],
+);

@@ -3513,6 +3513,10 @@ ol.material-list {
   text-align: center;
 }
 
+.number-input {
+  width: 84px;
+}
+
 /* A form field that spans both columns of .form-two-columns. */
 .form-two-columns > .form-wide {
   grid-column: 1 / -1;
