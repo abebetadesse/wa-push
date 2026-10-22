@@ -49,6 +49,10 @@ A multi-school platform starter built with Next.js, Drizzle ORM, MySQL, and Bett
 
 Open the configured `BETTER_AUTH_URL`, sign in as the platform administrator, and create a school. School administrators can then invite staff from **Team**.
 
+### Demo schools
+
+`npm run db:seed-demo` creates three demo schools (Abay Primary, grades 1–8; Entoto Hill Secondary, grades 9–10; Rift Valley Preparatory, grades 11–12) with a 2026/27 academic year, grades, subjects, one class per grade, and one account per school role: `admin@`, `teacher@`, `student@`, `guardian@`, `inventory@` and `hr@<slug>.forma.test`. All of them sign in with `DEMO_USER_PASSWORD` from `.env.local`, which the script generates on first run. It can be re-run safely, and it refuses to touch a non-local database unless given `--allow-remote`.
+
 ## Production deployment
 
 Production runs Forma as its own website at `https://school.wisdomcourse.com.et` (Plesk, Node.js). The hosting server cannot compile the app, so GitHub Actions builds each push to `main` and publishes the result to the `plesk-release` branch, which Plesk deploys. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the Plesk set-up, settings, and updates. `npm run deploy:plesk` builds the same release locally.
