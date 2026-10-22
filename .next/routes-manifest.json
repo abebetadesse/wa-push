@@ -221,6 +221,12 @@
       "namedRegex": "^/lessons(?:/)?$"
     },
     {
+      "page": "/lessons/generate",
+      "regex": "^/lessons/generate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/lessons/generate(?:/)?$"
+    },
+    {
       "page": "/login",
       "regex": "^/login(?:/)?$",
       "routeKeys": {},

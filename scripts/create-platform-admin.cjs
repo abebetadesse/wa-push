@@ -50,6 +50,7 @@ __export(schema_exports, {
   inventoryItems: () => inventoryItems,
   inventoryMovements: () => inventoryMovements,
   learningResources: () => learningResources,
+  lessonPlanRevisions: () => lessonPlanRevisions,
   lessonPlans: () => lessonPlans,
   schoolInvitations: () => schoolInvitations,
   schoolMemberships: () => schoolMemberships,
@@ -59,7 +60,7 @@ __export(schema_exports, {
   subjects: () => subjects,
   teachers: () => teachers
 });
-var import_mysql_core, import_node_crypto, id, createdAt, authUsers, authSessions, authAccounts, authVerifications, schools, schoolMemberships, schoolInvitations, activityEvents, academicYears, gradeLevels, classrooms, students, enrollments, subjects, teachers, lessonPlans, assessments, assessmentQuestions, learningResources, assessmentResults, assessmentAttempts, classSchedules, attendanceRecords, inventoryItems, inventoryMovements, staffMembers;
+var import_mysql_core, import_node_crypto, id, createdAt, authUsers, authSessions, authAccounts, authVerifications, schools, schoolMemberships, schoolInvitations, activityEvents, academicYears, gradeLevels, classrooms, students, enrollments, subjects, teachers, lessonPlans, lessonPlanRevisions, assessments, assessmentQuestions, learningResources, assessmentResults, assessmentAttempts, classSchedules, attendanceRecords, inventoryItems, inventoryMovements, staffMembers;
 var init_schema = __esm({
   "src/db/schema.ts"() {
     "use strict";
@@ -323,6 +324,7 @@ var init_schema = __esm({
         subjectId: (0, import_mysql_core.varchar)("subject_id", { length: 36 }).notNull().references(() => subjects.id, { onDelete: "restrict" }),
         classroomId: (0, import_mysql_core.varchar)("classroom_id", { length: 36 }).references(() => classrooms.id, { onDelete: "set null" }),
         teacherId: (0, import_mysql_core.varchar)("teacher_id", { length: 36 }).references(() => teachers.id, { onDelete: "set null" }),
+        sourceResourceId: (0, import_mysql_core.varchar)("source_resource_id", { length: 36 }).references(() => learningResources.id, { onDelete: "set null" }),
         title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
         unitTopic: (0, import_mysql_core.varchar)("unit_topic", { length: 160 }),
         durationMinutes: (0, import_mysql_core.int)("duration_minutes").notNull().default(45),
@@ -343,7 +345,38 @@ var init_schema = __esm({
       (table) => [
         (0, import_mysql_core.index)("school_lesson_plans_school_subject_idx").on(table.schoolId, table.subjectId),
         (0, import_mysql_core.index)("school_lesson_plans_teacher_idx").on(table.teacherId),
-        (0, import_mysql_core.index)("school_lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate)
+        (0, import_mysql_core.index)("school_lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate),
+        (0, import_mysql_core.index)("school_lesson_plans_source_resource_idx").on(table.sourceResourceId)
+      ]
+    );
+    lessonPlanRevisions = (0, import_mysql_core.mysqlTable)(
+      "school_lesson_plan_revisions",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        lessonPlanId: (0, import_mysql_core.varchar)("lesson_plan_id", { length: 36 }).notNull().references(() => lessonPlans.id, { onDelete: "cascade" }),
+        version: (0, import_mysql_core.int)("version").notNull().default(1),
+        editedBy: (0, import_mysql_core.varchar)("edited_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        changeSummary: (0, import_mysql_core.varchar)("change_summary", { length: 255 }).notNull().default("Updated lesson plan"),
+        title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
+        unitTopic: (0, import_mysql_core.varchar)("unit_topic", { length: 160 }),
+        durationMinutes: (0, import_mysql_core.int)("duration_minutes").notNull().default(45),
+        scheduledDate: (0, import_mysql_core.date)("scheduled_date", { mode: "string" }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["draft", "submitted", "approved", "published", "archived"]).notNull().default("draft"),
+        overview: (0, import_mysql_core.text)("overview"),
+        objectives: (0, import_mysql_core.text)("objectives"),
+        materials: (0, import_mysql_core.text)("materials"),
+        prerequisites: (0, import_mysql_core.text)("prerequisites"),
+        procedures: (0, import_mysql_core.text)("procedures"),
+        differentiation: (0, import_mysql_core.text)("differentiation"),
+        assessment: (0, import_mysql_core.text)("assessment"),
+        homework: (0, import_mysql_core.text)("homework"),
+        notes: (0, import_mysql_core.text)("notes"),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.index)("school_lesson_revisions_plan_idx").on(table.lessonPlanId, table.version),
+        (0, import_mysql_core.index)("school_lesson_revisions_school_idx").on(table.schoolId)
       ]
     );
     assessments = (0, import_mysql_core.mysqlTable)(

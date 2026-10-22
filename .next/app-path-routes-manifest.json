@@ -5,6 +5,7 @@
   "/(workspace)/hr/page": "/hr",
   "/(workspace)/inventory/page": "/inventory",
   "/(workspace)/lessons/[id]/page": "/lessons/[id]",
+  "/(workspace)/lessons/generate/page": "/lessons/generate",
   "/(workspace)/lessons/page": "/lessons",
   "/(workspace)/my-learning/page": "/my-learning",
   "/(workspace)/page": "/",

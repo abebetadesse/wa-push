@@ -1,0 +1,25 @@
+{
+  "node": {
+    "40b231af60999d570b738a54b936ac7edca03047ca": {
+      "workers": {
+        "app/(workspace)/lessons/generate/page": {
+          "moduleId": 79462,
+          "async": false
+        }
+      },
+      "exportedName": "batchSaveLessonPlans",
+      "filename": "src/app/(workspace)/lessons/generate/actions.ts"
+    },
+    "4032bbcb132e72bf16d415852277f4e200dc3189c2": {
+      "workers": {
+        "app/(workspace)/lessons/generate/page": {
+          "moduleId": 79462,
+          "async": false
+        }
+      },
+      "exportedName": "previewLessonPlans",
+      "filename": "src/app/(workspace)/lessons/generate/actions.ts"
+    }
+  },
+  "edge": {}
+}

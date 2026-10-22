@@ -5,6 +5,7 @@
   "/(workspace)/hr/page": "app/(workspace)/hr/page.js",
   "/(workspace)/inventory/page": "app/(workspace)/inventory/page.js",
   "/(workspace)/lessons/[id]/page": "app/(workspace)/lessons/[id]/page.js",
+  "/(workspace)/lessons/generate/page": "app/(workspace)/lessons/generate/page.js",
   "/(workspace)/lessons/page": "app/(workspace)/lessons/page.js",
   "/(workspace)/my-learning/page": "app/(workspace)/my-learning/page.js",
   "/(workspace)/page": "app/(workspace)/page.js",

@@ -7,9 +7,9 @@ globalThis.__BUILD_MANIFEST = {
     "static/chunks/0cz1d0mv5g_q7.js"
   ],
   "lowPriorityFiles": [
-    "static/RgnbVUaCkQM2OVjYWwndn/_buildManifest.js",
-    "static/RgnbVUaCkQM2OVjYWwndn/_ssgManifest.js",
-    "static/RgnbVUaCkQM2OVjYWwndn/_clientMiddlewareManifest.js"
+    "static/IJZpbL0V2gq55q5l_rPFT/_buildManifest.js",
+    "static/IJZpbL0V2gq55q5l_rPFT/_ssgManifest.js",
+    "static/IJZpbL0V2gq55q5l_rPFT/_clientMiddlewareManifest.js"
   ],
   "rootMainFiles": [
     "static/chunks/1x6obpmlu1_c2.js",
@@ -120,6 +120,17 @@ globalThis.__BUILD_MANIFEST = {
       ]
     },
     "/(workspace)/lessons/[id]/page": {
+      "otherChunks": [
+        "static/chunks/1x6obpmlu1_c2.js",
+        "static/chunks/06bs-nf19b2js.js",
+        "static/chunks/1vo0wohvofgd7.js",
+        "static/chunks/2tdgz_eyr3s4k.js"
+      ],
+      "runtimeModuleIds": [
+        94553
+      ]
+    },
+    "/(workspace)/lessons/generate/page": {
       "otherChunks": [
         "static/chunks/1x6obpmlu1_c2.js",
         "static/chunks/06bs-nf19b2js.js",
