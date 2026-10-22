@@ -85,7 +85,9 @@ export function AuthForm() {
         <p className="auth-eyebrow">Welcome back</p>
         <h1>Sign in to Forma</h1>
         <p className="auth-description">Sign in to manage the school workspaces assigned to your account.</p>
-        <form className="auth-form" onSubmit={submit}>
+        {/* method="post": if someone submits before the page's script loads, the browser must not
+            put the password in the URL (a GET would, and it would land in history and server logs). */}
+        <form className="auth-form" method="post" onSubmit={submit}>
           <label>
             Email address
             <input

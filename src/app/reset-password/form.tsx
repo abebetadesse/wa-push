@@ -39,7 +39,7 @@ export function ResetPasswordForm({ token, invalid }: { token: string; invalid: 
         <p className="auth-eyebrow">ACCOUNT RECOVERY</p>
         <h1>Choose a new password</h1>
         {token && !invalid && (
-          <form className="auth-form" onSubmit={submit}>
+          <form className="auth-form" method="post" onSubmit={submit}>
             <label>New password<input autoComplete="new-password" minLength={12} maxLength={128} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} /><small>Use at least 12 characters.</small></label>
             <button className="primary-button auth-submit" disabled={pending} type="submit">{pending ? "Updating..." : "Update password"}</button>
           </form>

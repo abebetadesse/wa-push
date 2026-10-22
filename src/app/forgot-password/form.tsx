@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
         <p className="auth-eyebrow">ACCOUNT RECOVERY</p>
         <h1>Reset your password</h1>
         <p className="auth-description">Enter your account email. We’ll send a secure reset link if it matches an account.</p>
-        <form className="auth-form" onSubmit={submit}>
+        <form className="auth-form" method="post" onSubmit={submit}>
           <label>Email address<input autoComplete="email" maxLength={254} onChange={(event) => setEmail(event.target.value)} required type="email" value={email} /></label>
           {message && <p className="auth-success" role="status">{message}</p>}
           <button className="primary-button auth-submit" disabled={pending} type="submit">{pending ? "Sending..." : "Send reset link"}</button>

@@ -94,7 +94,7 @@ export function InviteAcceptForm({
         <p className="auth-eyebrow">SCHOOL INVITATION</p>
         <h1>Join {schoolName}</h1>
         <p className="auth-description">You were invited as a {role.replaceAll("_", " ")}. Create a password to accept.</p>
-        {!existingAccount && <form className="auth-form" onSubmit={submit}>
+        {!existingAccount && <form className="auth-form" method="post" onSubmit={submit}>
           <label>
             Full name
             <input autoComplete="name" maxLength={255} onChange={(event) => setName(event.target.value)} required value={name} />
@@ -113,7 +113,7 @@ export function InviteAcceptForm({
             {pending ? "Accepting invitation..." : "Create account"}
           </button>
         </form>}
-        {existingAccount && <form className="auth-form" onSubmit={acceptExistingAccount}>
+        {existingAccount && <form className="auth-form" method="post" onSubmit={acceptExistingAccount}>
           <label>Account password<input autoComplete="current-password" onChange={(event) => setExistingPassword(event.target.value)} required type="password" value={existingPassword} /></label>
           {existingError && <p className="auth-error" role="alert">{existingError}</p>}
           <button className="primary-button auth-submit" disabled={pending} type="submit">{pending ? "Accepting invitation..." : "Sign in and accept"}</button>
