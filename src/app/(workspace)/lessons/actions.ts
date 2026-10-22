@@ -3,7 +3,7 @@
 import { guardAction, UserError, type ActionState } from "@/lib/action-result";
 
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
@@ -11,6 +11,7 @@ import {
   activityEvents,
   classrooms,
   gradeLevels,
+  lessonPlanRevisions,
   lessonPlans,
   subjects,
 } from "@/db/schema";
@@ -58,9 +59,10 @@ async function createLessonImpl(
     .limit(1);
   if (!year || !grade || !subject) return { error: "The selected academic setup does not belong to this school." };
 
+  const lessonId = randomUUID();
   await db.transaction(async (tx) => {
     await tx.insert(lessonPlans).values({
-      id: randomUUID(),
+      id: lessonId,
       schoolId,
       academicYearId,
       gradeLevelId,
@@ -70,7 +72,23 @@ async function createLessonImpl(
       unitTopic: unitTopic || null,
       objectives: objectives || null,
       scheduledDate: scheduledDate || null,
+      status: "draft",
     });
+
+    await tx.insert(lessonPlanRevisions).values({
+      id: randomUUID(),
+      schoolId,
+      lessonPlanId: lessonId,
+      version: 1,
+      editedBy: session.user.id,
+      changeSummary: "Initial lesson plan draft created",
+      title,
+      unitTopic: unitTopic || null,
+      objectives: objectives || null,
+      scheduledDate: scheduledDate || null,
+      status: "draft",
+    });
+
     await tx.insert(activityEvents).values({
       schoolId,
       userId: session.user.id,
@@ -204,6 +222,8 @@ async function updateLessonImpl(
     if (!classroom) return { error: "Select a classroom in the chosen academic year and grade." };
   }
 
+  const changeSummary = String(formData.get("changeSummary") ?? "").trim() || "Edited lesson plan content";
+
   await db.transaction(async (tx) => {
     await tx
       .update(lessonPlans)
@@ -227,16 +247,47 @@ async function updateLessonImpl(
         notes: text.notes || null,
       })
       .where(and(eq(lessonPlans.id, lessonId), eq(lessonPlans.schoolId, schoolId)));
+
+    const [rev] = await tx
+      .select({ maxVer: sql<number>`COALESCE(MAX(${lessonPlanRevisions.version}), 0)` })
+      .from(lessonPlanRevisions)
+      .where(eq(lessonPlanRevisions.lessonPlanId, lessonId));
+
+    const nextVer = Number(rev?.maxVer ?? 0) + 1;
+
+    await tx.insert(lessonPlanRevisions).values({
+      id: randomUUID(),
+      schoolId,
+      lessonPlanId: lessonId,
+      version: nextVer,
+      editedBy: session.user.id,
+      changeSummary,
+      title,
+      unitTopic: unitTopic || null,
+      durationMinutes,
+      scheduledDate: scheduledDate || null,
+      status: lesson.status,
+      overview: text.overview || null,
+      objectives: text.objectives || null,
+      materials: text.materials || null,
+      prerequisites: text.prerequisites || null,
+      procedures: text.procedures || null,
+      differentiation: text.differentiation || null,
+      assessment: text.assessment || null,
+      homework: text.homework || null,
+      notes: text.notes || null,
+    });
+
     await tx.insert(activityEvents).values({
       schoolId,
       userId: session.user.id,
-      detail: `Updated lesson plan: ${title}`,
+      detail: `Updated lesson plan: ${title} (v${nextVer})`,
     });
   });
 
   revalidatePath("/lessons");
   revalidatePath(`/lessons/${lessonId}`);
-  return { success: "Lesson plan saved." };
+  return { success: "Lesson plan saved and revision preserved." };
 }
 
 function isLessonStatus(value: string): value is LessonStatus {

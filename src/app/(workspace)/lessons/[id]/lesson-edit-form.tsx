@@ -75,9 +75,13 @@ export function LessonEditForm({
           <textarea defaultValue={lesson[section.name] ?? ""} maxLength={10000} name={section.name} rows={section.name === "procedures" ? 8 : 4} />
         </label>
       ))}
+      <label>
+        Revision note / change summary <span className="optional-label">Optional</span>
+        <input name="changeSummary" maxLength={255} placeholder="e.g. Refined learning objectives, updated differentiation for Grade 9" />
+      </label>
       {state.error && <p className="auth-error" role="alert">{state.error}</p>}
       {state.success && <p className="auth-success" role="status">{state.success}</p>}
-      <button className="primary-button auth-submit" disabled={pending} type="submit">{pending ? "Saving..." : "Save lesson plan"}</button>
+      <button className="primary-button auth-submit" disabled={pending} type="submit">{pending ? "Saving..." : "Save lesson plan & create revision"}</button>
     </form>
   );
 }

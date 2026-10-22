@@ -49,6 +49,7 @@ const knownMigrations = [
   { id: 5, hash: "743a5ed5dbb640398bfc7f09c22918c1aeaaebfb5c386daa47657dead359aa85", created_at: 1792171617523 },
   { id: 6, hash: "6d6bd067a2ce7b8bd89a674a417a89ea8145fd8505d2053acbe0937b7a446444", created_at: 1792173766181 },
   { id: 7, hash: "f7cefd21c1a7475c0a3c4ab7fb2d0816cb8687d420939311eafad33ca46df767", created_at: 1792429587063 },
+  { id: 8, hash: "a263c48daac6b488e1a01c3c6329bc598ae7e5dcfdc0afb33a6698d05f81e4c3", created_at: 1792663148980 },
 ];
 
 export async function runMigrations() {

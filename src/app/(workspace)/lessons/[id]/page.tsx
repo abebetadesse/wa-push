@@ -1,6 +1,6 @@
 import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -10,11 +10,14 @@ import {
   authUsers,
   classrooms,
   gradeLevels,
+  learningResources,
+  lessonPlanRevisions,
   lessonPlans,
   schools,
   subjects,
 } from "@/db/schema";
 import { requireWorkspaceContext } from "@/lib/workspace";
+import { withBasePath } from "@/lib/base-path";
 import { SubmitButton } from "@/components/submit-button";
 import { updateLessonStatus } from "../actions";
 import { canEditLesson, lessonSections } from "../lesson-access";
@@ -52,6 +55,35 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
   const role = context.roles.find((membership) => membership.schoolId === plan.schoolId)?.role;
   // Do not reveal whether a lesson exists in a school the user cannot access.
   if (!platformAdmin && role !== "school_admin" && role !== "teacher") notFound();
+
+  const [revisions, sourceResource] = await Promise.all([
+    db
+      .select({
+        id: lessonPlanRevisions.id,
+        version: lessonPlanRevisions.version,
+        changeSummary: lessonPlanRevisions.changeSummary,
+        status: lessonPlanRevisions.status,
+        createdAt: lessonPlanRevisions.createdAt,
+        title: lessonPlanRevisions.title,
+        editorName: authUsers.name,
+      })
+      .from(lessonPlanRevisions)
+      .leftJoin(authUsers, eq(lessonPlanRevisions.editedBy, authUsers.id))
+      .where(eq(lessonPlanRevisions.lessonPlanId, lessonId))
+      .orderBy(desc(lessonPlanRevisions.version)),
+    plan.sourceResourceId
+      ? db
+          .select({
+            id: learningResources.id,
+            title: learningResources.title,
+            fileName: learningResources.fileName,
+          })
+          .from(learningResources)
+          .where(eq(learningResources.id, plan.sourceResourceId))
+          .limit(1)
+          .then(([r]) => r)
+      : null,
+  ]);
 
   const editable = canEditLesson({ role, userId: context.userId, platformAdmin, status: plan.status, createdBy: plan.createdBy });
   const canReview = platformAdmin || role === "school_admin";
@@ -92,6 +124,17 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
         <span className={`role-badge status-${plan.status}`}>{plan.status}</span>
       </header>
       <div className="management-sections">
+        {sourceResource && (
+          <div style={{ background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", padding: "0.875rem 1.25rem", borderRadius: "0.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+            <div>
+              <strong>📚 Auto-generated from learning resource:</strong> {sourceResource.title} <small>({sourceResource.fileName})</small>
+            </div>
+            <a className="secondary-button" href={withBasePath(`/api/resources/${sourceResource.id}`)} target="_blank" rel="noreferrer">
+              Open resource file
+            </a>
+          </div>
+        )}
+
         <section className="management-card">
           <div className="management-card-heading">
             <div><h2>Lesson plan</h2><p>{plan.unitTopic ? `${plan.unitTopic} · ` : ""}Written by {lesson.authorName ?? "a former member"} · Updated {plan.updatedAt.toLocaleDateString()}</p></div>
@@ -117,7 +160,7 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
         </section>
         {editable && <section className="management-card">
           <h2>Edit lesson plan</h2>
-          {plan.status !== "draft" && <p className="setup-hint">This plan is {plan.status}. Your edits keep its current status.</p>}
+          {plan.status !== "draft" && <p className="setup-hint">This plan is {plan.status}. Your edits keep its current status and create a new version history entry.</p>}
           <LessonEditForm
             lesson={plan}
             years={years}
@@ -126,6 +169,31 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
             classrooms={schoolClassrooms}
           />
         </section>}
+
+        {/* Version History Section */}
+        <section className="management-card">
+          <div className="management-card-heading">
+            <div>
+              <h2>Revision History &amp; Future Enhancements ({revisions.length})</h2>
+              <p>Every edit, status change, and resource generation is permanently preserved for continuous curriculum enhancement.</p>
+            </div>
+          </div>
+          {revisions.length === 0 ? (
+            <p className="empty-state">No revisions recorded yet.</p>
+          ) : (
+            <div className="record-list">
+              {revisions.map((rev) => (
+                <div className="record-row" key={rev.id}>
+                  <div className="record-primary">
+                    <strong>Version {rev.version} — {rev.changeSummary}</strong>
+                    <small>Recorded by {rev.editorName ?? "System"} on {rev.createdAt.toLocaleString()} · Status: {rev.status}</small>
+                  </div>
+                  <span className={`role-badge status-${rev.status}`}>v{rev.version}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </main>
   );

@@ -32,6 +32,7 @@ async function LessonsContent() {
       scheduledDate: lessonPlans.scheduledDate,
       createdBy: lessonPlans.createdBy,
       createdAt: lessonPlans.createdAt,
+      sourceResourceId: lessonPlans.sourceResourceId,
       subjectName: subjects.name,
       gradeName: gradeLevels.name,
     })
@@ -50,9 +51,12 @@ async function LessonsContent() {
           <Link href="/" className="management-back">← Dashboard</Link>
           <p className="auth-eyebrow">TEACHING &amp; LEARNING</p>
           <h1>Lesson plans</h1>
-          <p className="management-description">Create drafts, open a plan to write its full content, and move it through school review before publishing.</p>
+          <p className="management-description">Create drafts, open a plan to write its full content, or auto-generate full unit plans from textbooks.</p>
         </div>
-        <Link className="secondary-button" href="/timetable">Class timetable</Link>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <Link className="primary-button" href="/lessons/generate">⚡ Auto-generate from textbook</Link>
+          <Link className="secondary-button" href="/timetable">Class timetable</Link>
+        </div>
       </header>
       <div className="management-sections">
         <section className="management-card">
@@ -81,6 +85,7 @@ async function LessonsContent() {
                     <strong><Link className="text-link" href={`/lessons/${plan.id}`}>{plan.title}</Link></strong>
                     <small>{plan.schoolName} · {plan.gradeName} · {plan.subjectName}{plan.scheduledDate ? ` · ${plan.scheduledDate}` : ""}</small>
                     {plan.unitTopic && <small>{plan.unitTopic}</small>}
+                    {plan.sourceResourceId && <small style={{ color: "#2563eb", fontWeight: 600 }}>📚 Auto-generated from resource</small>}
                   </div>
                   <span className={`role-badge status-${plan.status}`}>{plan.status}</span>
                   {nextStatus && (canSubmit || canReview) && <ActionForm action={updateLessonStatus}>

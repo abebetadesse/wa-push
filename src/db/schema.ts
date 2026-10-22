@@ -287,6 +287,7 @@ export const lessonPlans = mysqlTable(
     subjectId: varchar("subject_id", { length: 36 }).notNull().references(() => subjects.id, { onDelete: "restrict" }),
     classroomId: varchar("classroom_id", { length: 36 }).references(() => classrooms.id, { onDelete: "set null" }),
     teacherId: varchar("teacher_id", { length: 36 }).references(() => teachers.id, { onDelete: "set null" }),
+    sourceResourceId: varchar("source_resource_id", { length: 36 }).references(() => learningResources.id, { onDelete: "set null" }),
     title: varchar("title", { length: 200 }).notNull(),
     unitTopic: varchar("unit_topic", { length: 160 }),
     durationMinutes: int("duration_minutes").notNull().default(45),
@@ -308,6 +309,38 @@ export const lessonPlans = mysqlTable(
     index("school_lesson_plans_school_subject_idx").on(table.schoolId, table.subjectId),
     index("school_lesson_plans_teacher_idx").on(table.teacherId),
     index("school_lesson_plans_scheduled_date_idx").on(table.schoolId, table.scheduledDate),
+    index("school_lesson_plans_source_resource_idx").on(table.sourceResourceId),
+  ],
+);
+
+export const lessonPlanRevisions = mysqlTable(
+  "school_lesson_plan_revisions",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    lessonPlanId: varchar("lesson_plan_id", { length: 36 }).notNull().references(() => lessonPlans.id, { onDelete: "cascade" }),
+    version: int("version").notNull().default(1),
+    editedBy: varchar("edited_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    changeSummary: varchar("change_summary", { length: 255 }).notNull().default("Updated lesson plan"),
+    title: varchar("title", { length: 200 }).notNull(),
+    unitTopic: varchar("unit_topic", { length: 160 }),
+    durationMinutes: int("duration_minutes").notNull().default(45),
+    scheduledDate: date("scheduled_date", { mode: "string" }),
+    status: mysqlEnum("status", ["draft", "submitted", "approved", "published", "archived"]).notNull().default("draft"),
+    overview: text("overview"),
+    objectives: text("objectives"),
+    materials: text("materials"),
+    prerequisites: text("prerequisites"),
+    procedures: text("procedures"),
+    differentiation: text("differentiation"),
+    assessment: text("assessment"),
+    homework: text("homework"),
+    notes: text("notes"),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index("school_lesson_revisions_plan_idx").on(table.lessonPlanId, table.version),
+    index("school_lesson_revisions_school_idx").on(table.schoolId),
   ],
 );
 

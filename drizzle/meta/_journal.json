@@ -50,6 +50,13 @@
       "when": 1792429587063,
       "tag": "0006_prefix_school_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1792663148980,
+      "tag": "0007_lesson_plan_generator_and_revisions",
+      "breakpoints": true
     }
   ]
 }
