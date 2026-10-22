@@ -1,0 +1,25 @@
+{
+  "node": {
+    "4061b862fc4e1262453ff91121fb660b5ad9e96c27": {
+      "workers": {
+        "app/(workspace)/assessments/generate/page": {
+          "moduleId": 45846,
+          "async": false
+        }
+      },
+      "exportedName": "generateAssessmentPlanAction",
+      "filename": "src/app/(workspace)/assessments/generate/actions.ts"
+    },
+    "406b1b727835d5f827773d42011b2670251324f7eb": {
+      "workers": {
+        "app/(workspace)/assessments/generate/page": {
+          "moduleId": 45846,
+          "async": false
+        }
+      },
+      "exportedName": "saveAssessmentPlanAction",
+      "filename": "src/app/(workspace)/assessments/generate/actions.ts"
+    }
+  },
+  "edge": {}
+}

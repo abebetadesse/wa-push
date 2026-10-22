@@ -59,6 +59,14 @@
       "namedRegex": "^/api/auth/(?<nxtPall>.+?)(?:/)?$"
     },
     {
+      "page": "/api/pr-media/[id]",
+      "regex": "^/api/pr\\-media/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/pr\\-media/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/api/resources/[id]",
       "regex": "^/api/resources/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -111,6 +119,23 @@
         {
           "destination": "/students/[id]/report-card.segments/!KHdvcmtzcGFjZSk/students/$d$id/report-card$segment",
           "source": "^/students/(?<nxtPid>[^/]+?)/report\\-card\\.segments/!KHdvcmtzcGFjZSk/students/\\$d\\$id/report\\-card(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
+    },
+    {
+      "page": "/studio/[id]",
+      "regex": "^/studio/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/studio/(?<nxtPid>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/studio/[id].segments/!KHdvcmtzcGFjZSk/studio/$d$id$segment",
+          "source": "^/studio/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/studio/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
           "routeKeys": {
             "nxtPid": "nxtPid"
           }
@@ -185,10 +210,28 @@
       "namedRegex": "^/assessments(?:/)?$"
     },
     {
+      "page": "/assessments/generate",
+      "regex": "^/assessments/generate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/assessments/generate(?:/)?$"
+    },
+    {
       "page": "/attendance",
       "regex": "^/attendance(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/attendance(?:/)?$"
+    },
+    {
+      "page": "/community",
+      "regex": "^/community(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/community(?:/)?$"
+    },
+    {
+      "page": "/curriculum",
+      "regex": "^/curriculum(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/curriculum(?:/)?$"
     },
     {
       "page": "/favicon.ico",
@@ -215,6 +258,12 @@
       "namedRegex": "^/inventory(?:/)?$"
     },
     {
+      "page": "/lab",
+      "regex": "^/lab(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/lab(?:/)?$"
+    },
+    {
       "page": "/lessons",
       "regex": "^/lessons(?:/)?$",
       "routeKeys": {},
@@ -225,6 +274,12 @@
       "regex": "^/lessons/generate(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/lessons/generate(?:/)?$"
+    },
+    {
+      "page": "/library",
+      "regex": "^/library(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/library(?:/)?$"
     },
     {
       "page": "/login",
@@ -243,6 +298,12 @@
       "regex": "^/no\\-access(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/no\\-access(?:/)?$"
+    },
+    {
+      "page": "/pr",
+      "regex": "^/pr(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pr(?:/)?$"
     },
     {
       "page": "/register",
@@ -281,6 +342,12 @@
       "namedRegex": "^/students(?:/)?$"
     },
     {
+      "page": "/studio",
+      "regex": "^/studio(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/studio(?:/)?$"
+    },
+    {
       "page": "/teachers",
       "regex": "^/teachers(?:/)?$",
       "routeKeys": {},
@@ -293,10 +360,22 @@
       "namedRegex": "^/team(?:/)?$"
     },
     {
+      "page": "/textbooks",
+      "regex": "^/textbooks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/textbooks(?:/)?$"
+    },
+    {
       "page": "/timetable",
       "regex": "^/timetable(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/timetable(?:/)?$"
+    },
+    {
+      "page": "/workshop",
+      "regex": "^/workshop(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/workshop(?:/)?$"
     }
   ],
   "dataRoutes": [],

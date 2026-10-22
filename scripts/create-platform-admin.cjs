@@ -29,6 +29,39 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// src/lib/roles.ts
+var SCHOOL_ROLES, STAFF_ROLES, INVITE_ROLES;
+var init_roles = __esm({
+  "src/lib/roles.ts"() {
+    "use strict";
+    SCHOOL_ROLES = [
+      "school_admin",
+      "teacher",
+      "student",
+      "guardian",
+      "inventory_manager",
+      "hr_manager",
+      "librarian",
+      "lab_technician",
+      "workshop_manager",
+      "community_officer",
+      "pr_officer"
+    ];
+    STAFF_ROLES = [
+      "school_admin",
+      "teacher",
+      "inventory_manager",
+      "hr_manager",
+      "librarian",
+      "lab_technician",
+      "workshop_manager",
+      "community_officer",
+      "pr_officer"
+    ];
+    INVITE_ROLES = [...STAFF_ROLES, "student"];
+  }
+});
+
 // src/db/schema.ts
 var schema_exports = {};
 __export(schema_exports, {
@@ -45,27 +78,45 @@ __export(schema_exports, {
   authVerifications: () => authVerifications,
   classSchedules: () => classSchedules,
   classrooms: () => classrooms,
+  communityEvents: () => communityEvents,
+  communityPartners: () => communityPartners,
   enrollments: () => enrollments,
+  facilities: () => facilities,
+  facilityBookings: () => facilityBookings,
+  facilityItems: () => facilityItems,
+  facilityLogs: () => facilityLogs,
+  generatedMaterials: () => generatedMaterials,
   gradeLevels: () => gradeLevels,
   inventoryItems: () => inventoryItems,
   inventoryMovements: () => inventoryMovements,
   learningResources: () => learningResources,
   lessonPlanRevisions: () => lessonPlanRevisions,
   lessonPlans: () => lessonPlans,
+  libraryBooks: () => libraryBooks,
+  libraryLoans: () => libraryLoans,
+  prMedia: () => prMedia,
+  prPosts: () => prPosts,
+  publicProfiles: () => publicProfiles,
   schoolInvitations: () => schoolInvitations,
   schoolMemberships: () => schoolMemberships,
   schools: () => schools,
+  staffAttendance: () => staffAttendance,
+  staffContracts: () => staffContracts,
+  staffLeave: () => staffLeave,
   staffMembers: () => staffMembers,
   students: () => students,
   subjects: () => subjects,
-  teachers: () => teachers
+  teachers: () => teachers,
+  textbookCatalog: () => textbookCatalog,
+  volunteers: () => volunteers
 });
-var import_mysql_core, import_node_crypto, id, createdAt, authUsers, authSessions, authAccounts, authVerifications, schools, schoolMemberships, schoolInvitations, activityEvents, academicYears, gradeLevels, classrooms, students, enrollments, subjects, teachers, lessonPlans, lessonPlanRevisions, assessments, assessmentQuestions, learningResources, assessmentResults, assessmentAttempts, classSchedules, attendanceRecords, inventoryItems, inventoryMovements, staffMembers;
+var import_mysql_core, import_node_crypto, id, createdAt, authUsers, authSessions, authAccounts, authVerifications, schools, schoolMemberships, schoolInvitations, activityEvents, academicYears, gradeLevels, classrooms, students, enrollments, subjects, teachers, lessonPlans, lessonPlanRevisions, assessments, assessmentQuestions, textbookCatalog, learningResources, generatedMaterials, assessmentResults, assessmentAttempts, classSchedules, attendanceRecords, inventoryItems, inventoryMovements, staffMembers, staffLeave, staffContracts, staffAttendance, libraryBooks, libraryLoans, facilities, facilityItems, facilityBookings, facilityLogs, communityPartners, communityEvents, volunteers, prMedia, prPosts, publicProfiles;
 var init_schema = __esm({
   "src/db/schema.ts"() {
     "use strict";
     import_mysql_core = require("drizzle-orm/mysql-core");
     import_node_crypto = require("node:crypto");
+    init_roles();
     id = () => (0, import_mysql_core.varchar)("id", { length: 36 }).primaryKey().$defaultFn(() => (0, import_node_crypto.randomUUID)());
     createdAt = () => (0, import_mysql_core.timestamp)("created_at").notNull().defaultNow();
     authUsers = (0, import_mysql_core.mysqlTable)(
@@ -156,7 +207,7 @@ var init_schema = __esm({
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
         userId: (0, import_mysql_core.varchar)("user_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
-        role: (0, import_mysql_core.mysqlEnum)("role", ["school_admin", "teacher", "student", "guardian", "inventory_manager", "hr_manager"]).notNull(),
+        role: (0, import_mysql_core.mysqlEnum)("role", SCHOOL_ROLES).notNull(),
         createdAt: createdAt()
       },
       (table) => [
@@ -171,7 +222,7 @@ var init_schema = __esm({
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
         invitedBy: (0, import_mysql_core.varchar)("invited_by", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "restrict" }),
         email: (0, import_mysql_core.varchar)("email", { length: 254 }).notNull(),
-        role: (0, import_mysql_core.mysqlEnum)("role", ["school_admin", "teacher", "student", "guardian", "inventory_manager", "hr_manager"]).notNull(),
+        role: (0, import_mysql_core.mysqlEnum)("role", SCHOOL_ROLES).notNull(),
         tokenHash: (0, import_mysql_core.varchar)("token_hash", { length: 64 }).notNull(),
         expiresAt: (0, import_mysql_core.timestamp)("expires_at").notNull(),
         acceptedAt: (0, import_mysql_core.timestamp)("accepted_at"),
@@ -414,12 +465,43 @@ var init_schema = __esm({
       },
       (table) => [(0, import_mysql_core.index)("school_assessment_questions_assessment_order_idx").on(table.assessmentId, table.sortOrder)]
     );
+    textbookCatalog = (0, import_mysql_core.mysqlTable)(
+      "school_textbook_catalog",
+      {
+        id: id(),
+        grade: (0, import_mysql_core.int)("grade").notNull(),
+        subjectName: (0, import_mysql_core.varchar)("subject_name", { length: 120 }).notNull(),
+        language: (0, import_mysql_core.varchar)("language", { length: 40 }).notNull(),
+        kind: (0, import_mysql_core.mysqlEnum)("kind", ["student_textbook", "teacher_guide"]).notNull().default("student_textbook"),
+        title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
+        publisher: (0, import_mysql_core.varchar)("publisher", { length: 160 }).notNull(),
+        sourceUrl: (0, import_mysql_core.varchar)("source_url", { length: 1e3 }).notNull(),
+        sourceUrlHash: (0, import_mysql_core.char)("source_url_hash", { length: 64 }).notNull(),
+        /** The URL is the PDF itself, not a page that links to it. */
+        directDownload: (0, import_mysql_core.boolean)("direct_download").notNull().default(true),
+        sizeBytes: (0, import_mysql_core.int)("size_bytes"),
+        checkStatus: (0, import_mysql_core.mysqlEnum)("check_status", ["unchecked", "ok", "missing", "unreachable"]).notNull().default("unchecked"),
+        checkedAt: (0, import_mysql_core.timestamp)("checked_at"),
+        addedBy: (0, import_mysql_core.varchar)("added_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        createdAt: createdAt(),
+        updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
+      },
+      (table) => [
+        (0, import_mysql_core.uniqueIndex)("school_textbook_catalog_source_unique").on(table.sourceUrlHash),
+        (0, import_mysql_core.index)("school_textbook_catalog_grade_subject_idx").on(table.grade, table.subjectName)
+      ]
+    );
     learningResources = (0, import_mysql_core.mysqlTable)(
       "school_learning_resources",
       {
         id: id(),
         schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
         uploadedBy: (0, import_mysql_core.varchar)("uploaded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        gradeLevelId: (0, import_mysql_core.varchar)("grade_level_id", { length: 36 }),
+        subjectId: (0, import_mysql_core.varchar)("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
+        catalogEntryId: (0, import_mysql_core.varchar)("catalog_entry_id", { length: 36 }),
+        /** The file's id in the Claude Files API, once it has been uploaded for AI generation. */
+        aiFileId: (0, import_mysql_core.varchar)("ai_file_id", { length: 80 }),
         title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
         description: (0, import_mysql_core.text)("description"),
         fileName: (0, import_mysql_core.varchar)("file_name", { length: 255 }).notNull(),
@@ -430,7 +512,48 @@ var init_schema = __esm({
       },
       (table) => [
         (0, import_mysql_core.uniqueIndex)("school_learning_resources_storage_key_unique").on(table.storageKey),
-        (0, import_mysql_core.index)("school_learning_resources_school_created_idx").on(table.schoolId, table.createdAt)
+        (0, import_mysql_core.index)("school_learning_resources_school_created_idx").on(table.schoolId, table.createdAt),
+        (0, import_mysql_core.index)("school_learning_resources_grade_subject_idx").on(table.schoolId, table.gradeLevelId, table.subjectId),
+        (0, import_mysql_core.uniqueIndex)("school_learning_resources_school_catalog_unique").on(table.schoolId, table.catalogEntryId),
+        // Named by hand: the generated names pass MySQL's 64-character limit.
+        (0, import_mysql_core.foreignKey)({ name: "school_lr_grade_level_fk", columns: [table.gradeLevelId], foreignColumns: [gradeLevels.id] }).onDelete("set null"),
+        (0, import_mysql_core.foreignKey)({ name: "school_lr_catalog_entry_fk", columns: [table.catalogEntryId], foreignColumns: [textbookCatalog.id] }).onDelete("set null")
+      ]
+    );
+    generatedMaterials = (0, import_mysql_core.mysqlTable)(
+      "school_generated_materials",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        resourceId: (0, import_mysql_core.varchar)("resource_id", { length: 36 }),
+        gradeLevelId: (0, import_mysql_core.varchar)("grade_level_id", { length: 36 }),
+        subjectId: (0, import_mysql_core.varchar)("subject_id", { length: 36 }),
+        createdBy: (0, import_mysql_core.varchar)("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        kind: (0, import_mysql_core.mysqlEnum)("kind", ["lesson_plan", "lecture_notes", "assignment", "exam"]).notNull(),
+        scope: (0, import_mysql_core.varchar)("scope", { length: 200 }).notNull(),
+        instructions: (0, import_mysql_core.text)("instructions"),
+        title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["generating", "ready", "failed", "approved"]).notNull().default("generating"),
+        content: (0, import_mysql_core.json)("content"),
+        error: (0, import_mysql_core.varchar)("error", { length: 500 }),
+        model: (0, import_mysql_core.varchar)("model", { length: 60 }).notNull(),
+        inputTokens: (0, import_mysql_core.int)("input_tokens"),
+        cachedInputTokens: (0, import_mysql_core.int)("cached_input_tokens"),
+        outputTokens: (0, import_mysql_core.int)("output_tokens"),
+        lessonPlanId: (0, import_mysql_core.varchar)("lesson_plan_id", { length: 36 }),
+        assessmentId: (0, import_mysql_core.varchar)("assessment_id", { length: 36 }),
+        createdAt: createdAt(),
+        updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
+      },
+      (table) => [
+        (0, import_mysql_core.index)("school_generated_materials_school_created_idx").on(table.schoolId, table.createdAt),
+        (0, import_mysql_core.index)("school_generated_materials_resource_idx").on(table.resourceId),
+        // Named by hand: the generated names pass MySQL's 64-character limit.
+        (0, import_mysql_core.foreignKey)({ name: "school_gm_resource_fk", columns: [table.resourceId], foreignColumns: [learningResources.id] }).onDelete("set null"),
+        (0, import_mysql_core.foreignKey)({ name: "school_gm_grade_level_fk", columns: [table.gradeLevelId], foreignColumns: [gradeLevels.id] }).onDelete("set null"),
+        (0, import_mysql_core.foreignKey)({ name: "school_gm_subject_fk", columns: [table.subjectId], foreignColumns: [subjects.id] }).onDelete("set null"),
+        (0, import_mysql_core.foreignKey)({ name: "school_gm_lesson_plan_fk", columns: [table.lessonPlanId], foreignColumns: [lessonPlans.id] }).onDelete("set null"),
+        (0, import_mysql_core.foreignKey)({ name: "school_gm_assessment_fk", columns: [table.assessmentId], foreignColumns: [assessments.id] }).onDelete("set null")
       ]
     );
     assessmentResults = (0, import_mysql_core.mysqlTable)(
@@ -569,6 +692,308 @@ var init_schema = __esm({
         (0, import_mysql_core.uniqueIndex)("school_staff_members_school_user_unique").on(table.schoolId, table.userId),
         (0, import_mysql_core.index)("school_staff_members_school_name_idx").on(table.schoolId, table.lastName, table.firstName)
       ]
+    );
+    staffLeave = (0, import_mysql_core.mysqlTable)(
+      "school_staff_leave",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        staffId: (0, import_mysql_core.varchar)("staff_id", { length: 36 }).notNull().references(() => staffMembers.id, { onDelete: "cascade" }),
+        leaveType: (0, import_mysql_core.mysqlEnum)("leave_type", ["annual", "sick", "maternity", "paternity", "bereavement", "study", "unpaid", "other"]).notNull(),
+        startsOn: (0, import_mysql_core.date)("starts_on", { mode: "string" }).notNull(),
+        endsOn: (0, import_mysql_core.date)("ends_on", { mode: "string" }).notNull(),
+        reason: (0, import_mysql_core.varchar)("reason", { length: 500 }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["requested", "approved", "rejected", "cancelled"]).notNull().default("requested"),
+        decidedBy: (0, import_mysql_core.varchar)("decided_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        decidedAt: (0, import_mysql_core.timestamp)("decided_at"),
+        createdBy: (0, import_mysql_core.varchar)("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.index)("school_staff_leave_school_start_idx").on(table.schoolId, table.startsOn),
+        (0, import_mysql_core.index)("school_staff_leave_staff_idx").on(table.staffId)
+      ]
+    );
+    staffContracts = (0, import_mysql_core.mysqlTable)(
+      "school_staff_contracts",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        staffId: (0, import_mysql_core.varchar)("staff_id", { length: 36 }).notNull().references(() => staffMembers.id, { onDelete: "cascade" }),
+        contractType: (0, import_mysql_core.mysqlEnum)("contract_type", ["permanent", "fixed_term", "temporary", "part_time", "volunteer"]).notNull(),
+        position: (0, import_mysql_core.varchar)("position", { length: 120 }).notNull(),
+        startsOn: (0, import_mysql_core.date)("starts_on", { mode: "string" }).notNull(),
+        endsOn: (0, import_mysql_core.date)("ends_on", { mode: "string" }),
+        notes: (0, import_mysql_core.varchar)("notes", { length: 500 }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["active", "ended"]).notNull().default("active"),
+        createdAt: createdAt()
+      },
+      (table) => [(0, import_mysql_core.index)("school_staff_contracts_school_staff_idx").on(table.schoolId, table.staffId)]
+    );
+    staffAttendance = (0, import_mysql_core.mysqlTable)(
+      "school_staff_attendance",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        staffId: (0, import_mysql_core.varchar)("staff_id", { length: 36 }).notNull().references(() => staffMembers.id, { onDelete: "cascade" }),
+        date: (0, import_mysql_core.date)("date", { mode: "string" }).notNull(),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["present", "absent", "late", "on_leave"]).notNull(),
+        remarks: (0, import_mysql_core.varchar)("remarks", { length: 255 }),
+        recordedBy: (0, import_mysql_core.varchar)("recorded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.uniqueIndex)("school_staff_attendance_staff_date_unique").on(table.staffId, table.date),
+        (0, import_mysql_core.index)("school_staff_attendance_school_date_idx").on(table.schoolId, table.date)
+      ]
+    );
+    libraryBooks = (0, import_mysql_core.mysqlTable)(
+      "school_library_books",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
+        author: (0, import_mysql_core.varchar)("author", { length: 160 }),
+        isbn: (0, import_mysql_core.varchar)("isbn", { length: 20 }),
+        publisher: (0, import_mysql_core.varchar)("publisher", { length: 160 }),
+        publishedYear: (0, import_mysql_core.int)("published_year"),
+        category: (0, import_mysql_core.varchar)("category", { length: 80 }),
+        language: (0, import_mysql_core.varchar)("language", { length: 40 }),
+        gradeLevelId: (0, import_mysql_core.varchar)("grade_level_id", { length: 36 }).references(() => gradeLevels.id, { onDelete: "set null" }),
+        subjectId: (0, import_mysql_core.varchar)("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
+        shelf: (0, import_mysql_core.varchar)("shelf", { length: 40 }),
+        copies: (0, import_mysql_core.int)("copies").notNull().default(1),
+        createdAt: createdAt(),
+        updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
+      },
+      (table) => [
+        (0, import_mysql_core.uniqueIndex)("school_library_books_school_isbn_unique").on(table.schoolId, table.isbn),
+        (0, import_mysql_core.index)("school_library_books_school_title_idx").on(table.schoolId, table.title)
+      ]
+    );
+    libraryLoans = (0, import_mysql_core.mysqlTable)(
+      "school_library_loans",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        bookId: (0, import_mysql_core.varchar)("book_id", { length: 36 }).notNull().references(() => libraryBooks.id, { onDelete: "cascade" }),
+        borrowerType: (0, import_mysql_core.mysqlEnum)("borrower_type", ["student", "staff"]).notNull(),
+        studentId: (0, import_mysql_core.varchar)("student_id", { length: 36 }).references(() => students.id, { onDelete: "set null" }),
+        staffId: (0, import_mysql_core.varchar)("staff_id", { length: 36 }).references(() => staffMembers.id, { onDelete: "set null" }),
+        /** Kept so the record stays readable if the student or staff record is removed. */
+        borrowerName: (0, import_mysql_core.varchar)("borrower_name", { length: 200 }).notNull(),
+        loanedOn: (0, import_mysql_core.date)("loaned_on", { mode: "string" }).notNull(),
+        dueOn: (0, import_mysql_core.date)("due_on", { mode: "string" }).notNull(),
+        returnedOn: (0, import_mysql_core.date)("returned_on", { mode: "string" }),
+        issuedBy: (0, import_mysql_core.varchar)("issued_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.index)("school_library_loans_school_returned_idx").on(table.schoolId, table.returnedOn),
+        (0, import_mysql_core.index)("school_library_loans_book_idx").on(table.bookId)
+      ]
+    );
+    facilities = (0, import_mysql_core.mysqlTable)(
+      "school_facilities",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        kind: (0, import_mysql_core.mysqlEnum)("kind", ["lab", "workshop"]).notNull(),
+        name: (0, import_mysql_core.varchar)("name", { length: 120 }).notNull(),
+        location: (0, import_mysql_core.varchar)("location", { length: 120 }),
+        capacity: (0, import_mysql_core.int)("capacity"),
+        createdAt: createdAt()
+      },
+      (table) => [(0, import_mysql_core.uniqueIndex)("school_facilities_school_kind_name_unique").on(table.schoolId, table.kind, table.name)]
+    );
+    facilityItems = (0, import_mysql_core.mysqlTable)(
+      "school_facility_items",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        facilityId: (0, import_mysql_core.varchar)("facility_id", { length: 36 }).notNull().references(() => facilities.id, { onDelete: "cascade" }),
+        name: (0, import_mysql_core.varchar)("name", { length: 160 }).notNull(),
+        category: (0, import_mysql_core.mysqlEnum)("category", ["equipment", "chemical", "consumable", "tool", "safety"]).notNull(),
+        quantity: (0, import_mysql_core.int)("quantity").notNull().default(0),
+        unit: (0, import_mysql_core.varchar)("unit", { length: 30 }).notNull().default("item"),
+        reorderLevel: (0, import_mysql_core.int)("reorder_level").notNull().default(0),
+        assetTag: (0, import_mysql_core.varchar)("asset_tag", { length: 60 }),
+        hazard: (0, import_mysql_core.varchar)("hazard", { length: 80 }),
+        condition: (0, import_mysql_core.mysqlEnum)("condition", ["good", "needs_repair", "out_of_service"]).notNull().default("good"),
+        expiresOn: (0, import_mysql_core.date)("expires_on", { mode: "string" }),
+        createdAt: createdAt(),
+        updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
+      },
+      (table) => [(0, import_mysql_core.index)("school_facility_items_facility_idx").on(table.facilityId, table.name)]
+    );
+    facilityBookings = (0, import_mysql_core.mysqlTable)(
+      "school_facility_bookings",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        facilityId: (0, import_mysql_core.varchar)("facility_id", { length: 36 }).notNull().references(() => facilities.id, { onDelete: "cascade" }),
+        date: (0, import_mysql_core.date)("date", { mode: "string" }).notNull(),
+        startTime: (0, import_mysql_core.varchar)("start_time", { length: 5 }).notNull(),
+        endTime: (0, import_mysql_core.varchar)("end_time", { length: 5 }).notNull(),
+        teacherId: (0, import_mysql_core.varchar)("teacher_id", { length: 36 }).references(() => teachers.id, { onDelete: "set null" }),
+        classroomId: (0, import_mysql_core.varchar)("classroom_id", { length: 36 }).references(() => classrooms.id, { onDelete: "set null" }),
+        purpose: (0, import_mysql_core.varchar)("purpose", { length: 200 }).notNull(),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["booked", "completed", "cancelled"]).notNull().default("booked"),
+        bookedBy: (0, import_mysql_core.varchar)("booked_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        createdAt: createdAt()
+      },
+      (table) => [(0, import_mysql_core.index)("school_facility_bookings_facility_date_idx").on(table.facilityId, table.date)]
+    );
+    facilityLogs = (0, import_mysql_core.mysqlTable)(
+      "school_facility_logs",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        facilityId: (0, import_mysql_core.varchar)("facility_id", { length: 36 }).notNull().references(() => facilities.id, { onDelete: "cascade" }),
+        itemId: (0, import_mysql_core.varchar)("item_id", { length: 36 }).references(() => facilityItems.id, { onDelete: "set null" }),
+        logType: (0, import_mysql_core.mysqlEnum)("log_type", ["incident", "maintenance"]).notNull(),
+        severity: (0, import_mysql_core.mysqlEnum)("severity", ["low", "medium", "high"]).notNull().default("low"),
+        occurredOn: (0, import_mysql_core.date)("occurred_on", { mode: "string" }).notNull(),
+        description: (0, import_mysql_core.varchar)("description", { length: 1e3 }).notNull(),
+        actionTaken: (0, import_mysql_core.varchar)("action_taken", { length: 1e3 }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["open", "resolved"]).notNull().default("open"),
+        reportedBy: (0, import_mysql_core.varchar)("reported_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        resolvedAt: (0, import_mysql_core.timestamp)("resolved_at"),
+        createdAt: createdAt()
+      },
+      (table) => [(0, import_mysql_core.index)("school_facility_logs_facility_idx").on(table.facilityId, table.occurredOn)]
+    );
+    communityPartners = (0, import_mysql_core.mysqlTable)(
+      "school_community_partners",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        name: (0, import_mysql_core.varchar)("name", { length: 160 }).notNull(),
+        partnerType: (0, import_mysql_core.mysqlEnum)("partner_type", ["parent_association", "ngo", "business", "government", "religious", "alumni", "health", "other"]).notNull(),
+        contactName: (0, import_mysql_core.varchar)("contact_name", { length: 120 }),
+        phone: (0, import_mysql_core.varchar)("phone", { length: 40 }),
+        email: (0, import_mysql_core.varchar)("email", { length: 254 }),
+        notes: (0, import_mysql_core.varchar)("notes", { length: 1e3 }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["active", "inactive"]).notNull().default("active"),
+        createdAt: createdAt()
+      },
+      (table) => [(0, import_mysql_core.uniqueIndex)("school_community_partners_school_name_unique").on(table.schoolId, table.name)]
+    );
+    communityEvents = (0, import_mysql_core.mysqlTable)(
+      "school_community_events",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
+        eventType: (0, import_mysql_core.mysqlEnum)("event_type", ["parent_meeting", "ptsa_meeting", "community_service", "fundraiser", "open_day", "sports", "cultural", "awareness", "other"]).notNull(),
+        eventDate: (0, import_mysql_core.date)("event_date", { mode: "string" }).notNull(),
+        startTime: (0, import_mysql_core.varchar)("start_time", { length: 5 }),
+        location: (0, import_mysql_core.varchar)("location", { length: 160 }),
+        partnerId: (0, import_mysql_core.varchar)("partner_id", { length: 36 }),
+        description: (0, import_mysql_core.varchar)("description", { length: 1e3 }),
+        expectedAttendance: (0, import_mysql_core.int)("expected_attendance"),
+        actualAttendance: (0, import_mysql_core.int)("actual_attendance"),
+        /** Minutes, decisions and outcomes, written after the event. */
+        outcome: (0, import_mysql_core.text)("outcome"),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["planned", "held", "cancelled"]).notNull().default("planned"),
+        /** Listed on the school's public page (once public pages exist). */
+        isPublic: (0, import_mysql_core.boolean)("is_public").notNull().default(false),
+        createdBy: (0, import_mysql_core.varchar)("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.index)("school_community_events_school_date_idx").on(table.schoolId, table.eventDate),
+        (0, import_mysql_core.foreignKey)({ name: "school_ce_partner_fk", columns: [table.partnerId], foreignColumns: [communityPartners.id] }).onDelete("set null")
+      ]
+    );
+    volunteers = (0, import_mysql_core.mysqlTable)(
+      "school_volunteers",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        name: (0, import_mysql_core.varchar)("name", { length: 160 }).notNull(),
+        phone: (0, import_mysql_core.varchar)("phone", { length: 40 }),
+        email: (0, import_mysql_core.varchar)("email", { length: 254 }),
+        skills: (0, import_mysql_core.varchar)("skills", { length: 300 }),
+        availability: (0, import_mysql_core.varchar)("availability", { length: 200 }),
+        partnerId: (0, import_mysql_core.varchar)("partner_id", { length: 36 }),
+        hoursContributed: (0, import_mysql_core.int)("hours_contributed").notNull().default(0),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["active", "inactive"]).notNull().default("active"),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.index)("school_volunteers_school_name_idx").on(table.schoolId, table.name),
+        (0, import_mysql_core.foreignKey)({ name: "school_volunteers_partner_fk", columns: [table.partnerId], foreignColumns: [communityPartners.id] }).onDelete("set null")
+      ]
+    );
+    prMedia = (0, import_mysql_core.mysqlTable)(
+      "school_pr_media",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        storageKey: (0, import_mysql_core.varchar)("storage_key", { length: 36 }).notNull(),
+        fileName: (0, import_mysql_core.varchar)("file_name", { length: 255 }).notNull(),
+        contentType: (0, import_mysql_core.varchar)("content_type", { length: 60 }).notNull(),
+        sizeBytes: (0, import_mysql_core.int)("size_bytes").notNull(),
+        caption: (0, import_mysql_core.varchar)("caption", { length: 300 }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
+        adminFeedback: (0, import_mysql_core.varchar)("admin_feedback", { length: 1e3 }),
+        uploadedBy: (0, import_mysql_core.varchar)("uploaded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        reviewedBy: (0, import_mysql_core.varchar)("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        reviewedAt: (0, import_mysql_core.timestamp)("reviewed_at"),
+        createdAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.uniqueIndex)("school_pr_media_storage_key_unique").on(table.storageKey),
+        (0, import_mysql_core.index)("school_pr_media_school_status_idx").on(table.schoolId, table.status)
+      ]
+    );
+    prPosts = (0, import_mysql_core.mysqlTable)(
+      "school_pr_posts",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+        postType: (0, import_mysql_core.mysqlEnum)("post_type", ["news", "announcement", "achievement", "event_recap"]).notNull(),
+        title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
+        summary: (0, import_mysql_core.varchar)("summary", { length: 300 }).notNull(),
+        body: (0, import_mysql_core.text)("body").notNull(),
+        coverMediaId: (0, import_mysql_core.varchar)("cover_media_id", { length: 36 }).references(() => prMedia.id, { onDelete: "set null" }),
+        status: (0, import_mysql_core.mysqlEnum)("status", ["draft", "submitted", "changes_requested", "published", "archived"]).notNull().default("draft"),
+        adminFeedback: (0, import_mysql_core.text)("admin_feedback"),
+        authorId: (0, import_mysql_core.varchar)("author_id", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        reviewedBy: (0, import_mysql_core.varchar)("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        reviewedAt: (0, import_mysql_core.timestamp)("reviewed_at"),
+        publishedAt: (0, import_mysql_core.timestamp)("published_at"),
+        createdAt: createdAt(),
+        updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
+      },
+      (table) => [(0, import_mysql_core.index)("school_pr_posts_school_status_idx").on(table.schoolId, table.status, table.publishedAt)]
+    );
+    publicProfiles = (0, import_mysql_core.mysqlTable)(
+      "school_public_profiles",
+      {
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).primaryKey().references(() => schools.id, { onDelete: "cascade" }),
+        tagline: (0, import_mysql_core.varchar)("tagline", { length: 160 }),
+        about: (0, import_mysql_core.text)("about"),
+        mission: (0, import_mysql_core.varchar)("mission", { length: 600 }),
+        vision: (0, import_mysql_core.varchar)("vision", { length: 600 }),
+        principalName: (0, import_mysql_core.varchar)("principal_name", { length: 120 }),
+        principalMessage: (0, import_mysql_core.text)("principal_message"),
+        address: (0, import_mysql_core.varchar)("address", { length: 200 }),
+        phone: (0, import_mysql_core.varchar)("phone", { length: 40 }),
+        email: (0, import_mysql_core.varchar)("email", { length: 254 }),
+        heroMediaId: (0, import_mysql_core.varchar)("hero_media_id", { length: 36 }).references(() => prMedia.id, { onDelete: "set null" }),
+        /** Review state of the fields above (the working copy). */
+        status: (0, import_mysql_core.mysqlEnum)("status", ["draft", "submitted", "changes_requested", "approved"]).notNull().default("draft"),
+        adminFeedback: (0, import_mysql_core.text)("admin_feedback"),
+        /** The last approved copy of the fields; the public page shows this, so edits stay private until approved. */
+        publishedContent: (0, import_mysql_core.json)("published_content").$type(),
+        /** The public page is live only while this is set; a school admin turns it on after approval. */
+        isPublished: (0, import_mysql_core.boolean)("is_published").notNull().default(false),
+        reviewedBy: (0, import_mysql_core.varchar)("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+        reviewedAt: (0, import_mysql_core.timestamp)("reviewed_at"),
+        updatedAt: (0, import_mysql_core.timestamp)("updated_at").notNull().defaultNow().onUpdateNow()
+      }
     );
   }
 });

@@ -1,0 +1,75 @@
+{
+  "node": {
+    "7f2ca7887c25f914ced4376a1e38a45af973a89cfd": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "saveProfile",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    },
+    "7f549e8bdb1bdbe0a6e1994b4478592fec42f946cc": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "deleteMedia",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    },
+    "7f7d15132c34d53d03dc2e86de92058d915926191b": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "movePost",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    },
+    "7fb094545e4c47806cf9372015eff927a768cdd7cf": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "reviewMedia",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    },
+    "7fbad4d15fe47725da80f9d5f7b14c9854a3fc1338": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "uploadMedia",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    },
+    "7fbf7bb38b231ea24131ed2f0630c5a2836e8e5849": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "savePost",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    },
+    "7ff5e01458d5eb3e37fad8e638c8e3fa51b4343ff2": {
+      "workers": {
+        "app/(workspace)/pr/page": {
+          "moduleId": 2483,
+          "async": false
+        }
+      },
+      "exportedName": "moveProfile",
+      "filename": "src/app/(workspace)/pr/actions.ts"
+    }
+  },
+  "edge": {}
+}

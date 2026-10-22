@@ -1,0 +1,75 @@
+{
+  "node": {
+    "7f13b2c501d1d8f751e6de5ca96840ffdfc805c8e9": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "setEventPublic",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    },
+    "7f1d28c31c8b6e559eb3543d73730d2cafd9386ec3": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "setPartnerStatus",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    },
+    "7f8e59966086b50403c3eea8374def97b792ab40c5": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "addEvent",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    },
+    "7fa1a7dce6f6831aca02c1258d33a06c780e9436fb": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "recordEventOutcome",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    },
+    "7fc99569c7bc76c7d871fc369a8b71032b32374fc5": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "addVolunteer",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    },
+    "7fce01b9a248ed7e444081ad440d430095c6edb1db": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "addPartner",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    },
+    "7fe752c273ce2c61b327bd53224817f8d877121fc8": {
+      "workers": {
+        "app/(workspace)/community/page": {
+          "moduleId": 74007,
+          "async": false
+        }
+      },
+      "exportedName": "logVolunteerHours",
+      "filename": "src/app/(workspace)/community/actions.ts"
+    }
+  },
+  "edge": {}
+}

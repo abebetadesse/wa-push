@@ -1,0 +1,49 @@
+module.exports=[29890,a=>{"use strict";var b=a.i(12714),c=a.i(2157),d=a.i(93321),e=a.i(94758),f=a.i(37137),g=a.i(6506);async function h(a,h){let[i]=await e.f.select({fileName:f.learningResources.fileName,storageKey:f.learningResources.storageKey,title:f.learningResources.title,description:f.learningResources.description}).from(f.learningResources).where((0,d.b)((0,d.u)(f.learningResources.id,h),(0,d.u)(f.learningResources.schoolId,a))).limit(1);if(!i)throw Error("Learning resource not found in this school.");let j=(0,g.H)(a,i.storageKey);if(!(0,c.existsSync)(j))return{fileName:i.fileName,text:`${i.title}
+${i.description??""}`};let k=i.fileName.toLowerCase();try{let a=await (0,b.readFile)(j);if(k.endsWith(".txt")||k.endsWith(".md")||k.endsWith(".markdown")||k.endsWith(".csv")||k.endsWith(".json")||k.endsWith(".xml")||k.endsWith(".html")||k.endsWith(".htm"))return{fileName:i.fileName,text:a.toString("utf8")};let c=a.toString("latin1").match(/[A-Za-z0-9\s.,!?:;'"()\-_/]{4,}/g);if(c&&c.length>0){let a=c.filter(a=>!a.startsWith("/Font")&&!a.startsWith("/Type")&&!a.includes("stream")).join(" ").replace(/\s+/g," ").slice(0,5e4);if(a.length>50)return{fileName:i.fileName,text:`${i.title}
+
+${a}`}}return{fileName:i.fileName,text:`${i.title}
+
+${i.description??""}`}}catch{return{fileName:i.fileName,text:`${i.title}
+
+${i.description??""}`}}}function i(a,b="Subject"){let c=a.split(/\r?\n/).map(a=>a.trim()).filter(Boolean),d=[],e=null,f=/^(?:unit|chapter|module|section|part|theme)\s*([0-9ivxlcdm]+)?[:.-]?\s*(.*)/i,g=/^(?:lesson|topic|session|\d+\.\d+|\*|-|•)\s*[:.-]?\s*(.*)/i;for(let a of c){let c=a.match(f);if(c&&a.length<120){e&&e.topics.length>0&&d.push(e);let b=c[1]?`Unit ${c[1]}: `:`Unit ${d.length+1}: `,f=c[2]?.trim()||a;e={unitTitle:f.startsWith("Unit")?f:`${b}${f}`,topics:[]};continue}e||(e={unitTitle:`Unit 1: Introduction to ${b}`,topics:[]});let h=a.match(g);if(h){let a=h[1].trim();if(a.length>=3&&a.length<=150){e.topics.push(a);continue}}a.length>=4&&a.length<=100&&!a.includes("http")&&!a.includes("Page ")&&e.topics.push(a)}if(e&&e.topics.length>0&&d.push(e),0===d.length||d.every(a=>0===a.topics.length)){let c=a.split(/\n\s*\n/).map(a=>a.trim()).filter(a=>a.length>10),e=Math.max(1,Math.min(5,Math.ceil(c.length/3)));for(let a=0;a<e;a++){let e=c.slice(3*a,(a+1)*3),f=`Unit ${a+1}: ${b} Core Concepts (Part ${a+1})`,g=e.map((a,b)=>{let c=a.split(/[.?!]/)[0]?.trim();return c&&c.length<90?c:`Core Topic ${b+1}: Foundations and Practical Applications`});d.push({unitTitle:f,topics:g.length>0?g:[`Overview and Principles of Unit ${a+1}`,"Applied Skills and Problem Solving"]})}}return d.map(a=>0===a.topics.length?{...a,topics:[`Introduction to ${a.unitTitle}`,"Core Principles and Exploration","Practical Application and Case Study","Review, Formative Assessment and Synthesis"]}:a)}async function j(a){let{schoolId:b,classroomId:c,subjectId:g,resourceId:j,customText:k,startDate:l=new Date().toISOString().slice(0,10),subjectName:m,gradeName:n}=a,o=k?.trim()??"",p="";if(j)try{let a=await h(b,j);o=`${a.text}
+
+${o}`.trim(),p=a.fileName}catch{}o||(o=`Unit 1: Fundamentals and Foundations of ${m}
+Lesson 1: Introduction and Core Principles
+Lesson 2: Key Concepts, Models and Terminology
+Lesson 3: Practical Analysis and Application
+Unit 2: Advanced Topics and In-Depth Study
+Lesson 1: Complex Interactions and Case Studies
+Lesson 2: Problem Solving and Evidence Evaluation
+Lesson 3: Unit Synthesis, Review and Assessment`);let q=i(o,m),r=q.reduce((a,b)=>a+b.topics.length,0),s=[];c&&(s=await e.f.select({id:f.classSchedules.id,dayOfWeek:f.classSchedules.dayOfWeek,startTime:f.classSchedules.startTime,endTime:f.classSchedules.endTime}).from(f.classSchedules).where((0,d.b)((0,d.u)(f.classSchedules.schoolId,b),(0,d.u)(f.classSchedules.classroomId,c),(0,d.u)(f.classSchedules.subjectId,g))).orderBy(f.classSchedules.dayOfWeek,f.classSchedules.startTime));let t=function(a,b,c){if(0===a.length){let a=[],d=new Date(`${b}T09:00:00.000Z`);for(;a.length<c;){let b=d.getUTCDay();0!==b&&6!==b&&a.push({date:d.toISOString().slice(0,10),scheduleId:"",durationMinutes:45}),d.setUTCDate(d.getUTCDate()+1)}return a}let d={sunday:0,monday:1,tuesday:2,wednesday:3,thursday:4,friday:5,saturday:6},e=[],f=new Date(`${b}T00:00:00.000Z`),g=0;for(;e.length<c&&g<365;){g++;let b=f.getUTCDay();for(let g of a)if(d[g.dayOfWeek.toLowerCase()]===b){let[a,b]=g.startTime.split(":").map(Number),[d,h]=g.endTime.split(":").map(Number),i=60*d+h-(60*a+b);if(e.push({date:f.toISOString().slice(0,10),scheduleId:g.id,durationMinutes:i>0?i:45}),e.length>=c)break}f.setUTCDate(f.getUTCDate()+1)}return e}(s,l,r),u=[],v=0;for(let a of q)for(let b=0;b<a.topics.length;b++){let c=a.topics[b],d=t[v]??{date:l,scheduleId:void 0,durationMinutes:45},e=function(a){let{tempId:b,unitTitle:c,topicTitle:d,lessonIndexInUnit:e,totalLessonsInUnit:f,subjectName:g,gradeName:h,durationMinutes:i,scheduledDate:j,scheduleId:k,resourceTitle:l}=a,m=1===e,n=e===f,o=Math.max(5,Math.round(.2*i)),p=Math.max(15,Math.round(.55*i)),q=Math.max(5,i-o-p),r=`${c} — Lesson ${e}: ${d}`,s=`In this lesson for ${h} ${g}, students explore "${d}" within the framework of ${c}. ${m?"This introductory lesson establishes foundational definitions, activates prior knowledge, and sets key inquiry questions.":n?"This culminating lesson synthesizes concepts learned throughout the unit, addresses misconceptions, and engages students in practical problem-solving.":"Students analyze core mechanisms, engage in structured practice, and apply learning to real-world scenarios."}${l?` Aligned with learning resource: ${l}.`:""}`,t=`By the end of this lesson, students will be able to:
+1. Define and explain the essential principles of ${d} using accurate academic terminology.
+2. Demonstrate conceptual understanding through guided examples and collaborative problem solving.
+3. Apply their knowledge to analyze scenarios and solve practice exercises with at least 80% accuracy.
+${n?"4. Synthesize unit concepts and formulate conclusions justifying their reasoning.":"4. Evaluate their own learning through an individual exit ticket reflection."}`,u=`• Textbook / Course Reference: ${l??`${h} ${g} Curriculum Guide`}
+• Whiteboard, markers, and digital presentation slides
+• Student activity handout: "${d} Guided Inquiry Sheet"
+• Visual diagrams and illustrative models relevant to ${c}
+• Formative exit tickets and practice cards`,v=`Students should be familiar with basic foundational concepts from ${m?"earlier grade levels or preceding introductory topics":`preceding lessons in ${c}`}, including standard terminology, unit conversions, and analytical reading skills.`,w=`Phase 1: Starter & Engagement (${o} mins)
+• Hook: Present a real-world scenario or thought-provoking prompt: "How does ${d} manifest in everyday life?"
+• Prior Knowledge Retrieval: Conduct a quick 3-minute think-pair-share reviewing relevant terminology.
+• Learning Objectives: Display and discuss the lesson goals and success criteria.
+
+Phase 2: Main Direct Instruction & Guided Practice (${p} mins)
+• Explicit Modeling (10 mins): Introduce key concepts and formulas/rules for ${d}. Walk through two worked examples on the board, thinking aloud.
+• Collaborative Activity (10 mins): Students work in pairs on targeted inquiry questions from the text, discussing evidence and strategies. Teacher circulates to offer scaffolding and note common pitfalls.
+• Independent Practice (10 mins): Students complete differentiated exercises to demonstrate individual competence.
+
+Phase 3: Plenary & Formative Wrap-Up (${q} mins)
+• Summary Discussion: Call on 2–3 pairs to share solutions and explain their methodology.
+• Exit Ticket: Students write 1 thing they mastered and 1 question they still have about ${d}.
+• Preview: Briefly introduce how today's topic links directly to the upcoming lesson.`,x=`• Formative Check: Active observation during guided practice with targeted feedback on common misconceptions.
+• Quick Questioning: Thumbs up / thumbs down checks and cold-calling for comprehension checks.
+• Exit Ticket Prompt: "Explain in two sentences how ${d} functions and why it matters."
+• Homework Alignment: Exercises 1–5 from unit review section to be checked at the start of next class.`,y=`1. Complete textbook practice questions 1–6 on ${d} (approx. 20 minutes).
+2. Write a 3-sentence summary in your study journal connecting today's lesson to ${c}.
+3. Preview the next section in the textbook.`;return{tempId:b,unitTopic:c,title:r,durationMinutes:i,scheduledDate:j,scheduleId:k,overview:s,objectives:t,materials:u,prerequisites:v,procedures:w,differentiation:`• Support for Struggling Learners: Provide graphic organizers, structured sentence starters, formula sheets, and peer pairing with guided check-ins.
+• Challenge for Advanced Learners: Assign higher-order synthesis tasks, multi-step word problems, and ask them to hypothesize real-world edge cases.
+• Multilingual Support: Clarify key vocabulary on a dedicated word-wall with visual representations.`,assessment:x,homework:y,notes:`• Check student mastery of prerequisites before moving to Phase 2.
+• Emphasize safety and respectful collaboration during peer activities.
+• Archived in school management system for iterative refinement in future terms.`}}({tempId:`gen-${Date.now()}-${v}-${Math.random().toString(36).slice(2,7)}`,unitTitle:a.unitTitle,topicTitle:c,lessonIndexInUnit:b+1,totalLessonsInUnit:a.topics.length,subjectName:m,gradeName:n,durationMinutes:d.durationMinutes||45,scheduledDate:d.date,scheduleId:d.scheduleId,resourceTitle:p});u.push(e),v++}return u}a.s(["f",0,h,"U",0,j,"n",0,i])}];
+
+//# sourceMappingURL=src_lib_lesson-generator_ts_102xc2swjxe5k._.js.map

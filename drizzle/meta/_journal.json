@@ -57,6 +57,62 @@
       "when": 1792663148980,
       "tag": "0007_lesson_plan_generator_and_revisions",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1792664700000,
+      "tag": "0008_link_resources_grade_subject",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1792669291424,
+      "tag": "0009_textbook_catalog",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1792669907271,
+      "tag": "0010_ai_materials",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1792670596829,
+      "tag": "0011_roles_and_hr",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1792671006939,
+      "tag": "0012_library",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1792671177678,
+      "tag": "0013_facilities",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1792671440949,
+      "tag": "0014_community",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1792671647283,
+      "tag": "0015_public_relations",
+      "breakpoints": true
     }
   ]
 }

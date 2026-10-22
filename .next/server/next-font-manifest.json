@@ -3,16 +3,28 @@
     "[project]/src/app/(workspace)/academic-setup/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
+    "[project]/src/app/(workspace)/assessments/generate/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
     "[project]/src/app/(workspace)/assessments/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
     "[project]/src/app/(workspace)/attendance/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
+    "[project]/src/app/(workspace)/community/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
+    "[project]/src/app/(workspace)/curriculum/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
     "[project]/src/app/(workspace)/hr/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
     "[project]/src/app/(workspace)/inventory/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
+    "[project]/src/app/(workspace)/lab/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
     "[project]/src/app/(workspace)/lessons/[id]/page": [
@@ -24,10 +36,16 @@
     "[project]/src/app/(workspace)/lessons/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
+    "[project]/src/app/(workspace)/library/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
     "[project]/src/app/(workspace)/my-learning/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
     "[project]/src/app/(workspace)/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
+    "[project]/src/app/(workspace)/pr/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
     "[project]/src/app/(workspace)/reports/page": [
@@ -45,6 +63,12 @@
     "[project]/src/app/(workspace)/students/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
+    "[project]/src/app/(workspace)/studio/[id]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
+    "[project]/src/app/(workspace)/studio/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
     "[project]/src/app/(workspace)/teachers/[id]/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
@@ -54,7 +78,13 @@
     "[project]/src/app/(workspace)/team/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
+    "[project]/src/app/(workspace)/textbooks/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
     "[project]/src/app/(workspace)/timetable/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
+    ],
+    "[project]/src/app/(workspace)/workshop/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2"
     ],
     "[project]/src/app/_not-found/page": [

@@ -1,0 +1,35 @@
+{
+  "node": {
+    "7f0807e2e5009096acb13ba4e1ae7864991a540741": {
+      "workers": {
+        "app/(workspace)/textbooks/page": {
+          "moduleId": 55744,
+          "async": false
+        }
+      },
+      "exportedName": "addCatalogEntry",
+      "filename": "src/app/(workspace)/textbooks/actions.ts"
+    },
+    "7f682b4edd0534f268f2fbcd6769709a48c379b40f": {
+      "workers": {
+        "app/(workspace)/textbooks/page": {
+          "moduleId": 55744,
+          "async": false
+        }
+      },
+      "exportedName": "addTextbookToLibrary",
+      "filename": "src/app/(workspace)/textbooks/actions.ts"
+    },
+    "7ff03b769e8cb5f1d1f0f8d258fc44dd2467675cdd": {
+      "workers": {
+        "app/(workspace)/textbooks/page": {
+          "moduleId": 55744,
+          "async": false
+        }
+      },
+      "exportedName": "recheckCatalogEntry",
+      "filename": "src/app/(workspace)/textbooks/actions.ts"
+    }
+  },
+  "edge": {}
+}

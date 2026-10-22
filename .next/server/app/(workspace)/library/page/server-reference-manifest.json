@@ -1,0 +1,45 @@
+{
+  "node": {
+    "7f5e9c1755564aea4e3e34ac85c943057d9786ef9e": {
+      "workers": {
+        "app/(workspace)/library/page": {
+          "moduleId": 90473,
+          "async": false
+        }
+      },
+      "exportedName": "returnLoan",
+      "filename": "src/app/(workspace)/library/actions.ts"
+    },
+    "7fc025f5665a392232f4fb73e4417f75f8f9fed199": {
+      "workers": {
+        "app/(workspace)/library/page": {
+          "moduleId": 90473,
+          "async": false
+        }
+      },
+      "exportedName": "issueLoan",
+      "filename": "src/app/(workspace)/library/actions.ts"
+    },
+    "7fcecef392e62d6b39781b8904fe0d5e35e38573db": {
+      "workers": {
+        "app/(workspace)/library/page": {
+          "moduleId": 90473,
+          "async": false
+        }
+      },
+      "exportedName": "setCopies",
+      "filename": "src/app/(workspace)/library/actions.ts"
+    },
+    "7fea0c380f0d3fb63883229be0879240401edc7a55": {
+      "workers": {
+        "app/(workspace)/library/page": {
+          "moduleId": 90473,
+          "async": false
+        }
+      },
+      "exportedName": "addBook",
+      "filename": "src/app/(workspace)/library/actions.ts"
+    }
+  },
+  "edge": {}
+}
