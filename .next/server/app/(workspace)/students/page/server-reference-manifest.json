@@ -1,26 +1,6 @@
 {
   "node": {
-    "7f16e16607e18b452effe1be165f3e2098aec58d8c": {
-      "workers": {
-        "app/(workspace)/students/page": {
-          "moduleId": 24077,
-          "async": false
-        }
-      },
-      "exportedName": "bulkImportStudents",
-      "filename": "src/app/(workspace)/students/actions.ts"
-    },
-    "7f8a6c9122e05cb88815c52ee28363c5e613069b64": {
-      "workers": {
-        "app/(workspace)/students/page": {
-          "moduleId": 24077,
-          "async": false
-        }
-      },
-      "exportedName": "updateStudent",
-      "filename": "src/app/(workspace)/students/actions.ts"
-    },
-    "7ff86369a09e97db5617b514124ab1ec0550a69a31": {
+    "7f384210bf4924cba0b16f78771f85460f9c81210e": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
@@ -30,7 +10,27 @@
       "exportedName": "registerStudent",
       "filename": "src/app/(workspace)/students/actions.ts"
     },
-    "7ffb508484c3894fd45f993e863a594465570d2f10": {
+    "7fba6989c646c743c39a96b90b78738d811f09ea7c": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "exportedName": "bulkImportStudents",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    },
+    "7feb4b9fdbe7e8a1a7a5b830d0b0dc91d0b3f98706": {
+      "workers": {
+        "app/(workspace)/students/page": {
+          "moduleId": 24077,
+          "async": false
+        }
+      },
+      "exportedName": "updateStudent",
+      "filename": "src/app/(workspace)/students/actions.ts"
+    },
+    "7ffeccaa84c8aebe286bf81262ccc9c0542ccf3bd0": {
       "workers": {
         "app/(workspace)/students/page": {
           "moduleId": 24077,
