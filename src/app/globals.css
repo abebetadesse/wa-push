@@ -3517,6 +3517,24 @@ ol.material-list {
   width: 84px;
 }
 
+.record-row.community-event {
+  flex-wrap: wrap;
+}
+
+.outcome-form {
+  flex-basis: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .outcome-form {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* A form field that spans both columns of .form-two-columns. */
 .form-two-columns > .form-wide {
   grid-column: 1 / -1;

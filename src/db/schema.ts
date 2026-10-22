@@ -808,3 +808,69 @@ export const facilityLogs = mysqlTable(
   },
   (table) => [index("school_facility_logs_facility_idx").on(table.facilityId, table.occurredOn)],
 );
+
+export const communityPartners = mysqlTable(
+  "school_community_partners",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    partnerType: mysqlEnum("partner_type", ["parent_association", "ngo", "business", "government", "religious", "alumni", "health", "other"]).notNull(),
+    contactName: varchar("contact_name", { length: 120 }),
+    phone: varchar("phone", { length: 40 }),
+    email: varchar("email", { length: 254 }),
+    notes: varchar("notes", { length: 1000 }),
+    status: mysqlEnum("status", ["active", "inactive"]).notNull().default("active"),
+    createdAt: createdAt(),
+  },
+  (table) => [uniqueIndex("school_community_partners_school_name_unique").on(table.schoolId, table.name)],
+);
+
+export const communityEvents = mysqlTable(
+  "school_community_events",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    eventType: mysqlEnum("event_type", ["parent_meeting", "ptsa_meeting", "community_service", "fundraiser", "open_day", "sports", "cultural", "awareness", "other"]).notNull(),
+    eventDate: date("event_date", { mode: "string" }).notNull(),
+    startTime: varchar("start_time", { length: 5 }),
+    location: varchar("location", { length: 160 }),
+    partnerId: varchar("partner_id", { length: 36 }),
+    description: varchar("description", { length: 1000 }),
+    expectedAttendance: int("expected_attendance"),
+    actualAttendance: int("actual_attendance"),
+    /** Minutes, decisions and outcomes, written after the event. */
+    outcome: text("outcome"),
+    status: mysqlEnum("status", ["planned", "held", "cancelled"]).notNull().default("planned"),
+    /** Listed on the school's public page (once public pages exist). */
+    isPublic: boolean("is_public").notNull().default(false),
+    createdBy: varchar("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index("school_community_events_school_date_idx").on(table.schoolId, table.eventDate),
+    foreignKey({ name: "school_ce_partner_fk", columns: [table.partnerId], foreignColumns: [communityPartners.id] }).onDelete("set null"),
+  ],
+);
+
+export const volunteers = mysqlTable(
+  "school_volunteers",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    phone: varchar("phone", { length: 40 }),
+    email: varchar("email", { length: 254 }),
+    skills: varchar("skills", { length: 300 }),
+    availability: varchar("availability", { length: 200 }),
+    partnerId: varchar("partner_id", { length: 36 }),
+    hoursContributed: int("hours_contributed").notNull().default(0),
+    status: mysqlEnum("status", ["active", "inactive"]).notNull().default("active"),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index("school_volunteers_school_name_idx").on(table.schoolId, table.name),
+    foreignKey({ name: "school_volunteers_partner_fk", columns: [table.partnerId], foreignColumns: [communityPartners.id] }).onDelete("set null"),
+  ],
+);

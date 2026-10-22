@@ -3,9 +3,11 @@ export function initials(name: string) {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("") || "?";
 }
 
-/** A stored enum value as words: "on_leave" → "On leave". */
+const ACRONYMS = new Set(["ptsa", "ngo", "hr", "it", "pr"]);
+
+/** A stored enum value as words: "on_leave" → "On leave", "ptsa_meeting" → "PTSA meeting". */
 export function humanize(value: string) {
-  const text = value.replaceAll("_", " ");
+  const text = value.split("_").map((word) => (ACRONYMS.has(word) ? word.toUpperCase() : word)).join(" ");
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
