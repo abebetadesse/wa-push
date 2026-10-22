@@ -158,6 +158,25 @@ async function AssessmentsContent() {
           <h1>Quizzes &amp; tests</h1>
           <p className="management-description">Create multiple-choice assessments and record marks for enrolled students.</p>
         </div>
+        <div>
+          <Link
+            href="/assessments/generate"
+            className="primary-button"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              background: "linear-gradient(135deg, #2563eb, #7c3aed)",
+              color: "#fff",
+              fontWeight: 700,
+              padding: "0.6rem 1.25rem",
+              borderRadius: "10px",
+              boxShadow: "0 4px 12px rgba(37,99,235,0.25)",
+            }}
+          >
+            <span>✨ Auto-generate from Textbook</span>
+          </Link>
+        </div>
       </header>
       <div className="management-sections">
         <section className="management-card">

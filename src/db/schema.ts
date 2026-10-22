@@ -387,6 +387,8 @@ export const learningResources = mysqlTable(
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
     uploadedBy: varchar("uploaded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    gradeLevelId: varchar("grade_level_id", { length: 36 }).references(() => gradeLevels.id, { onDelete: "set null" }),
+    subjectId: varchar("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
     title: varchar("title", { length: 200 }).notNull(),
     description: text("description"),
     fileName: varchar("file_name", { length: 255 }).notNull(),
@@ -398,6 +400,7 @@ export const learningResources = mysqlTable(
   (table) => [
     uniqueIndex("school_learning_resources_storage_key_unique").on(table.storageKey),
     index("school_learning_resources_school_created_idx").on(table.schoolId, table.createdAt),
+    index("school_learning_resources_grade_subject_idx").on(table.schoolId, table.gradeLevelId, table.subjectId),
   ],
 );
 

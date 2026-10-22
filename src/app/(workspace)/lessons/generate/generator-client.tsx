@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { GeneratedLessonPlan } from "@/lib/lesson-generator";
 import { batchSaveLessonPlans, previewLessonPlans } from "./actions";
 
@@ -26,21 +26,26 @@ export function GeneratorClient(props: {
   userRole?: string;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const paramResourceId = searchParams.get("resourceId") ?? "";
+  const paramGradeId = searchParams.get("gradeLevelId") ?? "";
+  const paramSubjectId = searchParams.get("subjectId") ?? "";
+
   const [selectedSchoolId, setSelectedSchoolId] = useState(props.schools[0]?.id ?? "");
   const [selectedYearId, setSelectedYearId] = useState(
     props.years.find((y) => y.schoolId === selectedSchoolId && y.isCurrent)?.id ??
     props.years.find((y) => y.schoolId === selectedSchoolId)?.id ?? ""
   );
   const [selectedGradeId, setSelectedGradeId] = useState(
-    props.grades.find((g) => g.schoolId === selectedSchoolId)?.id ?? ""
+    paramGradeId || (props.grades.find((g) => g.schoolId === selectedSchoolId)?.id ?? "")
   );
   const [selectedSubjectId, setSelectedSubjectId] = useState(
-    props.subjects.find((s) => s.schoolId === selectedSchoolId)?.id ?? ""
+    paramSubjectId || (props.subjects.find((s) => s.schoolId === selectedSchoolId)?.id ?? "")
   );
   const [selectedClassroomId, setSelectedClassroomId] = useState("");
   const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const [sourceType, setSourceType] = useState<"resource" | "text">("resource");
-  const [selectedResourceId, setSelectedResourceId] = useState("");
+  const [selectedResourceId, setSelectedResourceId] = useState(paramResourceId || "");
   const [customText, setCustomText] = useState("");
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
 
