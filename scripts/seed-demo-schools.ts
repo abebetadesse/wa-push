@@ -15,6 +15,7 @@ import { appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { randomBytes, randomUUID } from "node:crypto";
 import type { Connection, RowDataPacket } from "mysql2/promise";
+import { CURRICULUM_SUBJECTS } from "../src/lib/ethiopian-curriculum";
 
 loadEnvConfig(process.cwd());
 
@@ -33,28 +34,6 @@ const SCHOOLS: DemoSchool[] = [
   { name: "Abay Primary School", slug: "abay-primary", phone: "+251 11 000 0101", grades: [1, 2, 3, 4, 5, 6, 7, 8] },
   { name: "Entoto Hill Secondary School", slug: "entoto-hill-secondary", phone: "+251 11 000 0202", grades: [9, 10] },
   { name: "Rift Valley Preparatory School", slug: "rift-valley-preparatory", phone: "+251 22 000 0303", grades: [11, 12] },
-];
-
-// Names match scripts/seed-ethiopia-textbooks.mjs so textbooks attach to the same subjects.
-const SUBJECTS: { name: string; code: string; department: string; grades: [number, number] }[] = [
-  { name: "Amharic", code: "AMH", department: "Languages", grades: [1, 10] },
-  { name: "Afan Oromo", code: "AFO", department: "Languages", grades: [1, 8] },
-  { name: "English", code: "ENG", department: "Languages", grades: [1, 12] },
-  { name: "Mathematics", code: "MATH", department: "Mathematics", grades: [1, 12] },
-  { name: "Environmental Science", code: "ENV", department: "Natural Sciences", grades: [1, 4] },
-  { name: "General Science", code: "GSCI", department: "Natural Sciences", grades: [5, 8] },
-  { name: "Social Studies", code: "SOC", department: "Social Sciences", grades: [5, 8] },
-  { name: "Citizenship Education", code: "CIT", department: "Social Sciences", grades: [1, 12] },
-  { name: "Performing and Visual Arts", code: "PVA", department: "Arts", grades: [1, 8] },
-  { name: "Health and Physical Education", code: "HPE", department: "Physical Education", grades: [1, 12] },
-  { name: "Information Technology", code: "IT", department: "Technology", grades: [7, 12] },
-  { name: "Biology", code: "BIO", department: "Natural Sciences", grades: [9, 12] },
-  { name: "Chemistry", code: "CHEM", department: "Natural Sciences", grades: [9, 12] },
-  { name: "Physics", code: "PHYS", department: "Natural Sciences", grades: [9, 12] },
-  { name: "Geography", code: "GEO", department: "Social Sciences", grades: [9, 12] },
-  { name: "History", code: "HIST", department: "Social Sciences", grades: [9, 12] },
-  { name: "Economics", code: "ECON", department: "Social Sciences", grades: [9, 12] },
-  { name: "Agriculture", code: "AGRI", department: "Vocational", grades: [11, 12] },
 ];
 
 const PEOPLE: Record<Role, { local: string; first: string; last: string; title: string }[]> = {
@@ -172,7 +151,7 @@ async function seedSchool(connection: Connection, school: DemoSchool, passwordHa
     }));
   }
 
-  for (const subject of SUBJECTS) {
+  for (const subject of CURRICULUM_SUBJECTS) {
     const [from, to] = subject.grades;
     if (!school.grades.some((grade) => grade >= from && grade <= to)) continue;
     await upsertId(connection, "school_subjects", { school_id: schoolId, name: subject.name }, {

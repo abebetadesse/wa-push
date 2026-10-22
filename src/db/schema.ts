@@ -1,6 +1,8 @@
 import {
   boolean,
+  char,
   date,
+  foreignKey,
   index,
   int,
   json,
@@ -381,14 +383,44 @@ export const assessmentQuestions = mysqlTable(
   (table) => [index("school_assessment_questions_assessment_order_idx").on(table.assessmentId, table.sortOrder)],
 );
 
+// Official textbooks known to the platform, shared by every school. A school adds one to its
+// resource library by downloading it (learningResources.catalogEntryId points back here).
+export const textbookCatalog = mysqlTable(
+  "school_textbook_catalog",
+  {
+    id: id(),
+    grade: int("grade").notNull(),
+    subjectName: varchar("subject_name", { length: 120 }).notNull(),
+    language: varchar("language", { length: 40 }).notNull(),
+    kind: mysqlEnum("kind", ["student_textbook", "teacher_guide"]).notNull().default("student_textbook"),
+    title: varchar("title", { length: 200 }).notNull(),
+    publisher: varchar("publisher", { length: 160 }).notNull(),
+    sourceUrl: varchar("source_url", { length: 1000 }).notNull(),
+    sourceUrlHash: char("source_url_hash", { length: 64 }).notNull(),
+    /** The URL is the PDF itself, not a page that links to it. */
+    directDownload: boolean("direct_download").notNull().default(true),
+    sizeBytes: int("size_bytes"),
+    checkStatus: mysqlEnum("check_status", ["unchecked", "ok", "missing", "unreachable"]).notNull().default("unchecked"),
+    checkedAt: timestamp("checked_at"),
+    addedBy: varchar("added_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    uniqueIndex("school_textbook_catalog_source_unique").on(table.sourceUrlHash),
+    index("school_textbook_catalog_grade_subject_idx").on(table.grade, table.subjectName),
+  ],
+);
+
 export const learningResources = mysqlTable(
   "school_learning_resources",
   {
     id: id(),
     schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
     uploadedBy: varchar("uploaded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
-    gradeLevelId: varchar("grade_level_id", { length: 36 }).references(() => gradeLevels.id, { onDelete: "set null" }),
+    gradeLevelId: varchar("grade_level_id", { length: 36 }),
     subjectId: varchar("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
+    catalogEntryId: varchar("catalog_entry_id", { length: 36 }),
     title: varchar("title", { length: 200 }).notNull(),
     description: text("description"),
     fileName: varchar("file_name", { length: 255 }).notNull(),
@@ -401,6 +433,12 @@ export const learningResources = mysqlTable(
     uniqueIndex("school_learning_resources_storage_key_unique").on(table.storageKey),
     index("school_learning_resources_school_created_idx").on(table.schoolId, table.createdAt),
     index("school_learning_resources_grade_subject_idx").on(table.schoolId, table.gradeLevelId, table.subjectId),
+    uniqueIndex("school_learning_resources_school_catalog_unique").on(table.schoolId, table.catalogEntryId),
+    // Named by hand: the generated names pass MySQL's 64-character limit.
+    foreignKey({ name: "school_lr_grade_level_fk", columns: [table.gradeLevelId], foreignColumns: [gradeLevels.id] })
+      .onDelete("set null"),
+    foreignKey({ name: "school_lr_catalog_entry_fk", columns: [table.catalogEntryId], foreignColumns: [textbookCatalog.id] })
+      .onDelete("set null"),
   ],
 );
 

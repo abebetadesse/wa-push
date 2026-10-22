@@ -67,6 +67,14 @@ The **Resources** page accepts PDF and office/open-document files, text, web les
 
 Uploads use private local filesystem storage. By default, files are written to `var/uploads` under the application directory; set `UPLOAD_DIR` to another absolute or application-relative path when needed. In production, mount that path on durable storage and include it in the backup and restore process. The application server and any reverse proxy must allow multipart requests of at least 101 MB for resource uploads. The included Docker Compose file only provisions MySQL; it does not run the application server or mount its upload directory.
 
+## Textbook catalog
+
+The **Textbooks** page shows, for every grade and subject a school teaches under the national curriculum (`src/lib/ethiopian-curriculum.ts`), the official textbooks in the platform catalog and whether the school's library already has them. Teachers and school admins add a book with one click: Forma downloads the PDF from the official source into the school's resources and links it to the grade and subject. Downloads are only made from official hosts (the Oromia Education Bureau's site and the Ministry of Education's e-learning portal; `TEXTBOOK_SOURCE_HOSTS` replaces the list), must be a PDF, and must fit the 100 MB resource limit.
+
+`npm run db:sync-textbooks` fills the catalog: it reads the Oromia Education Bureau's textbook pages (grades 1, 3 and 5 of the new curriculum, in Afaan Oromo, Amharic and English) and adds the grade 9–12 Ministry books known so far, then checks every source with a HEAD request. Platform admins can add further sources on the Textbooks page.
+
+`drizzle-kit` reads `.env` before `.env.local`, so `npm run db:migrate`, `db:generate` and `db:studio` use the database in `.env` when that file sets `DATABASE_URL`. Use `node scripts/migrate.mjs`, which prefers `.env.local`, for the local database.
+
 ## Database and tenant access
 
 Drizzle schema definitions are in `src/db/schema.ts`. The schema includes Better Auth identity/session tables, schools, school memberships and invitations, academic years, grade levels, classrooms, students, enrollments, subjects, teachers, lesson plans, assessments, multiple-choice questions, learning resources, assessment results, class schedules, and attendance records. The dashboard and management pages only query schools the signed-in user can access. Mutations and resource downloads recheck the current session, school membership, role, and tenant ownership; browser-supplied school IDs are never treated as authorization.
