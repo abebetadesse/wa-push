@@ -3379,3 +3379,90 @@ input[type="checkbox"], input[type="radio"] {
 .textbook-missing {
   color: var(--muted);
 }
+
+/* AI Studio material */
+.material-body {
+  display: grid;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.material-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.material-section h3 {
+  margin: 0 0 6px;
+}
+
+.material-text {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.material-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+  list-style: disc;
+}
+
+ol.material-list {
+  list-style: decimal;
+}
+
+.material-options {
+  margin: 4px 0 0;
+  padding-left: 22px;
+  list-style: upper-alpha;
+}
+
+.material-terms {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.material-terms dt {
+  font-weight: 650;
+}
+
+.material-terms dd {
+  margin: 0;
+  color: var(--ink-2, var(--ink));
+}
+
+.material-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.material-table th,
+.material-table td {
+  padding: 8px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.material-actions {
+  margin: 8px 0;
+}
+
+@media (max-width: 640px) {
+  .material-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media print {
+  .material-actions,
+  .management-card-heading .inline-actions {
+    display: none;
+  }
+}

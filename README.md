@@ -75,6 +75,17 @@ The **Textbooks** page shows, for every grade and subject a school teaches under
 
 `drizzle-kit` reads `.env` before `.env.local`, so `npm run db:migrate`, `db:generate` and `db:studio` use the database in `.env` when that file sets `DATABASE_URL`. Use `node scripts/migrate.mjs`, which prefers `.env.local`, for the local database.
 
+## AI Studio
+
+**AI Studio** has Claude read a textbook from the school's library and prepare a lesson plan, lecture notes, an assignment or an exam for the unit, lesson or pages a teacher names. Set `ANTHROPIC_API_KEY` on the server to turn it on; without it the page explains that generation is off.
+
+- Requests use `claude-opus-5-5` (best quality) or `claude-sonnet-5-5` (about half the price), chosen per request, with refusal fallback (`fallbacks: "default"`) enabled. The answer is structured JSON validated against the schemas in `src/lib/ai-materials.ts`.
+- A PDF is uploaded once through the Claude Files API; its file id is stored on the resource and reused. The textbook block is prompt-cached, so further requests on the same book within five minutes cost far less. Each result shows its token use and approximate cost.
+- Generation runs after the request returns (`after()`), so proxies can't time it out; the page refreshes until the material is ready. A run cut off by a restart shows as interrupted after 15 minutes and can be retried.
+- Lesson plans can be saved to **Lesson plans** as drafts, and an exam's multiple-choice part saved as a draft online quiz for a class. School admins approve material. Teachers should review all AI-written material before using it.
+
+Textbook PDFs are sent to Anthropic for processing. Use only textbooks the school may share this way, such as the freely published official ones.
+
 ## Database and tenant access
 
 Drizzle schema definitions are in `src/db/schema.ts`. The schema includes Better Auth identity/session tables, schools, school memberships and invitations, academic years, grade levels, classrooms, students, enrollments, subjects, teachers, lesson plans, assessments, multiple-choice questions, learning resources, assessment results, class schedules, and attendance records. The dashboard and management pages only query schools the signed-in user can access. Mutations and resource downloads recheck the current session, school membership, role, and tenant ownership; browser-supplied school IDs are never treated as authorization.

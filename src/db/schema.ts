@@ -421,6 +421,8 @@ export const learningResources = mysqlTable(
     gradeLevelId: varchar("grade_level_id", { length: 36 }),
     subjectId: varchar("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
     catalogEntryId: varchar("catalog_entry_id", { length: 36 }),
+    /** The file's id in the Claude Files API, once it has been uploaded for AI generation. */
+    aiFileId: varchar("ai_file_id", { length: 80 }),
     title: varchar("title", { length: 200 }).notNull(),
     description: text("description"),
     fileName: varchar("file_name", { length: 255 }).notNull(),
@@ -439,6 +441,45 @@ export const learningResources = mysqlTable(
       .onDelete("set null"),
     foreignKey({ name: "school_lr_catalog_entry_fk", columns: [table.catalogEntryId], foreignColumns: [textbookCatalog.id] })
       .onDelete("set null"),
+  ],
+);
+
+// Teaching material written by Claude from a library textbook: lesson plans, lecture notes,
+// assignments and exams. `content` holds the structured result; see src/lib/ai-materials.ts.
+export const generatedMaterials = mysqlTable(
+  "school_generated_materials",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    resourceId: varchar("resource_id", { length: 36 }),
+    gradeLevelId: varchar("grade_level_id", { length: 36 }),
+    subjectId: varchar("subject_id", { length: 36 }),
+    createdBy: varchar("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    kind: mysqlEnum("kind", ["lesson_plan", "lecture_notes", "assignment", "exam"]).notNull(),
+    scope: varchar("scope", { length: 200 }).notNull(),
+    instructions: text("instructions"),
+    title: varchar("title", { length: 200 }).notNull(),
+    status: mysqlEnum("status", ["generating", "ready", "failed", "approved"]).notNull().default("generating"),
+    content: json("content"),
+    error: varchar("error", { length: 500 }),
+    model: varchar("model", { length: 60 }).notNull(),
+    inputTokens: int("input_tokens"),
+    cachedInputTokens: int("cached_input_tokens"),
+    outputTokens: int("output_tokens"),
+    lessonPlanId: varchar("lesson_plan_id", { length: 36 }),
+    assessmentId: varchar("assessment_id", { length: 36 }),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index("school_generated_materials_school_created_idx").on(table.schoolId, table.createdAt),
+    index("school_generated_materials_resource_idx").on(table.resourceId),
+    // Named by hand: the generated names pass MySQL's 64-character limit.
+    foreignKey({ name: "school_gm_resource_fk", columns: [table.resourceId], foreignColumns: [learningResources.id] }).onDelete("set null"),
+    foreignKey({ name: "school_gm_grade_level_fk", columns: [table.gradeLevelId], foreignColumns: [gradeLevels.id] }).onDelete("set null"),
+    foreignKey({ name: "school_gm_subject_fk", columns: [table.subjectId], foreignColumns: [subjects.id] }).onDelete("set null"),
+    foreignKey({ name: "school_gm_lesson_plan_fk", columns: [table.lessonPlanId], foreignColumns: [lessonPlans.id] }).onDelete("set null"),
+    foreignKey({ name: "school_gm_assessment_fk", columns: [table.assessmentId], foreignColumns: [assessments.id] }).onDelete("set null"),
   ],
 );
 

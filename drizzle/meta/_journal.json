@@ -71,6 +71,13 @@
       "when": 1792669291424,
       "tag": "0009_textbook_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1792669907271,
+      "tag": "0010_ai_materials",
+      "breakpoints": true
     }
   ]
 }

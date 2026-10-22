@@ -121,7 +121,7 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
                         <span>{book.title} <span className="role-badge">uploaded</span></span>
                         <span className="inline-actions">
                           <a className="text-link" href={withBasePath(`/api/resources/${book.id}`)} rel="noreferrer" target="_blank">Open</a>
-                          <Link className="text-link" href={`/lessons/generate?resourceId=${book.id}`}>Lesson plans →</Link>
+                          <Link className="text-link" href={`/studio?resourceId=${book.id}`}>Prepare with AI →</Link>
                         </span>
                       </li>
                     ))}
@@ -177,7 +177,7 @@ function CatalogOption({ entry, libraryBookId, schoolId }: { entry: CatalogEntry
           <>
             <span className="role-badge status-active">in library</span>
             <a className="text-link" href={withBasePath(`/api/resources/${libraryBookId}`)} rel="noreferrer" target="_blank">Open</a>
-            <Link className="text-link" href={`/lessons/generate?resourceId=${libraryBookId}`}>Lesson plans →</Link>
+            <Link className="text-link" href={`/studio?resourceId=${libraryBookId}`}>Prepare with AI →</Link>
           </>
         ) : downloadable ? (
           <AddToLibraryButton catalogEntryId={entry.id} schoolId={schoolId} sizeLabel={formatBytes(entry.sizeBytes)} />

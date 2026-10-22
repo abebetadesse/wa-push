@@ -37,6 +37,7 @@ export const navItems: NavItem[] = [
   { href: "/teachers", label: "Teachers", description: "Teaching staff and their schedules", icon: "teacher", section: "Teaching", keywords: "staff instructors", allow: (a) => a.academics },
   { href: "/lessons", label: "Lesson plans", description: "Draft, review and publish lessons", icon: "book", section: "Teaching", keywords: "learning plans curriculum", allow: (a) => a.academics },
   { href: "/textbooks", label: "Textbooks", description: "Official textbooks for each grade and subject", icon: "book", section: "Teaching", keywords: "curriculum books moe grade subject pdf", allow: (a) => a.academics },
+  { href: "/studio", label: "AI Studio", description: "Prepare lessons, notes, assignments and exams from a textbook", icon: "layers", section: "Teaching", keywords: "ai claude generate lesson plan lecture notes assignment exam", allow: (a) => a.academics },
   { href: "/resources", label: "Resources", description: "Learning materials and files", icon: "folder", section: "Teaching", keywords: "files uploads documents materials", allow: (a) => a.academics },
   { href: "/assessments", label: "Quizzes & tests", description: "Create assessments and record results", icon: "quiz", section: "Teaching", keywords: "assessments exams marks scores moodle", allow: (a) => a.academics },
   { href: "/timetable", label: "Timetable", description: "Weekly class schedule", icon: "calendar", section: "Teaching", keywords: "schedule periods", allow: (a) => a.academics },
