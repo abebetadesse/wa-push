@@ -5,6 +5,10 @@ import { PageSkeleton } from "@/components/page-skeleton";
 import type { SchoolRole } from "@/lib/permissions";
 import { getWorkspaceContext } from "@/lib/workspace";
 
+// Prevent Next.js prefetch from rendering this auth-gated layout and
+// reporting the expected redirect(/login) as an error in the server logs.
+export const dynamic = "force-dynamic";
+
 const roleLabels: Record<SchoolRole, string> = {
   school_admin: "School administrator",
   teacher: "Teacher",
