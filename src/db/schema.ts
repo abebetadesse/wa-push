@@ -733,3 +733,78 @@ export const libraryLoans = mysqlTable(
     index("school_library_loans_book_idx").on(table.bookId),
   ],
 );
+
+// Laboratories and workshops share one model: rooms with items, bookings and a safety/maintenance log.
+export const facilities = mysqlTable(
+  "school_facilities",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    kind: mysqlEnum("kind", ["lab", "workshop"]).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    location: varchar("location", { length: 120 }),
+    capacity: int("capacity"),
+    createdAt: createdAt(),
+  },
+  (table) => [uniqueIndex("school_facilities_school_kind_name_unique").on(table.schoolId, table.kind, table.name)],
+);
+
+export const facilityItems = mysqlTable(
+  "school_facility_items",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    facilityId: varchar("facility_id", { length: 36 }).notNull().references(() => facilities.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    category: mysqlEnum("category", ["equipment", "chemical", "consumable", "tool", "safety"]).notNull(),
+    quantity: int("quantity").notNull().default(0),
+    unit: varchar("unit", { length: 30 }).notNull().default("item"),
+    reorderLevel: int("reorder_level").notNull().default(0),
+    assetTag: varchar("asset_tag", { length: 60 }),
+    hazard: varchar("hazard", { length: 80 }),
+    condition: mysqlEnum("condition", ["good", "needs_repair", "out_of_service"]).notNull().default("good"),
+    expiresOn: date("expires_on", { mode: "string" }),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [index("school_facility_items_facility_idx").on(table.facilityId, table.name)],
+);
+
+export const facilityBookings = mysqlTable(
+  "school_facility_bookings",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    facilityId: varchar("facility_id", { length: 36 }).notNull().references(() => facilities.id, { onDelete: "cascade" }),
+    date: date("date", { mode: "string" }).notNull(),
+    startTime: varchar("start_time", { length: 5 }).notNull(),
+    endTime: varchar("end_time", { length: 5 }).notNull(),
+    teacherId: varchar("teacher_id", { length: 36 }).references(() => teachers.id, { onDelete: "set null" }),
+    classroomId: varchar("classroom_id", { length: 36 }).references(() => classrooms.id, { onDelete: "set null" }),
+    purpose: varchar("purpose", { length: 200 }).notNull(),
+    status: mysqlEnum("status", ["booked", "completed", "cancelled"]).notNull().default("booked"),
+    bookedBy: varchar("booked_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [index("school_facility_bookings_facility_date_idx").on(table.facilityId, table.date)],
+);
+
+export const facilityLogs = mysqlTable(
+  "school_facility_logs",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    facilityId: varchar("facility_id", { length: 36 }).notNull().references(() => facilities.id, { onDelete: "cascade" }),
+    itemId: varchar("item_id", { length: 36 }).references(() => facilityItems.id, { onDelete: "set null" }),
+    logType: mysqlEnum("log_type", ["incident", "maintenance"]).notNull(),
+    severity: mysqlEnum("severity", ["low", "medium", "high"]).notNull().default("low"),
+    occurredOn: date("occurred_on", { mode: "string" }).notNull(),
+    description: varchar("description", { length: 1000 }).notNull(),
+    actionTaken: varchar("action_taken", { length: 1000 }),
+    status: mysqlEnum("status", ["open", "resolved"]).notNull().default("open"),
+    reportedBy: varchar("reported_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    resolvedAt: timestamp("resolved_at"),
+    createdAt: createdAt(),
+  },
+  (table) => [index("school_facility_logs_facility_idx").on(table.facilityId, table.occurredOn)],
+);
