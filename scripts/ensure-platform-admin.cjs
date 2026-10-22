@@ -627,7 +627,9 @@ async function main() {
     throw new Error("BETTER_AUTH_SECRET must be configured with at least 32 characters.");
   }
   if (!authBaseUrl) throw new Error("BETTER_AUTH_URL is required.");
-  if (process.env.NODE_ENV === "production" && new URL(authBaseUrl).protocol !== "https:") {
+  const authParsedUrl = new URL(authBaseUrl);
+  const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(authParsedUrl.hostname);
+  if (process.env.NODE_ENV === "production" && authParsedUrl.protocol !== "https:" && !isLoopback) {
     throw new Error("BETTER_AUTH_URL must use HTTPS in production.");
   }
   const { default: mysql } = await import("mysql2/promise");
@@ -799,18 +801,27 @@ async function main() {
     const existing = existingRows[0];
     if (existing) {
       console.info(`Found existing account for ${email} (id: ${existing.id}). Updating role and password\u2026`);
-      await auth.api.adminUpdateUser({
-        body: { userId: existing.id, data: { role: "admin", name } }
-      });
-      await auth.api.setUserPassword({
-        body: { userId: existing.id, newPassword: password }
-      });
-      const [updated] = await connection.query(
-        "SELECT role FROM school_auth_users WHERE id = ? LIMIT 1",
+      await connection.query(
+        "UPDATE `school_auth_users` SET `role` = 'admin', `name` = ? WHERE `id` = ?",
+        [name, existing.id]
+      );
+      const { hashPassword } = await import("better-auth/crypto");
+      const hashedPassword = await hashPassword(password);
+      const [accounts] = await connection.query(
+        "SELECT `id` FROM `school_auth_accounts` WHERE `user_id` = ? AND `provider_id` = 'credential' LIMIT 1",
         [existing.id]
       );
-      if (!String(updated[0]?.role ?? "").split(",").includes("admin")) {
-        throw new Error("Role update did not take effect.");
+      if (accounts[0]?.id) {
+        await connection.query(
+          "UPDATE `school_auth_accounts` SET `password` = ? WHERE `id` = ?",
+          [hashedPassword, accounts[0].id]
+        );
+      } else {
+        const { randomUUID: randomUUID2 } = await import("node:crypto");
+        await connection.query(
+          "INSERT INTO `school_auth_accounts` (`id`, `account_id`, `provider_id`, `user_id`, `password`) VALUES (?, ?, 'credential', ?, ?)",
+          [randomUUID2(), String(existing.id), existing.id, hashedPassword]
+        );
       }
       console.info(`\u2713 ${email} is now a platform administrator.`);
     } else {
