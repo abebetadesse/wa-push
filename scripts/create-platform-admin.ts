@@ -87,7 +87,9 @@ async function main() {
     throw new Error("BETTER_AUTH_SECRET must be configured with at least 32 characters.");
   }
   if (!authBaseUrl) throw new Error("BETTER_AUTH_URL is required.");
-  if (process.env.NODE_ENV === "production" && new URL(authBaseUrl).protocol !== "https:") {
+  const authParsedUrl = new URL(authBaseUrl);
+  const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(authParsedUrl.hostname);
+  if (process.env.NODE_ENV === "production" && authParsedUrl.protocol !== "https:" && !isLoopback) {
     throw new Error("BETTER_AUTH_URL must use HTTPS in production.");
   }
 

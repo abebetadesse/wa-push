@@ -114,7 +114,9 @@ async function main() {
     throw new Error("BETTER_AUTH_SECRET must be configured with at least 32 characters.");
   }
   if (!authBaseUrl) throw new Error("BETTER_AUTH_URL is required.");
-  if (process.env.NODE_ENV === "production" && new URL(authBaseUrl).protocol !== "https:") {
+  const authParsedUrl = new URL(authBaseUrl);
+  const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(authParsedUrl.hostname);
+  if (process.env.NODE_ENV === "production" && authParsedUrl.protocol !== "https:" && !isLoopback) {
     throw new Error("BETTER_AUTH_URL must use HTTPS in production.");
   }
 
@@ -299,24 +301,34 @@ async function main() {
     const existing = existingRows[0];
 
     if (existing) {
-      // User exists — promote to admin and reset password via the admin plugin.
+      // User exists — promote to admin and update password
       console.info(`Found existing account for ${email} (id: ${existing.id}). Updating role and password…`);
 
-      await auth.api.adminUpdateUser({
-        body: { userId: existing.id as string, data: { role: "admin", name } },
-      });
+      await connection.query(
+        "UPDATE `school_auth_users` SET `role` = 'admin', `name` = ? WHERE `id` = ?",
+        [name, existing.id],
+      );
 
-      await auth.api.setUserPassword({
-        body: { userId: existing.id as string, newPassword: password },
-      });
+      const { hashPassword } = await import("better-auth/crypto");
+      const hashedPassword = await hashPassword(password);
 
-      const [updated] = await connection.query<RowDataPacket[]>(
-        "SELECT role FROM school_auth_users WHERE id = ? LIMIT 1",
+      const [accounts] = await connection.query<RowDataPacket[]>(
+        "SELECT `id` FROM `school_auth_accounts` WHERE `user_id` = ? AND `provider_id` = 'credential' LIMIT 1",
         [existing.id],
       );
-      if (!String(updated[0]?.role ?? "").split(",").includes("admin")) {
-        throw new Error("Role update did not take effect.");
+      if (accounts[0]?.id) {
+        await connection.query(
+          "UPDATE `school_auth_accounts` SET `password` = ? WHERE `id` = ?",
+          [hashedPassword, accounts[0].id],
+        );
+      } else {
+        const { randomUUID } = await import("node:crypto");
+        await connection.query(
+          "INSERT INTO `school_auth_accounts` (`id`, `account_id`, `provider_id`, `user_id`, `password`) VALUES (?, ?, 'credential', ?, ?)",
+          [randomUUID(), String(existing.id), existing.id, hashedPassword],
+        );
       }
+
       console.info(`✓ ${email} is now a platform administrator.`);
     } else {
       // No account yet — create one with admin role.
