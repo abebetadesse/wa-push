@@ -1329,7 +1329,10 @@ input[type="checkbox"], input[type="radio"] {
   pointer-events: none;
 }
 
-:root[data-theme="dark"] .metric-card::before,
+:root[data-theme="dark"] .metric-card::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .metric-card::before {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);

@@ -114,10 +114,10 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
-      BETTER_AUTH_URL: ${{ vars.PUBLIC_URL || 'https://school.wisdomcourse.com.et' }}
+      BETTER_AUTH_URL: ${{ vars['PUBLIC_URL'] || 'https://school.wisdomcourse.com.et' }}
       # "" serves Forma at the root of PUBLIC_URL; "/school" serves it at PUBLIC_URL/school.
-      BASE_PATH: ${{ vars.BASE_PATH || '' }}
-      HEALTH_URL: ${{ vars.HEALTH_URL || format('{0}{1}/api/health', vars.PUBLIC_URL || 'https://school.wisdomcourse.com.et', vars.BASE_PATH || '') }}
+      BASE_PATH: ${{ vars['BASE_PATH'] || '' }}
+      HEALTH_URL: ${{ vars['HEALTH_URL'] || format('{0}{1}/api/health', vars['PUBLIC_URL'] || 'https://school.wisdomcourse.com.et', vars['BASE_PATH'] || '') }}
       WEBHOOK_URL: ${{ secrets.PLESK_GIT_WEBHOOK_URL }}
     steps:
       - uses: actions/checkout@v4
