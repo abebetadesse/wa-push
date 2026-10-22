@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { and, eq } from "drizzle-orm";
 import Form from "next/form";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
 import {
@@ -11,10 +10,9 @@ import {
   classrooms,
   enrollments,
   gradeLevels,
-  schoolMemberships,
   students,
 } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { AttendanceForm, type AttendanceRosterEntry } from "./attendance-form";
 
 export const metadata: Metadata = { title: "Attendance | Forma" };
@@ -28,20 +26,7 @@ function isDate(value: string) {
 }
 
 async function AttendanceContent({ searchParams }: { searchParams: SearchParams }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db.select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin" || role === "teacher").map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-  const visibleSchools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
+  const { schoolIds, schools: visibleSchools, hasRole } = await requireSchoolsFor(pageRoles.academics);
 
   const params = await searchParams;
   const selectedSchoolId = schoolIds.includes(params.schoolId ?? "")
@@ -151,7 +136,7 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
           </div>
           {classRows.length === 0
             ? <p className="empty-state">
-              {platformAdmin || memberships.some(({ schoolId, role }) => schoolId === selectedSchoolId && role === "school_admin")
+              {hasRole(selectedSchoolId, "school_admin")
                 ? <>Set up a current academic year and classes in <Link className="text-link" href="/academic-setup">Academic setup</Link> before recording attendance.</>
                 : "This school has no classes in its current academic year yet. Ask a school administrator to set them up before recording attendance."}
             </p>

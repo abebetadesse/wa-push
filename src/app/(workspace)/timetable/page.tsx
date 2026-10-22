@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { and, eq } from "drizzle-orm";
 import Form from "next/form";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { academicYears, classSchedules, classrooms, gradeLevels, schoolMemberships, subjects, teachers } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { academicYears, classSchedules, classrooms, gradeLevels, subjects, teachers } from "@/db/schema";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { dayLabels, daysOfWeek } from "./days";
 import { ScheduleEntryActions, ScheduleForm, ScheduleTeacherSelect } from "./schedule-form";
 
@@ -21,32 +20,19 @@ function minutesBetween(startTime: string, endTime: string) {
 }
 
 async function TimetableContent({ searchParams }: { searchParams: SearchParams }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db.select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin" || role === "teacher").map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-  const visibleSchools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
+  const { context, schoolIds, schools: visibleSchools, hasRole } = await requireSchoolsFor(pageRoles.academics);
 
   const params = await searchParams;
   // A teacher with a linked profile opens on their own timetable unless they pick a class.
   const [ownProfile] = !params.teacherId && !params.classroomId
     ? await db.select({ id: teachers.id, schoolId: teachers.schoolId })
       .from(teachers)
-      .where(eq(teachers.userId, session.user.id))
+      .where(eq(teachers.userId, context.userId))
       .limit(1)
     : [];
   const requestedSchoolId = params.schoolId ?? ownProfile?.schoolId;
   const selectedSchoolId = schoolIds.includes(requestedSchoolId ?? "") ? requestedSchoolId! : schoolIds[0];
-  const canManage = platformAdmin || memberships.some(({ schoolId, role }) => schoolId === selectedSchoolId && role === "school_admin");
+  const canManage = hasRole(selectedSchoolId, "school_admin");
 
   const [classRows, subjectRows, teacherRows] = await Promise.all([
     db.select({

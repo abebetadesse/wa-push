@@ -2,36 +2,23 @@ import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, count, eq, inArray, ne } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { classSchedules, schoolMemberships, schools, teachers } from "@/db/schema";
+import { classSchedules, schools, teachers } from "@/db/schema";
 import { ListSearch } from "@/components/list-search";
 import { SubmitButton } from "@/components/submit-button";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { changeTeacherStatus } from "./actions";
 import { TeacherForm } from "./teacher-form";
 
 export const metadata: Metadata = { title: "Teachers | Forma" };
 
 async function TeachersContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db.select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin" || role === "teacher").map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-  const manageableIds = platformAdmin
+  const { context, schoolIds, schools: visibleSchools } = await requireSchoolsFor(pageRoles.academics);
+  const manageableIds = context.platformAdmin
     ? schoolIds
-    : memberships.filter(({ role }) => role === "school_admin").map(({ schoolId }) => schoolId);
-  const manageableSchools = accessibleSchools.filter((school) => manageableIds.includes(school.id));
+    : context.roles.filter(({ role }) => role === "school_admin").map(({ schoolId }) => schoolId);
+  const manageableSchools = visibleSchools.filter((school) => manageableIds.includes(school.id));
 
   const [teacherRows, periodCounts] = await Promise.all([
     db.select({

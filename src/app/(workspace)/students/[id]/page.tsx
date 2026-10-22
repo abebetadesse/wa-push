@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import { and, desc, eq } from "drizzle-orm";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { academicYears, classrooms, enrollments, gradeLevels, schoolMemberships, schools, students } from "@/db/schema";
-import { getSession, isPlatformAdmin } from "@/lib/permissions";
+import { academicYears, classrooms, enrollments, gradeLevels, schools, students } from "@/db/schema";
+import { hasSchoolRole, pageRoles, requireWorkspaceContext } from "@/lib/workspace";
 import { StudentEditForm } from "./student-edit-form";
 
 export const metadata: Metadata = { title: "Edit student | Forma" };
 
 async function StudentDetail({ studentId }: { studentId: string }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const context = await requireWorkspaceContext();
 
   const [student] = await db
     .select({
@@ -34,14 +33,7 @@ async function StudentDetail({ studentId }: { studentId: string }) {
     .limit(1);
   if (!student || student.schoolStatus === "suspended") notFound();
 
-  if (!isPlatformAdmin(session)) {
-    const [membership] = await db
-      .select({ role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(and(eq(schoolMemberships.schoolId, student.schoolId), eq(schoolMemberships.userId, session.user.id)))
-      .limit(1);
-    if (membership?.role !== "school_admin") notFound();
-  }
+  if (!hasSchoolRole(context, student.schoolId, pageRoles.schoolAdmin)) notFound();
 
   const [currentYear] = await db
     .select({ id: academicYears.id, name: academicYears.name })

@@ -2,14 +2,13 @@ import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { academicYears, classrooms, gradeLevels, schoolMemberships, schools, students } from "@/db/schema";
+import { academicYears, classrooms, gradeLevels, schools, students } from "@/db/schema";
 import { ListSearch } from "@/components/list-search";
 import { PageSkeleton } from "@/components/page-skeleton";
 import { SubmitButton } from "@/components/submit-button";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { changeStudentStatus } from "./actions";
 import { BulkStudentImportForm } from "./bulk-import-form";
 import { StudentForm } from "./student-form";
@@ -17,23 +16,7 @@ import { StudentForm } from "./student-form";
 export const metadata: Metadata = { title: "Students | Forma" };
 
 async function StudentsContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const roles = platformAdmin
-    ? []
-    : await db
-      .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const allowed = new Set(["school_admin", "teacher"]);
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : roles.filter(({ role }) => allowed.has(role)).map(({ schoolId }) => schoolId);
-
-  if (schoolIds.length === 0) redirect("/no-access");
-  const visibleSchools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
+  const { context, schoolIds, schools: visibleSchools, hasRole } = await requireSchoolsFor(pageRoles.academics);
   const [studentRows, currentClassrooms] = await Promise.all([
     db
       .select({
@@ -64,7 +47,7 @@ async function StudentsContent() {
       .where(inArray(classrooms.schoolId, schoolIds))
       .orderBy(gradeLevels.sortOrder, classrooms.name),
   ]);
-  const canRegister = platformAdmin || roles.some(({ role }) => role === "school_admin");
+  const canRegister = context.platformAdmin || context.roles.some(({ role }) => role === "school_admin");
 
   return (
     <main className="management-page">
@@ -96,7 +79,7 @@ async function StudentsContent() {
           </div>
           {studentRows.length === 0 ? <p className="empty-state">No students have been registered in these schools{canRegister ? " yet. Use the form above or import a CSV to add your first students." : "."}</p> : <div className="record-list" id="student-roster">
             {studentRows.map((student) => {
-              const canManage = platformAdmin || roles.some(({ schoolId, role }) => schoolId === student.schoolId && role === "school_admin");
+              const canManage = hasRole(student.schoolId, "school_admin");
               return (
                 <div className="record-row student-record" key={student.id}>
                   <div>

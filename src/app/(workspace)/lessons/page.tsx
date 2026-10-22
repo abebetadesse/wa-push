@@ -2,36 +2,19 @@ import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { desc, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { academicYears, gradeLevels, lessonPlans, schoolMemberships, schools, subjects } from "@/db/schema";
+import { academicYears, gradeLevels, lessonPlans, schools, subjects } from "@/db/schema";
 import { ListSearch } from "@/components/list-search";
 import { SubmitButton } from "@/components/submit-button";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { updateLessonStatus } from "./actions";
 import { LessonForm } from "./lesson-form";
 
 export const metadata: Metadata = { title: "Lesson plans | Forma" };
 
 async function LessonsContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessible = await getAccessibleSchools();
-  const roles = platformAdmin
-    ? []
-    : await db
-      .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const allowed = new Set(["school_admin", "teacher"]);
-  const schoolIds = platformAdmin
-    ? accessible.map((school) => school.id)
-    : roles.filter(({ role }) => allowed.has(role)).map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-
-  const visibleSchools = accessible.filter((school) => schoolIds.includes(school.id));
+  const { context, schoolIds, schools: visibleSchools, hasRole } = await requireSchoolsFor(pageRoles.academics);
   const [years, grades, schoolSubjects, plans] = await Promise.all([
     db.select({ id: academicYears.id, schoolId: academicYears.schoolId, name: academicYears.name, isCurrent: academicYears.isCurrent })
       .from(academicYears).where(inArray(academicYears.schoolId, schoolIds)),
@@ -60,8 +43,6 @@ async function LessonsContent() {
       .orderBy(desc(lessonPlans.createdAt))
       .limit(100),
   ]);
-  const canCreate = platformAdmin || roles.some(({ role }) => role === "school_admin" || role === "teacher");
-
   return (
     <main className="management-page">
       <header className="management-header">
@@ -74,7 +55,7 @@ async function LessonsContent() {
         <Link className="secondary-button" href="/timetable">Class timetable</Link>
       </header>
       <div className="management-sections">
-        {canCreate && <section className="management-card">
+        <section className="management-card">
           <h2>Create a lesson draft</h2>
           <LessonForm
             schools={visibleSchools}
@@ -82,7 +63,7 @@ async function LessonsContent() {
             grades={grades}
             subjects={schoolSubjects}
           />
-        </section>}
+        </section>
         <section className="management-card">
           <div className="management-card-heading">
             <div><h2>Recent lesson plans</h2><p>Latest 100 plans from your authorized schools</p></div>
@@ -90,9 +71,9 @@ async function LessonsContent() {
           </div>
           {plans.length === 0 ? <p className="empty-state">No lesson plans have been created yet.</p> : <div className="record-list" id="lesson-list">
             {plans.map((plan) => {
-              const role = roles.find((member) => member.schoolId === plan.schoolId)?.role;
-              const canSubmit = role === "teacher" && plan.createdBy === session.user.id && plan.status === "draft";
-              const canReview = platformAdmin || role === "school_admin";
+              const role = context.roles.find((member) => member.schoolId === plan.schoolId)?.role;
+              const canSubmit = role === "teacher" && plan.createdBy === context.userId && plan.status === "draft";
+              const canReview = hasRole(plan.schoolId, "school_admin");
               const nextStatus = canSubmit ? "submitted" : plan.status === "submitted" ? "approved" : plan.status === "approved" ? "published" : null;
               return (
                 <div className="record-row lesson-record" key={plan.id}>
@@ -116,7 +97,7 @@ async function LessonsContent() {
           </div>}
         </section>
       </div>
-      {canCreate && <p className="auth-note">New plans are saved as drafts. Teachers may submit their drafts for school administrator review before publication.</p>}
+      <p className="auth-note">New plans are saved as drafts. Teachers may submit their drafts for school administrator review before publication.</p>
     </main>
   );
 }

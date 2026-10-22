@@ -2,7 +2,6 @@ import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
 import {
@@ -15,13 +14,12 @@ import {
   classrooms,
   enrollments,
   gradeLevels,
-  schoolMemberships,
   schools,
   students,
   subjects,
 } from "@/db/schema";
 import { SubmitButton } from "@/components/submit-button";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { AssessmentForm } from "./assessment-form";
 import { changeAssessmentStatus } from "./actions";
 import { ResultForm } from "./result-form";
@@ -29,26 +27,7 @@ import { ResultForm } from "./result-form";
 export const metadata: Metadata = { title: "Assessments | Forma" };
 
 async function AssessmentsContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db
-      .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships
-      .filter(({ role }) => role === "school_admin" || role === "teacher")
-      .map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-
-  const visibleSchools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
-  const canManageAssessments = platformAdmin || memberships.some(({ role }) => role === "school_admin" || role === "teacher");
+  const { schoolIds, schools: visibleSchools, hasRole } = await requireSchoolsFor(pageRoles.academics);
   const [years, classroomsList, subjectList, assessmentRows] = await Promise.all([
     db.select({
       id: academicYears.id,
@@ -168,8 +147,7 @@ async function AssessmentsContent() {
   const attemptByAssessmentAndStudent = new Map(
     attemptRows.map((attempt) => [`${attempt.assessmentId}:${attempt.studentId}`, attempt]),
   );
-  const isSchoolAdmin = (schoolId: string) =>
-    platformAdmin || memberships.some((membership) => membership.schoolId === schoolId && membership.role === "school_admin");
+  const isSchoolAdmin = (schoolId: string) => hasRole(schoolId, "school_admin");
 
   return (
     <main className="management-page">
@@ -182,11 +160,11 @@ async function AssessmentsContent() {
         </div>
       </header>
       <div className="management-sections">
-        {canManageAssessments && <section className="management-card">
+        <section className="management-card">
           <h2>Create an assessment</h2>
           <p className="assessment-help">Assessments start as drafts. A school administrator publishes them before results can be entered.</p>
           <AssessmentForm schools={visibleSchools} years={years} classrooms={classroomsList} subjects={subjectList} />
-        </section>}
+        </section>
         <section className="management-card">
           <div className="management-card-heading">
             <div><h2>Assessments</h2><p>{assessmentRows.length} assessment{assessmentRows.length === 1 ? "" : "s"} in your authorized schools</p></div>

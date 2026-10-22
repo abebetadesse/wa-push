@@ -1,34 +1,18 @@
 import type { Metadata } from "next";
 import { and, eq, gt, inArray, isNull } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
 import { authUsers, schoolInvitations, schoolMemberships, schools } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { InviteForm } from "./invite-form";
 import { MemberActions, RevokeInvitationButton } from "./member-actions";
 
 export const metadata: Metadata = { title: "School team | Forma" };
 
 async function TeamContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-
-  const memberships = platformAdmin
-    ? []
-    : await db
-      .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const manageableIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin").map(({ schoolId }) => schoolId);
-
-  if (manageableIds.length === 0) redirect("/no-access");
-  const managedSchools = accessibleSchools.filter((school) => manageableIds.includes(school.id));
+  const { context, schoolIds: manageableIds, schools: managedSchools } = await requireSchoolsFor(pageRoles.schoolAdmin);
+  const { platformAdmin } = context;
 
   const [members, invitations] = await Promise.all([
     db
@@ -85,9 +69,9 @@ async function TeamContent() {
               <div className="record-list">
                 {schoolMembers.map((member) => (
                   <div className="record-row student-record" key={member.userId}>
-                    <div><strong>{member.name}{member.userId === session.user.id ? " (you)" : ""}</strong><small>{member.email}</small></div>
+                    <div><strong>{member.name}{member.userId === context.userId ? " (you)" : ""}</strong><small>{member.email}</small></div>
                     <span className="role-badge">{member.role.replaceAll("_", " ")}</span>
-                    {member.userId !== session.user.id && (platformAdmin || member.role !== "school_admin") && (
+                    {member.userId !== context.userId && (platformAdmin || member.role !== "school_admin") && (
                       <MemberActions
                         schoolId={school.id}
                         userId={member.userId}

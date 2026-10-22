@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { and, eq, inArray } from "drizzle-orm";
 import Form from "next/form";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
 import {
@@ -11,30 +10,16 @@ import {
   assessments,
   attendanceRecords,
   enrollments,
-  schoolMemberships,
   students,
 } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 
 export const metadata: Metadata = { title: "Results & reports | Forma" };
 
 type SearchParams = Promise<{ schoolId?: string }>;
 
 async function ReportsContent({ searchParams }: { searchParams: SearchParams }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db.select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin" || role === "teacher").map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-  const schools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
+  const { schoolIds, schools } = await requireSchoolsFor(pageRoles.academics);
   const params = await searchParams;
   const selectedSchoolId = schoolIds.includes(params.schoolId ?? "") ? params.schoolId! : schoolIds[0];
 

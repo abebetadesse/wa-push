@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { and, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
 import {
@@ -13,12 +13,11 @@ import {
   classrooms,
   enrollments,
   gradeLevels,
-  schoolMemberships,
   schools,
   students,
   subjects,
 } from "@/db/schema";
-import { getSession, isPlatformAdmin } from "@/lib/permissions";
+import { hasSchoolRole, pageRoles, requireWorkspaceContext } from "@/lib/workspace";
 import { PrintButton } from "./print-button";
 
 export const metadata: Metadata = { title: "Student Report Card | Forma" };
@@ -32,8 +31,7 @@ function getLetterGrade(percentage: number): { letter: string; gpa: number; rema
 }
 
 async function ReportCardContent({ studentId }: { studentId: string }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const context = await requireWorkspaceContext();
 
   const [student] = await db
     .select({
@@ -57,18 +55,8 @@ async function ReportCardContent({ studentId }: { studentId: string }) {
   if (!student || student.schoolStatus === "suspended") notFound();
 
   // Permission check
-  const platformAdmin = isPlatformAdmin(session);
-  const isOwnRecord = student.userId === session.user.id;
-  if (!platformAdmin && !isOwnRecord) {
-    const [membership] = await db
-      .select({ role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(and(eq(schoolMemberships.schoolId, student.schoolId), eq(schoolMemberships.userId, session.user.id)))
-      .limit(1);
-    if (!membership || !["school_admin", "teacher"].includes(membership.role)) {
-      notFound();
-    }
-  }
+  const isOwnRecord = student.userId === context.userId;
+  if (!isOwnRecord && !hasSchoolRole(context, student.schoolId, pageRoles.academics)) notFound();
 
   // Current academic year & enrollment
   const [currentYear] = await db

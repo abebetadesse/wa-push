@@ -1,31 +1,17 @@
 import type { Metadata } from "next";
 import { eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { schoolMemberships, schools, staffMembers } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { schools, staffMembers } from "@/db/schema";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { StaffForm } from "./staff-form";
 import { StaffStatusForm } from "./staff-status-form";
 
 export const metadata: Metadata = { title: "Human resources | Forma" };
 
 async function HrContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db.select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin" || role === "hr_manager").map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-  const visibleSchools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
+  const { schoolIds, schools: visibleSchools } = await requireSchoolsFor(pageRoles.hr);
   const staffRows = await db.select({
     id: staffMembers.id,
     schoolId: staffMembers.schoolId,

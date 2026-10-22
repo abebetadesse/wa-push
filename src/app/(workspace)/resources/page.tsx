@@ -1,36 +1,19 @@
 import type { Metadata } from "next";
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { learningResources, schoolMemberships } from "@/db/schema";
+import { learningResources } from "@/db/schema";
 import { withBasePath } from "@/lib/base-path";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
 import { resourceFileType } from "@/lib/learning-resources";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { ResourceUploadForm } from "./resource-upload-form";
 
 export const metadata: Metadata = { title: "Learning resources | Forma" };
 
 async function ResourcesContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db
-      .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const allowedSchoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships
-      .filter(({ role }) => role === "school_admin" || role === "teacher")
-      .map(({ schoolId }) => schoolId);
-  if (!allowedSchoolIds.length) redirect("/no-access");
+  const { schoolIds: allowedSchoolIds, schools } = await requireSchoolsFor(pageRoles.academics);
 
-  const schools = accessibleSchools.filter((school) => allowedSchoolIds.includes(school.id));
   const resources = await db
     .select({
       id: learningResources.id,

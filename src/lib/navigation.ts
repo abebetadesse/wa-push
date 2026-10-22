@@ -1,5 +1,6 @@
 // Navigation shared by the sidebar, the command palette, and the dashboard. Each entry names who
-// may open it, using the same role rules as the page itself, so no link leads to /no-access.
+// may open it. WorkspaceAccess is built from the role lists the pages themselves check (`pageRoles` in
+// lib/workspace.ts), so no link leads to /no-access.
 
 export type WorkspaceAccess = {
   platformAdmin: boolean;

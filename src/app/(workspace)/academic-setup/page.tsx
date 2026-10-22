@@ -1,32 +1,16 @@
 import type { Metadata } from "next";
 import { eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { academicYears, classrooms, gradeLevels, schoolMemberships, subjects } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { academicYears, classrooms, gradeLevels, subjects } from "@/db/schema";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { AcademicYearForm, ClassroomForm, GradeLevelForm, SubjectForm } from "./forms";
 
 export const metadata: Metadata = { title: "Academic setup | Forma" };
 
 async function AcademicSetupContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessible = await getAccessibleSchools();
-  const roles = platformAdmin
-    ? []
-    : await db
-      .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const manageableIds = platformAdmin
-    ? accessible.map((school) => school.id)
-    : roles.filter(({ role }) => role === "school_admin").map(({ schoolId }) => schoolId);
-  if (manageableIds.length === 0) redirect("/no-access");
-
-  const managedSchools = accessible.filter((school) => manageableIds.includes(school.id));
+  const { schoolIds: manageableIds, schools: managedSchools } = await requireSchoolsFor(pageRoles.schoolAdmin);
   const [years, grades, schoolSubjects, classRooms] = await Promise.all([
     db.select().from(academicYears).where(inArray(academicYears.schoolId, manageableIds)),
     db.select().from(gradeLevels).where(inArray(gradeLevels.schoolId, manageableIds)).orderBy(gradeLevels.sortOrder),

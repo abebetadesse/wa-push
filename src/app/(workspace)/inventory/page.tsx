@@ -1,30 +1,16 @@
 import type { Metadata } from "next";
 import { desc, eq, inArray } from "drizzle-orm";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { authUsers, inventoryItems, inventoryMovements, schoolMemberships, schools } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin } from "@/lib/permissions";
+import { authUsers, inventoryItems, inventoryMovements, schools } from "@/db/schema";
+import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { InventoryItemForm, InventoryItemStatusForm, StockMovementForm } from "./forms";
 
 export const metadata: Metadata = { title: "Inventory | Forma" };
 
 async function InventoryContent() {
-  const session = await getSession();
-  if (!session) redirect("/login");
-  const platformAdmin = isPlatformAdmin(session);
-  const accessibleSchools = await getAccessibleSchools();
-  const memberships = platformAdmin
-    ? []
-    : await db.select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(eq(schoolMemberships.userId, session.user.id));
-  const schoolIds = platformAdmin
-    ? accessibleSchools.map((school) => school.id)
-    : memberships.filter(({ role }) => role === "school_admin" || role === "inventory_manager").map(({ schoolId }) => schoolId);
-  if (schoolIds.length === 0) redirect("/no-access");
-  const visibleSchools = accessibleSchools.filter((school) => schoolIds.includes(school.id));
+  const { schoolIds, schools: visibleSchools } = await requireSchoolsFor(pageRoles.inventory);
   const [itemRows, movements] = await Promise.all([
     db.select({
       id: inventoryItems.id,

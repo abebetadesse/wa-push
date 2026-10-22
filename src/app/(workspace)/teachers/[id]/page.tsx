@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
-import { schoolMemberships, schools, teachers } from "@/db/schema";
-import { getSession, isPlatformAdmin } from "@/lib/permissions";
+import { schools, teachers } from "@/db/schema";
+import { hasSchoolRole, pageRoles, requireWorkspaceContext } from "@/lib/workspace";
 import { TeacherForm } from "../teacher-form";
 
 export const metadata: Metadata = { title: "Edit teacher | Forma" };
 
 async function TeacherDetail({ teacherId }: { teacherId: string }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const context = await requireWorkspaceContext();
 
   const [teacher] = await db
     .select({
@@ -35,14 +34,7 @@ async function TeacherDetail({ teacherId }: { teacherId: string }) {
     .limit(1);
   if (!teacher || teacher.schoolStatus === "suspended") notFound();
 
-  if (!isPlatformAdmin(session)) {
-    const [membership] = await db
-      .select({ role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(and(eq(schoolMemberships.schoolId, teacher.schoolId), eq(schoolMemberships.userId, session.user.id)))
-      .limit(1);
-    if (membership?.role !== "school_admin") notFound();
-  }
+  if (!hasSchoolRole(context, teacher.schoolId, pageRoles.schoolAdmin)) notFound();
 
   return (
     <main className="management-page">

@@ -1,8 +1,8 @@
 import { ActionForm } from "@/components/action-form";
 import type { Metadata } from "next";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { db } from "@/db";
 import {
@@ -11,11 +11,10 @@ import {
   classrooms,
   gradeLevels,
   lessonPlans,
-  schoolMemberships,
   schools,
   subjects,
 } from "@/db/schema";
-import { getSession, isPlatformAdmin } from "@/lib/permissions";
+import { requireWorkspaceContext } from "@/lib/workspace";
 import { SubmitButton } from "@/components/submit-button";
 import { updateLessonStatus } from "../actions";
 import { canEditLesson, lessonSections } from "../lesson-access";
@@ -24,8 +23,7 @@ import { LessonEditForm } from "./lesson-edit-form";
 export const metadata: Metadata = { title: "Lesson plan | Forma" };
 
 async function LessonDetail({ lessonId }: { lessonId: string }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const context = await requireWorkspaceContext();
 
   const [lesson] = await db
     .select({
@@ -50,21 +48,14 @@ async function LessonDetail({ lessonId }: { lessonId: string }) {
   if (!lesson || lesson.schoolStatus === "suspended") notFound();
 
   const plan = lesson.plan;
-  const platformAdmin = isPlatformAdmin(session);
-  const [membership] = platformAdmin
-    ? []
-    : await db
-      .select({ role: schoolMemberships.role })
-      .from(schoolMemberships)
-      .where(and(eq(schoolMemberships.schoolId, plan.schoolId), eq(schoolMemberships.userId, session.user.id)))
-      .limit(1);
-  const role = membership?.role;
+  const { platformAdmin } = context;
+  const role = context.roles.find((membership) => membership.schoolId === plan.schoolId)?.role;
   // Do not reveal whether a lesson exists in a school the user cannot access.
   if (!platformAdmin && role !== "school_admin" && role !== "teacher") notFound();
 
-  const editable = canEditLesson({ role, userId: session.user.id, platformAdmin, status: plan.status, createdBy: plan.createdBy });
+  const editable = canEditLesson({ role, userId: context.userId, platformAdmin, status: plan.status, createdBy: plan.createdBy });
   const canReview = platformAdmin || role === "school_admin";
-  const isOwner = role === "teacher" && plan.createdBy === session.user.id;
+  const isOwner = role === "teacher" && plan.createdBy === context.userId;
   const statusActions: { status: string; label: string }[] = [];
   if (isOwner && plan.status === "draft") statusActions.push({ status: "submitted", label: "Submit for review" });
   if (canReview && plan.status === "submitted") {
