@@ -10,7 +10,9 @@ type FormAction = (state: FormState, formData: FormData) => Promise<FormState>;
 export type FieldSpec = {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "date" | "time" | "email" | "tel" | "select" | "checkbox";
+  type?: "text" | "textarea" | "number" | "date" | "time" | "email" | "tel" | "select" | "checkbox" | "file";
+  /** For file fields: accepted types, e.g. "image/jpeg,image/png". */
+  accept?: string;
   required?: boolean;
   max?: number;
   min?: number;
@@ -37,7 +39,9 @@ function Field({ field }: { field: FieldSpec }) {
       </select>
     );
   } else if (field.type === "textarea") {
-    control = <textarea {...common} maxLength={field.max} rows={3} />;
+    control = <textarea {...common} maxLength={field.max} rows={field.max && field.max > 1000 ? 6 : 3} />;
+  } else if (field.type === "file") {
+    control = <input accept={field.accept} name={field.name} required={field.required} type="file" />;
   } else {
     control = <input {...common} max={field.type === "number" ? field.max : undefined} maxLength={field.type === "number" ? undefined : field.max} min={field.min} type={field.type ?? "text"} />;
   }

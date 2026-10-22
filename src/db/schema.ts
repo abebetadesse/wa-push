@@ -874,3 +874,77 @@ export const volunteers = mysqlTable(
     foreignKey({ name: "school_volunteers_partner_fk", columns: [table.partnerId], foreignColumns: [communityPartners.id] }).onDelete("set null"),
   ],
 );
+
+// Public relations: photos, posts and the school's public profile. Each goes through review by a
+// school admin, whose written feedback is kept with it; only approved or published content is public.
+export const prMedia = mysqlTable(
+  "school_pr_media",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    storageKey: varchar("storage_key", { length: 36 }).notNull(),
+    fileName: varchar("file_name", { length: 255 }).notNull(),
+    contentType: varchar("content_type", { length: 60 }).notNull(),
+    sizeBytes: int("size_bytes").notNull(),
+    caption: varchar("caption", { length: 300 }),
+    status: mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
+    adminFeedback: varchar("admin_feedback", { length: 1000 }),
+    uploadedBy: varchar("uploaded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedBy: varchar("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at"),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex("school_pr_media_storage_key_unique").on(table.storageKey),
+    index("school_pr_media_school_status_idx").on(table.schoolId, table.status),
+  ],
+);
+
+export const prPosts = mysqlTable(
+  "school_pr_posts",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    postType: mysqlEnum("post_type", ["news", "announcement", "achievement", "event_recap"]).notNull(),
+    title: varchar("title", { length: 200 }).notNull(),
+    summary: varchar("summary", { length: 300 }).notNull(),
+    body: text("body").notNull(),
+    coverMediaId: varchar("cover_media_id", { length: 36 }).references(() => prMedia.id, { onDelete: "set null" }),
+    status: mysqlEnum("status", ["draft", "submitted", "changes_requested", "published", "archived"]).notNull().default("draft"),
+    adminFeedback: text("admin_feedback"),
+    authorId: varchar("author_id", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedBy: varchar("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at"),
+    publishedAt: timestamp("published_at"),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [index("school_pr_posts_school_status_idx").on(table.schoolId, table.status, table.publishedAt)],
+);
+
+export const publicProfiles = mysqlTable(
+  "school_public_profiles",
+  {
+    schoolId: varchar("school_id", { length: 36 }).primaryKey().references(() => schools.id, { onDelete: "cascade" }),
+    tagline: varchar("tagline", { length: 160 }),
+    about: text("about"),
+    mission: varchar("mission", { length: 600 }),
+    vision: varchar("vision", { length: 600 }),
+    principalName: varchar("principal_name", { length: 120 }),
+    principalMessage: text("principal_message"),
+    address: varchar("address", { length: 200 }),
+    phone: varchar("phone", { length: 40 }),
+    email: varchar("email", { length: 254 }),
+    heroMediaId: varchar("hero_media_id", { length: 36 }).references(() => prMedia.id, { onDelete: "set null" }),
+    /** Review state of the fields above (the working copy). */
+    status: mysqlEnum("status", ["draft", "submitted", "changes_requested", "approved"]).notNull().default("draft"),
+    adminFeedback: text("admin_feedback"),
+    /** The last approved copy of the fields; the public page shows this, so edits stay private until approved. */
+    publishedContent: json("published_content").$type<Record<string, string | null>>(),
+    /** The public page is live only while this is set; a school admin turns it on after approval. */
+    isPublished: boolean("is_published").notNull().default(false),
+    reviewedBy: varchar("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at"),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+);
