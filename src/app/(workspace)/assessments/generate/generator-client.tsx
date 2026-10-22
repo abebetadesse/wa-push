@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { generateAssessmentPlanAction, saveAssessmentPlanAction } from "./actions";
 import type { GeneratedQuestion } from "@/lib/quiz-generator";
@@ -100,7 +100,7 @@ export function AssessmentGeneratorClient(props: {
     });
   };
 
-  const handleQuestionChange = (index: number, field: string, value: any) => {
+  const handleQuestionChange = <K extends keyof GeneratedQuestion>(index: number, field: K, value: GeneratedQuestion[K]) => {
     setQuestions((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -297,15 +297,17 @@ export function AssessmentGeneratorClient(props: {
           <div>
             <label className="form-label" style={{ fontWeight: 600, fontSize: "0.85rem", display: "block", marginBottom: "0.3rem" }}>Assessment Type</label>
             <div style={{ display: "flex", gap: "0.5rem" }}>
-              {[
-                { type: "quiz", label: "Quiz (MCQ)" },
-                { type: "exercise", label: "Review Exercises" },
-                { type: "exam", label: "Curriculum Exam" },
-              ].map((t) => (
+              {(
+                [
+                  { type: "quiz", label: "Quiz (MCQ)" },
+                  { type: "exercise", label: "Review Exercises" },
+                  { type: "exam", label: "Curriculum Exam" },
+                ] as const
+              ).map((t) => (
                 <button
                   key={t.type}
                   type="button"
-                  onClick={() => setAssessmentType(t.type as any)}
+                  onClick={() => setAssessmentType(t.type)}
                   style={{
                     flex: 1,
                     padding: "0.5rem 0.5rem",

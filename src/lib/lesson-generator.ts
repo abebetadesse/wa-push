@@ -101,7 +101,7 @@ export async function extractResourceText(schoolId: string, resourceId: string):
       fileName: resource.fileName,
       text: `${resource.title}\n\n${resource.description ?? ""}`,
     };
-  } catch (error) {
+  } catch {
     return {
       fileName: resource.fileName,
       text: `${resource.title}\n\n${resource.description ?? ""}`,
@@ -191,7 +191,7 @@ export function parseTextbookOutline(rawText: string, fallbackSubjectName = "Sub
   }
 
   // Ensure each unit has at least 2 structured topics
-  return units.map((u, uIdx) => {
+  return units.map((u) => {
     if (u.topics.length === 0) {
       return {
         ...u,
