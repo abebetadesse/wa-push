@@ -122,19 +122,19 @@ export async function runMigrations() {
             [m.id, m.hash, m.created_at],
           );
         }
+
+        // Ensure prerequisite tables exist before running later migrations (since migrations 0000..0007 were skipped)
+        await repairMembershipsTable(connection);
+        await repairInvitationsTable(connection);
+        await repairGradeLevelsTable(connection);
+        await repairSubjectsTable(connection);
+        await repairLearningResourcesTable(connection);
       }
     } catch (e) {
       console.warn("[migrate] Warning inspecting existing migration state:", e instanceof Error ? e.message : e);
     }
 
-    // 4. Ensure fundamental prerequisite tables exist if earlier migrations were marked as completed
-    await repairMembershipsTable(connection);
-    await repairInvitationsTable(connection);
-    await repairGradeLevelsTable(connection);
-    await repairSubjectsTable(connection);
-    await repairLearningResourcesTable(connection);
-
-    // 5. Run Drizzle migration engine
+    // 4. Run Drizzle migration engine
     await migrate(drizzle(connection), {
       migrationsFolder: path.join(root, "drizzle"),
       migrationsTable: "school_drizzle_migrations",
