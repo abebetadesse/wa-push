@@ -1,6 +1,6 @@
 {
   "node": {
-    "40f36ab8c3978402ffe4c1fc619523b238b2d8726e": {
+    "40cd6027754e3b70f316e6c8e5456345dcb253a81a": {
       "workers": {
         "app/accept-invite/page": {
           "moduleId": 84570,
