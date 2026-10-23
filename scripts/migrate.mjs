@@ -122,6 +122,13 @@ export async function runMigrations() {
             [m.id, m.hash, m.created_at],
           );
         }
+
+        // Ensure prerequisite tables exist before running later migrations (since migrations 0000..0007 were skipped)
+        await repairMembershipsTable(connection);
+        await repairInvitationsTable(connection);
+        await repairGradeLevelsTable(connection);
+        await repairSubjectsTable(connection);
+        await repairLearningResourcesTable(connection);
       }
     } catch (e) {
       console.warn("[migrate] Warning inspecting existing migration state:", e instanceof Error ? e.message : e);
@@ -133,7 +140,7 @@ export async function runMigrations() {
       migrationsTable: "school_drizzle_migrations",
     });
 
-    // 5. Make sure the session table is Forma's own.
+    // 6. Make sure the session table is Forma's own.
     await repairSessionTable(connection);
 
     let applied = 0;
@@ -146,7 +153,12 @@ export async function runMigrations() {
     console.log(`[migrate] database is up to date (${applied} migrations applied).`);
     return true;
   } catch (error) {
-    console.error("[migrate] failed:", error instanceof Error ? error.message : error);
+    const cause = typeof error === "object" && error !== null && "cause" in error ? error.cause : null;
+    console.error(
+      "[migrate] failed:",
+      error instanceof Error ? error.message : error,
+      cause ? `\n[migrate] cause: ${cause instanceof Error ? cause.message : JSON.stringify(cause)}` : "",
+    );
     throw error;
   } finally {
     await connection.end();
@@ -210,6 +222,147 @@ export async function repairSessionTable(connection) {
     console.warn("[migrate] could not add the session → user foreign key:", error instanceof Error ? error.message : error);
   }
   console.log("[migrate] created Forma's school_auth_sessions table.");
+}
+
+export async function repairMembershipsTable(connection) {
+  const [columns] = await connection.query(
+    "SELECT COLUMN_NAME AS name FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_memberships'",
+  );
+  if (!Array.isArray(columns) || columns.length === 0) {
+    console.warn("[migrate] school_memberships is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_memberships\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`user_id\` varchar(36) NOT NULL,
+        \`role\` enum('school_admin','teacher','student','guardian','inventory_manager','hr_manager','librarian','lab_technician','workshop_manager','community_officer','pr_officer') NOT NULL DEFAULT 'student',
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        \`updated_at\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT \`school_memberships_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_memberships_school_user_unique\` UNIQUE (\`school_id\`, \`user_id\`),
+        KEY \`school_memberships_user_idx\` (\`user_id\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_memberships table.");
+  }
+}
+
+export async function repairInvitationsTable(connection) {
+  const [columns] = await connection.query(
+    "SELECT COLUMN_NAME AS name FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_invitations'",
+  );
+  if (!Array.isArray(columns) || columns.length === 0) {
+    console.warn("[migrate] school_invitations is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_invitations\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`invited_by\` varchar(36) NOT NULL,
+        \`email\` varchar(254) NOT NULL,
+        \`role\` enum('school_admin','teacher','student','guardian','inventory_manager','hr_manager','librarian','lab_technician','workshop_manager','community_officer','pr_officer') NOT NULL,
+        \`token_hash\` varchar(64) NOT NULL,
+        \`expires_at\` timestamp NOT NULL,
+        \`accepted_at\` timestamp,
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        CONSTRAINT \`school_invitations_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_invitations_token_hash_unique\` UNIQUE (\`token_hash\`),
+        KEY \`school_invitations_school_email_idx\` (\`school_id\`, \`email\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_invitations table.");
+  }
+}
+
+export async function repairGradeLevelsTable(connection) {
+  const [legacy] = await connection.query("SHOW TABLES LIKE 'grade_levels'");
+  const [school] = await connection.query("SHOW TABLES LIKE 'school_grade_levels'");
+  if (Array.isArray(legacy) && legacy.length > 0 && (!Array.isArray(school) || school.length === 0)) {
+    console.log("[migrate] Renaming legacy grade_levels to school_grade_levels...");
+    await connection.query("RENAME TABLE `grade_levels` TO `school_grade_levels`");
+  } else if (!Array.isArray(school) || school.length === 0) {
+    console.warn("[migrate] school_grade_levels is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_grade_levels\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`name\` varchar(80) NOT NULL,
+        \`sort_order\` int NOT NULL DEFAULT 0,
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        CONSTRAINT \`school_grade_levels_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_grade_levels_school_name_unique\` UNIQUE (\`school_id\`, \`name\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_grade_levels table.");
+  }
+}
+
+export async function repairSubjectsTable(connection) {
+  const [legacy] = await connection.query("SHOW TABLES LIKE 'subjects'");
+  const [school] = await connection.query("SHOW TABLES LIKE 'school_subjects'");
+  if (Array.isArray(legacy) && legacy.length > 0 && (!Array.isArray(school) || school.length === 0)) {
+    console.log("[migrate] Renaming legacy subjects to school_subjects...");
+    await connection.query("RENAME TABLE `subjects` TO `school_subjects`");
+  } else if (!Array.isArray(school) || school.length === 0) {
+    console.warn("[migrate] school_subjects is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_subjects\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`name\` varchar(120) NOT NULL,
+        \`code\` varchar(30),
+        \`department\` varchar(100),
+        \`description\` text,
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        CONSTRAINT \`school_subjects_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_subjects_school_name_unique\` UNIQUE (\`school_id\`, \`name\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_subjects table.");
+  }
+}
+
+export async function repairLearningResourcesTable(connection) {
+  const [legacy] = await connection.query("SHOW TABLES LIKE 'learning_resources'");
+  const [school] = await connection.query("SHOW TABLES LIKE 'school_learning_resources'");
+  if (Array.isArray(legacy) && legacy.length > 0 && (!Array.isArray(school) || school.length === 0)) {
+    console.log("[migrate] Renaming legacy learning_resources to school_learning_resources...");
+    await connection.query("RENAME TABLE `learning_resources` TO `school_learning_resources`");
+  } else if (!Array.isArray(school) || school.length === 0) {
+    console.warn("[migrate] school_learning_resources is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_learning_resources\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`uploaded_by\` varchar(36),
+        \`title\` varchar(200) NOT NULL,
+        \`description\` text,
+        \`file_name\` varchar(255) NOT NULL,
+        \`storage_key\` varchar(36) NOT NULL,
+        \`content_type\` varchar(120) NOT NULL,
+        \`size_bytes\` int NOT NULL,
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        CONSTRAINT \`school_learning_resources_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_learning_resources_storage_key_unique\` UNIQUE (\`storage_key\`),
+        KEY \`school_learning_resources_school_created_idx\` (\`school_id\`, \`created_at\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_learning_resources table.");
+  }
+
+  // If grade_level_id already exists in school_learning_resources, migration 0008 was already applied!
+  try {
+    const [cols] = await connection.query(
+      "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_learning_resources' AND COLUMN_NAME = 'grade_level_id'",
+    );
+    if (Array.isArray(cols) && cols.length > 0) {
+      await connection.query(
+        "INSERT IGNORE INTO `school_drizzle_migrations` (`id`, `hash`, `created_at`) VALUES (?, ?, ?)",
+        [9, "00c12bd9b2784915b7f626bdd05db9e045381d791d9805fd5abc1943922f3447", 1792664700000],
+      );
+    }
+  } catch (err) {
+    console.warn("[migrate] Notice checking grade_level_id column:", err instanceof Error ? err.message : err);
+  }
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
