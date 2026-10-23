@@ -127,13 +127,17 @@ export async function runMigrations() {
       console.warn("[migrate] Warning inspecting existing migration state:", e instanceof Error ? e.message : e);
     }
 
-    // 4. Run Drizzle migration engine
+    // 4. Ensure fundamental prerequisite tables exist if earlier migrations were marked as completed
+    await repairMembershipsTable(connection);
+    await repairInvitationsTable(connection);
+
+    // 5. Run Drizzle migration engine
     await migrate(drizzle(connection), {
       migrationsFolder: path.join(root, "drizzle"),
       migrationsTable: "school_drizzle_migrations",
     });
 
-    // 5. Make sure the session table is Forma's own.
+    // 6. Make sure the session table is Forma's own.
     await repairSessionTable(connection);
 
     let applied = 0;
@@ -210,6 +214,55 @@ export async function repairSessionTable(connection) {
     console.warn("[migrate] could not add the session → user foreign key:", error instanceof Error ? error.message : error);
   }
   console.log("[migrate] created Forma's school_auth_sessions table.");
+}
+
+export async function repairMembershipsTable(connection) {
+  const [columns] = await connection.query(
+    "SELECT COLUMN_NAME AS name FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_memberships'",
+  );
+  if (!Array.isArray(columns) || columns.length === 0) {
+    console.warn("[migrate] school_memberships is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_memberships\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`user_id\` varchar(36) NOT NULL,
+        \`role\` enum('school_admin','teacher','student','guardian','inventory_manager','hr_manager','librarian','lab_technician','workshop_manager','community_officer','pr_officer') NOT NULL DEFAULT 'student',
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        \`updated_at\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT \`school_memberships_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_memberships_school_user_unique\` UNIQUE (\`school_id\`, \`user_id\`),
+        KEY \`school_memberships_user_idx\` (\`user_id\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_memberships table.");
+  }
+}
+
+export async function repairInvitationsTable(connection) {
+  const [columns] = await connection.query(
+    "SELECT COLUMN_NAME AS name FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_invitations'",
+  );
+  if (!Array.isArray(columns) || columns.length === 0) {
+    console.warn("[migrate] school_invitations is missing; creating it.");
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS \`school_invitations\` (
+        \`id\` varchar(36) NOT NULL,
+        \`school_id\` varchar(36) NOT NULL,
+        \`invited_by\` varchar(36) NOT NULL,
+        \`email\` varchar(254) NOT NULL,
+        \`role\` enum('school_admin','teacher','student','guardian','inventory_manager','hr_manager','librarian','lab_technician','workshop_manager','community_officer','pr_officer') NOT NULL,
+        \`token_hash\` varchar(64) NOT NULL,
+        \`expires_at\` timestamp NOT NULL,
+        \`accepted_at\` timestamp,
+        \`created_at\` timestamp NOT NULL DEFAULT (now()),
+        CONSTRAINT \`school_invitations_id\` PRIMARY KEY (\`id\`),
+        CONSTRAINT \`school_invitations_token_hash_unique\` UNIQUE (\`token_hash\`),
+        KEY \`school_invitations_school_email_idx\` (\`school_id\`, \`email\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("[migrate] created school_invitations table.");
+  }
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
