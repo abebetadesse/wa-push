@@ -113,12 +113,31 @@ const knownMigrations = [
   { id: 14, hash: "15c2bb93c9b9de78e482debe34e8cceb171dcdae78f6ca0f532f339bbc25adf2", created_at: 1792671177678 },
   { id: 15, hash: "621773deb86c1aefbd3652db2b4c9ffed6f2b70b55012f617405ea83b9f8edc5", created_at: 1792671440949 },
   { id: 16, hash: "9bcb350168758b60523ee5efe6581471368304f37de8886d3e8dc86b98272410", created_at: 1792671647283 },
+  { id: 17, hash: "e794243d35b78b2fc61e004384f2f7bc247d6ae5e0a9a0609917a51752ca7405", created_at: 1792882254261 },
+  { id: 18, hash: "d29ed1fafc49fd8fc40ca6a2cc328db12b2ce37efa2e66bcd335ff673f49135a", created_at: 1792882399860 },
 ];
 
 /** Seeds a known-good migration history entry. Used when the schema already reflects it. */
 async function seedMigration(connection, id) {
   const m = knownMigrations.find((entry) => entry.id === id);
   if (!m) throw new Error(`[migrate] no known migration with id ${id}`);
+  if (id >= 17) {
+    const [rows] = await connection.query(
+      "SELECT `hash` FROM `school_drizzle_migrations` WHERE `created_at` = ? LIMIT 1",
+      [m.created_at],
+    );
+    if (Array.isArray(rows) && rows.length > 0) {
+      if (rows[0].hash !== m.hash) {
+        throw new Error(`[migrate] migration ${id} has a conflicting recorded hash.`);
+      }
+      return;
+    }
+    await connection.query(
+      "INSERT INTO `school_drizzle_migrations` (`hash`, `created_at`) VALUES (?, ?)",
+      [m.hash, m.created_at],
+    );
+    return;
+  }
   await connection.query(
     "INSERT IGNORE INTO `school_drizzle_migrations` (`id`, `hash`, `created_at`) VALUES (?, ?, ?)",
     [m.id, m.hash, m.created_at],
@@ -371,6 +390,78 @@ export async function seedAppliedMigrations(connection) {
   if (await tableExists(connection, "school_pr_media")) {
     await seedMigration(connection, 16);
   }
+
+  const assessmentColumns = await tableColumns(connection, "school_assessments");
+  const attendanceColumns = await tableColumns(connection, "school_attendance_records");
+  const studentColumns = await tableColumns(connection, "school_students");
+  const dueDateAdded = assessmentColumns.has("due_on");
+  const notificationAdded = attendanceColumns.has("guardian_notified_at");
+  const guardianEmailAdded = studentColumns.has("guardian_email");
+  if (dueDateAdded || notificationAdded || guardianEmailAdded) {
+    if (!dueDateAdded) await connection.query("ALTER TABLE `school_assessments` ADD `due_on` date");
+    if (!notificationAdded) await connection.query("ALTER TABLE `school_attendance_records` ADD `guardian_notified_at` timestamp");
+    if (!guardianEmailAdded) await connection.query("ALTER TABLE `school_students` ADD `guardian_email` varchar(254)");
+    await seedMigration(connection, 17);
+  }
+
+  if (await repairAssessmentRemindersTable(connection)) {
+    await seedMigration(connection, 18);
+  }
+}
+
+export async function repairAssessmentRemindersTable(connection) {
+  const columns = await tableColumns(connection, "school_assessment_reminders");
+  if (columns.size === 0) return false;
+
+  const requiredColumns = ["id", "school_id", "assessment_id", "student_id", "created_at"];
+  const missingColumns = requiredColumns.filter((column) => !columns.has(column));
+  if (missingColumns.length > 0) {
+    throw new Error(`[migrate] school_assessment_reminders is missing required columns: ${missingColumns.join(", ")}`);
+  }
+
+  const foreignKeys = [
+    { column: "school_id", table: "school_schools", name: "school_ar_school_fk" },
+    { column: "assessment_id", table: "school_assessments", name: "school_ar_assessment_fk" },
+    { column: "student_id", table: "school_students", name: "school_ar_student_fk" },
+  ];
+  for (const foreignKey of foreignKeys) {
+    const [rows] = await connection.query(
+      `SELECT CONSTRAINT_NAME AS name FROM information_schema.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_assessment_reminders'
+          AND COLUMN_NAME = ? AND REFERENCED_TABLE_NAME = ?`,
+      [foreignKey.column, foreignKey.table],
+    );
+    if (!Array.isArray(rows) || rows.length === 0) {
+      await connection.query(
+        `ALTER TABLE \`school_assessment_reminders\` ADD CONSTRAINT \`${foreignKey.name}\` ` +
+        `FOREIGN KEY (\`${foreignKey.column}\`) REFERENCES \`${foreignKey.table}\`(\`id\`) ON DELETE CASCADE`,
+      );
+    }
+  }
+
+  const [indexes] = await connection.query(
+    `SELECT NON_UNIQUE AS nonUnique, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) AS columns
+       FROM information_schema.STATISTICS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'school_assessment_reminders'
+      GROUP BY INDEX_NAME, NON_UNIQUE`,
+  );
+  const hasReminderUnique = Array.isArray(indexes) && indexes.some(
+    (index) => Number(index.nonUnique) === 0 && index.columns === "assessment_id,student_id",
+  );
+  if (!hasReminderUnique) {
+    await connection.query(
+      "ALTER TABLE `school_assessment_reminders` ADD CONSTRAINT `school_assessment_reminders_student_unique` UNIQUE (`assessment_id`, `student_id`)",
+    );
+  }
+  const hasSchoolIndex = Array.isArray(indexes) && indexes.some(
+    (index) => Number(index.nonUnique) === 1 && index.columns === "school_id",
+  );
+  if (!hasSchoolIndex) {
+    await connection.query(
+      "CREATE INDEX `school_assessment_reminders_school_idx` ON `school_assessment_reminders` (`school_id`)",
+    );
+  }
+  return true;
 }
 
 /**

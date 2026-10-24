@@ -527,14 +527,17 @@ export const assessmentReminders = mysqlTable(
   "school_assessment_reminders",
   {
     id: id(),
-    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
-    assessmentId: varchar("assessment_id", { length: 36 }).notNull().references(() => assessments.id, { onDelete: "cascade" }),
-    studentId: varchar("student_id", { length: 36 }).notNull().references(() => students.id, { onDelete: "cascade" }),
+    schoolId: varchar("school_id", { length: 36 }).notNull(),
+    assessmentId: varchar("assessment_id", { length: 36 }).notNull(),
+    studentId: varchar("student_id", { length: 36 }).notNull(),
     sentAt: createdAt(),
   },
   (table) => [
     uniqueIndex("school_assessment_reminders_student_unique").on(table.assessmentId, table.studentId),
     index("school_assessment_reminders_school_idx").on(table.schoolId),
+    foreignKey({ name: "school_ar_school_fk", columns: [table.schoolId], foreignColumns: [schools.id] }).onDelete("cascade"),
+    foreignKey({ name: "school_ar_assessment_fk", columns: [table.assessmentId], foreignColumns: [assessments.id] }).onDelete("cascade"),
+    foreignKey({ name: "school_ar_student_fk", columns: [table.studentId], foreignColumns: [students.id] }).onDelete("cascade"),
   ],
 );
 

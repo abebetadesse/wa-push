@@ -478,8 +478,8 @@
         }
       },
       "foreignKeys": {
-        "school_assessment_reminders_school_id_school_schools_id_fk": {
-          "name": "school_assessment_reminders_school_id_school_schools_id_fk",
+        "school_ar_school_fk": {
+          "name": "school_ar_school_fk",
           "tableFrom": "school_assessment_reminders",
           "tableTo": "school_schools",
           "columnsFrom": [
@@ -491,8 +491,8 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "school_assessment_reminders_assessment_id_school_assessments_id_fk": {
-          "name": "school_assessment_reminders_assessment_id_school_assessments_id_fk",
+        "school_ar_assessment_fk": {
+          "name": "school_ar_assessment_fk",
           "tableFrom": "school_assessment_reminders",
           "tableTo": "school_assessments",
           "columnsFrom": [
@@ -504,8 +504,8 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "school_assessment_reminders_student_id_school_students_id_fk": {
-          "name": "school_assessment_reminders_student_id_school_students_id_fk",
+        "school_ar_student_fk": {
+          "name": "school_ar_student_fk",
           "tableFrom": "school_assessment_reminders",
           "tableTo": "school_students",
           "columnsFrom": [
