@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, inArray, max } from "drizzle-orm";
 import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -52,6 +52,22 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
     ))
     .where(eq(classrooms.schoolId, selectedSchoolId))
     .orderBy(gradeLevels.sortOrder, classrooms.name);
+  const recentClasses = classRows.length ? await db.select({
+    classroomId: attendanceRecords.classroomId,
+    classroomName: classrooms.name,
+    gradeName: gradeLevels.name,
+    lastDate: max(attendanceRecords.date),
+  })
+    .from(attendanceRecords)
+    .innerJoin(classrooms, eq(attendanceRecords.classroomId, classrooms.id))
+    .innerJoin(gradeLevels, eq(classrooms.gradeLevelId, gradeLevels.id))
+    .where(and(
+      eq(attendanceRecords.schoolId, selectedSchoolId),
+      inArray(attendanceRecords.classroomId, classRows.map(({ id }) => id)),
+    ))
+    .groupBy(attendanceRecords.classroomId, classrooms.name, gradeLevels.name)
+    .orderBy(desc(max(attendanceRecords.date)))
+    .limit(5) : [];
   const classroomId = classRows.some(({ id }) => id === params.classroomId)
     ? params.classroomId!
     : classRows[0]?.id ?? "";
@@ -62,6 +78,8 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
       studentNumber: students.studentNumber,
       firstName: students.firstName,
       lastName: students.lastName,
+      guardianEmail: students.guardianEmail,
+      guardianNotifiedAt: attendanceRecords.guardianNotifiedAt,
       status: attendanceRecords.status,
       remarks: attendanceRecords.remarks,
     })
@@ -90,6 +108,8 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
     studentName: `${student.firstName} ${student.lastName}`,
     status: student.status ?? "present",
     remarks: student.remarks ?? "",
+    guardianEmail: student.guardianEmail,
+    guardianNotifiedAt: student.guardianNotifiedAt?.toISOString() ?? null,
   }));
 
   return (
@@ -103,6 +123,18 @@ async function AttendanceContent({ searchParams }: { searchParams: SearchParams 
         </div>
       </header>
       <div className="management-sections">
+        {recentClasses.length > 0 && <section className="management-card">
+          <div className="management-card-heading">
+            <div><h2>Recent attendance</h2><p>Return to classes you recorded recently</p></div>
+          </div>
+          <div className="inline-actions">
+            {recentClasses.map((recent) => (
+              <Link className="secondary-button" href={`/attendance?schoolId=${selectedSchoolId}&classroomId=${recent.classroomId}&date=${recent.lastDate}`} key={recent.classroomId}>
+                {recent.gradeName} {recent.classroomName} · {recent.lastDate}
+              </Link>
+            ))}
+          </div>
+        </section>}
         <section className="management-card">
           <h2>Select a class and date</h2>
           <Form action="/attendance" className="auth-form attendance-filter">

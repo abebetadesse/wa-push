@@ -12,19 +12,23 @@ import {
   assessmentAttempts,
   assessmentQuestions,
   assessmentResults,
+  assessmentReminders,
   assessments,
   classrooms,
   enrollments,
   students,
+  schools,
   subjects,
 } from "@/db/schema";
 import { isPlatformAdmin, requireSchoolRole, requireSession } from "@/lib/permissions";
 import { isDuplicateEntry } from "@/lib/db-errors";
+import { sendEmail } from "@/lib/email";
 import {
   parseQuestionImport,
   QuestionImportError,
   type QuestionImportFormat,
 } from "@/lib/moodle-questions";
+import { todayInTimeZone } from "@/lib/date";
 
 export type AssessmentActionState = { error?: string; success?: string };
 
@@ -123,6 +127,7 @@ async function createAssessmentImpl(
   const subjectId = String(formData.get("subjectId") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const instructions = String(formData.get("instructions") ?? "").trim();
+  const dueOn = String(formData.get("dueOn") ?? "").trim();
 
   if (!schoolId || !academicYearId || !classroomId || !subjectId) {
     return { error: "Select a school, academic year, class, and subject." };
@@ -130,6 +135,7 @@ async function createAssessmentImpl(
   if (!title || title.length > 200 || instructions.length > 2000) {
     return { error: "Add a title of at most 200 characters and keep instructions under 2,000 characters." };
   }
+  if (dueOn && !isValidDate(dueOn)) return { error: "Choose a valid assessment due date." };
 
   const { session } = await requireSchoolRole(schoolId, ["school_admin", "teacher"]);
   const parsedQuestions = await parseQuestions(formData);
@@ -167,6 +173,7 @@ async function createAssessmentImpl(
       subjectId,
       title,
       instructions: instructions || null,
+      dueOn: dueOn || null,
       maxScore,
     });
     await tx.insert(assessmentQuestions).values(questions.map((question, index) => ({
@@ -193,6 +200,12 @@ async function createAssessmentImpl(
   return {
     success: `Assessment “${title}” saved as a draft with ${questions.length} question${questions.length === 1 ? "" : "s"} and ${maxScore} possible points.${skippedMessage}`,
   };
+}
+
+function isValidDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 async function changeAssessmentStatusImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -335,12 +348,18 @@ async function submitAssessmentAttemptImpl(
       academicYearId: assessments.academicYearId,
       title: assessments.title,
       status: assessments.status,
+      dueOn: assessments.dueOn,
+      timeZone: schools.timezone,
     })
     .from(assessments)
+    .innerJoin(schools, eq(schools.id, assessments.schoolId))
     .where(eq(assessments.id, assessmentId))
     .limit(1);
   if (!assessment || assessment.status !== "published") {
     return { error: "This assessment is not available." };
+  }
+  if (assessment.dueOn && todayInTimeZone(assessment.timeZone) > assessment.dueOn) {
+    return { error: "The deadline for this assessment has passed." };
   }
 
   const { session: studentSession } = await requireSchoolRole(assessment.schoolId, ["student"]);
@@ -374,7 +393,7 @@ async function submitAssessmentAttemptImpl(
   try {
     const score = await db.transaction(async (tx) => {
       const [lockedAssessment] = await tx
-        .select({ id: assessments.id, status: assessments.status })
+        .select({ id: assessments.id, status: assessments.status, dueOn: assessments.dueOn })
         .from(assessments)
         .where(and(
           eq(assessments.id, assessment.id),
@@ -384,6 +403,9 @@ async function submitAssessmentAttemptImpl(
         .limit(1);
       if (!lockedAssessment || lockedAssessment.status !== "published") {
         throw new UserError("This assessment is no longer open.");
+      }
+      if (lockedAssessment.dueOn && todayInTimeZone(assessment.timeZone) > lockedAssessment.dueOn) {
+        throw new UserError("The deadline for this assessment has passed.");
       }
 
       const questions = await tx
@@ -431,6 +453,7 @@ async function submitAssessmentAttemptImpl(
     if (isDuplicateEntry(error)) return { error: "You have already submitted this assessment." };
     if (error instanceof Error && [
       "This assessment is no longer open.",
+      "The deadline for this assessment has passed.",
       "Answer every question before submitting.",
       "One or more selected answers are invalid.",
     ].includes(error.message)) {
@@ -438,6 +461,88 @@ async function submitAssessmentAttemptImpl(
     }
     throw error;
   }
+}
+
+async function sendAssessmentRemindersImpl(
+      _previous: AssessmentActionState,
+      formData: FormData,
+    ): Promise<AssessmentActionState> {
+      const schoolId = String(formData.get("schoolId") ?? "").trim();
+      const assessmentId = String(formData.get("assessmentId") ?? "").trim();
+      if (!schoolId || !assessmentId) return { error: "Select an assessment." };
+      await requireSchoolRole(schoolId, ["school_admin", "teacher"]);
+
+      const [assessment] = await db.select({
+        title: assessments.title,
+        status: assessments.status,
+        dueOn: assessments.dueOn,
+        classroomId: assessments.classroomId,
+        academicYearId: assessments.academicYearId,
+      }).from(assessments)
+        .where(and(eq(assessments.id, assessmentId), eq(assessments.schoolId, schoolId)))
+        .limit(1);
+      if (!assessment || assessment.status !== "published") {
+        return { error: "Reminders can only be sent for published assessments." };
+      }
+
+      const [classRoster, attempts, reminders] = await Promise.all([
+        db.select({
+          id: students.id,
+          name: students.firstName,
+          lastName: students.lastName,
+          email: students.email,
+        }).from(enrollments)
+          .innerJoin(students, and(
+            eq(students.id, enrollments.studentId),
+            eq(students.schoolId, enrollments.schoolId),
+          ))
+          .where(and(
+            eq(enrollments.schoolId, schoolId),
+            eq(enrollments.classroomId, assessment.classroomId),
+            eq(enrollments.academicYearId, assessment.academicYearId),
+            eq(enrollments.status, "enrolled"),
+            eq(students.status, "active"),
+          )),
+        db.select({ studentId: assessmentAttempts.studentId }).from(assessmentAttempts)
+          .where(and(eq(assessmentAttempts.schoolId, schoolId), eq(assessmentAttempts.assessmentId, assessmentId))),
+        db.select({ studentId: assessmentReminders.studentId }).from(assessmentReminders)
+          .where(and(eq(assessmentReminders.schoolId, schoolId), eq(assessmentReminders.assessmentId, assessmentId))),
+      ]);
+      const alreadySubmitted = new Set(attempts.map(({ studentId }) => studentId));
+      const alreadyReminded = new Set(reminders.map(({ studentId }) => studentId));
+      const recipients = classRoster.flatMap((student) =>
+        student.email && !alreadySubmitted.has(student.id) && !alreadyReminded.has(student.id)
+          ? [{ ...student, email: student.email }]
+          : [],
+      );
+      if (recipients.length === 0) {
+        return { success: "No students with a current email address need a reminder." };
+      }
+
+      let sent = 0;
+      let failed = 0;
+      for (const student of recipients) {
+        try {
+          await sendEmail({
+            to: student.email,
+            subject: `Reminder: ${assessment.title}`,
+            text: `Hello ${student.name} ${student.lastName},\n\nYou have not submitted "${assessment.title}" yet.${assessment.dueOn ? ` It is due on ${assessment.dueOn}.` : ""} Sign in to Forma and open My learning to complete it.`,
+          });
+          await db.insert(assessmentReminders).values({
+            id: randomUUID(),
+            schoolId,
+            assessmentId,
+            studentId: student.id,
+          });
+          sent += 1;
+        } catch (error) {
+          console.error(`Could not send an assessment reminder to ${student.email}.`, error);
+          failed += 1;
+        }
+      }
+      revalidatePath("/assessments");
+      if (failed) return { error: `Sent ${sent} reminder${sent === 1 ? "" : "s"}; ${failed} failed and can be retried.` };
+      return { success: `Sent ${sent} reminder${sent === 1 ? "" : "s"}.` };
 }
 
 // Every action runs through guardAction, so a failure reaches the form as a message instead of
@@ -453,4 +558,7 @@ export async function submitAssessmentAttempt(...args: Parameters<typeof submitA
 }
 export async function changeAssessmentStatus(...args: Parameters<typeof changeAssessmentStatusImpl>) {
   return guardAction(() => changeAssessmentStatusImpl(...args));
+}
+export async function sendAssessmentReminders(...args: Parameters<typeof sendAssessmentRemindersImpl>) {
+  return guardAction(() => sendAssessmentRemindersImpl(...args));
 }

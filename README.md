@@ -65,6 +65,12 @@ Teachers and school administrators can bulk-import up to 200 single-answer multi
 
 The **Resources** page accepts PDF and office/open-document files, text, web lessons and data files, eBooks, images, animated GIF/SVG, audio, video, JSON animations, ZIP archives, and Moodle backup files up to 100 MB. Uploaded files are kept outside the public web root; uploads are restricted to school administrators and teachers, while authorized staff and active students can access their school's resources.
 
+Staff can export student rosters, teacher directories, student progress, assessment results, and the current attendance roster as CSV files. Attendance exports include the current on-screen entries, including unsaved edits. CSV downloads use UTF-8 and escape spreadsheet formula-like text. Student CSV imports accept an optional `guardian_email` column and show client-side preflight checks before import.
+
+Attendance drafts are retained in the current browser tab until saved. Teachers and school admins can send explicit email follow-ups to guardian contacts for recorded absent/late entries; successful sends are tracked and only reset if the attendance entry changes. Assessment creators can set a due date; students see overdue work in **My learning**, and online submissions close after the due date in the school’s configured time zone. Staff can send one reminder email per assessment to students who have not submitted and have an email address.
+
+The **Results & reports** page filters by school, year, class, and subject; filter views can be saved in the browser. It also shows academic-year trends and class/subject comparisons, and can print selected student progress summaries or open a full individual report card.
+
 Uploads use private local filesystem storage. By default, files are written to `var/uploads` under the application directory; set `UPLOAD_DIR` to another absolute or application-relative path when needed. In production, mount that path on durable storage and include it in the backup and restore process. The application server and any reverse proxy must allow multipart requests of at least 101 MB for resource uploads. The included Docker Compose file only provisions MySQL; it does not run the application server or mount its upload directory.
 
 ## Textbook catalog

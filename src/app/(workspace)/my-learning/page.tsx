@@ -19,6 +19,7 @@ import {
 import { withBasePath } from "@/lib/base-path";
 import { getSession } from "@/lib/permissions";
 import { AssessmentTaker, type StudentAssessmentQuestion } from "./assessment-taker";
+import { todayInTimeZone } from "@/lib/date";
 
 export const metadata: Metadata = { title: "My learning | Forma" };
 
@@ -49,6 +50,8 @@ async function MyLearningContent() {
       assessmentId: assessments.id,
       title: assessments.title,
       instructions: assessments.instructions,
+      dueOn: assessments.dueOn,
+      timeZone: schools.timezone,
       maxScore: assessments.maxScore,
       subjectName: subjects.name,
       className: classrooms.name,
@@ -159,15 +162,19 @@ async function MyLearningContent() {
           : assignments.map((assignment) => {
             const attempt = attemptByKey.get(`${assignment.assessmentId}:${assignment.studentId}`);
             const questions = questionsByAssessment.get(assignment.assessmentId) ?? [];
+            const overdue = Boolean(assignment.dueOn && todayInTimeZone(assignment.timeZone) > assignment.dueOn);
             return (
               <article className="management-card student-assessment-card" key={`${assignment.assessmentId}:${assignment.studentId}`}>
                 <div className="management-card-heading">
                   <div><h2>{assignment.title}</h2><p>{assignment.schoolName} · {assignment.className} · {assignment.subjectName}</p></div>
-                  <span className={`role-badge ${attempt ? "status-published" : "status-submitted"}`}>{attempt ? "Submitted" : "Ready"}</span>
+                  <span className={`role-badge ${attempt ? "status-published" : overdue ? "status-inactive" : "status-submitted"}`}>{attempt ? "Submitted" : overdue ? "Overdue" : "Ready"}</span>
                 </div>
+                {assignment.dueOn && <p className="assessment-help">Due {assignment.dueOn}{overdue ? " · the submission deadline has passed" : ""}</p>}
                 {assignment.instructions && <p className="assessment-instructions">{assignment.instructions}</p>}
                 {attempt
                   ? <p className="student-score">Your score: <strong>{attempt.score} / {attempt.maxScore}</strong> · Submitted {attempt.submittedAt.toLocaleString()}</p>
+                  : overdue
+                    ? <p className="empty-state">This assessment is past its deadline. Contact your teacher if you need an extension.</p>
                   : questions.length > 0
                     ? <><p className="assessment-help">{questions.length} questions · {assignment.maxScore} possible points · one submission</p><AssessmentTaker assessmentId={assignment.assessmentId} questions={questions} /></>
                     : <p className="auth-error">This assessment is unavailable because it has no questions.</p>}

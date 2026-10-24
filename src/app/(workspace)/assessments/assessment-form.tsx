@@ -75,6 +75,7 @@ export function AssessmentForm({
         <p className="setup-hint">Set up an academic year, class, and subject in <Link href="/academic-setup">Academic setup</Link> first.</p>
       )}
       <label>Assessment title<input maxLength={200} name="title" required /></label>
+      <label>Due date <span className="optional-label">Optional · students cannot submit after this date</span><input name="dueOn" type="date" /></label>
       <label>Instructions <span className="optional-label">Optional</span><textarea maxLength={2000} name="instructions" rows={2} /></label>
       <div className="assessment-questions-heading">
         <div><strong>Questions</strong><small>{importMode ? "Bulk import · up to 200 supported questions" : "Multiple choice · up to 30 questions"}</small></div>

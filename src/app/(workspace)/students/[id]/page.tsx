@@ -23,6 +23,7 @@ async function StudentDetail({ studentId }: { studentId: string }) {
       firstName: students.firstName,
       lastName: students.lastName,
       email: students.email,
+      guardianEmail: students.guardianEmail,
       dateOfBirth: students.dateOfBirth,
       status: students.status,
       userId: students.userId,

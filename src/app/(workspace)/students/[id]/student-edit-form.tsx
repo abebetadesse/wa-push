@@ -10,6 +10,7 @@ export type EditableStudent = {
   firstName: string;
   lastName: string;
   email: string | null;
+  guardianEmail: string | null;
   dateOfBirth: string | null;
   status: "active" | "inactive" | "graduated" | "transferred";
   classroomId: string | null;
@@ -43,6 +44,7 @@ export function StudentEditForm({
           </select>
         </label>
         <label>Email <span className="optional-label">Optional</span><input autoComplete="off" defaultValue={student.email ?? ""} maxLength={254} name="email" type="email" /></label>
+        <label>Guardian email <span className="optional-label">Optional · for attendance updates</span><input autoComplete="off" defaultValue={student.guardianEmail ?? ""} maxLength={254} name="guardianEmail" type="email" /></label>
         <label>Date of birth <span className="optional-label">Optional</span><input defaultValue={student.dateOfBirth ?? ""} name="dateOfBirth" type="date" /></label>
       </div>
       <label>Current classroom

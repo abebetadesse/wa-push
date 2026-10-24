@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { db } from "@/db";
 import { classSchedules, schools, teachers } from "@/db/schema";
 import { ListSearch } from "@/components/list-search";
+import { CsvDownloadButton } from "@/components/csv-download-button";
 import { SubmitButton } from "@/components/submit-button";
 import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { changeTeacherStatus } from "./actions";
@@ -63,7 +64,26 @@ async function TeachersContent() {
         <section className="management-card">
           <div className="management-card-heading">
             <div><h2>Teacher directory</h2><p>{teacherRows.length} teacher{teacherRows.length === 1 ? "" : "s"}</p></div>
-            {teacherRows.length > 5 && <ListSearch targetId="teacher-list" label="Search teachers" placeholder="Search by name, subject, email…" />}
+            <div className="inline-actions">
+              {teacherRows.length > 0 && <CsvDownloadButton
+                filename="teachers.csv"
+                headers={["School", "Teacher number", "First name", "Last name", "Email", "Phone", "Specialization", "Status", "Weekly periods", "Account linked"]}
+                filterTargetId="teacher-list"
+                rows={teacherRows.map((teacher) => [
+                  teacher.schoolName,
+                  teacher.teacherNumber,
+                  teacher.firstName,
+                  teacher.lastName,
+                  teacher.email,
+                  teacher.phone,
+                  teacher.specialization,
+                  teacher.status,
+                  periodsByTeacher.get(teacher.id) ?? 0,
+                  teacher.userId ? "Yes" : "No",
+                ])}
+              />}
+              {teacherRows.length > 5 && <ListSearch targetId="teacher-list" label="Search teachers" placeholder="Search by name, subject, email…" />}
+            </div>
           </div>
           {teacherRows.length === 0
             ? <p className="empty-state">No teacher profiles have been added yet.</p>

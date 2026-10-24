@@ -210,6 +210,7 @@ export const students = mysqlTable(
     firstName: varchar("first_name", { length: 100 }).notNull(),
     lastName: varchar("last_name", { length: 100 }).notNull(),
     email: varchar("email", { length: 254 }),
+    guardianEmail: varchar("guardian_email", { length: 254 }),
     userId: varchar("user_id", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
     dateOfBirth: date("date_of_birth", { mode: "string" }),
     status: mysqlEnum("status", ["active", "inactive", "graduated", "transferred"]).notNull().default("active"),
@@ -358,6 +359,7 @@ export const assessments = mysqlTable(
     subjectId: varchar("subject_id", { length: 36 }).notNull().references(() => subjects.id, { onDelete: "restrict" }),
     title: varchar("title", { length: 200 }).notNull(),
     instructions: text("instructions"),
+    dueOn: date("due_on", { mode: "string" }),
     status: mysqlEnum("status", ["draft", "published", "closed"]).notNull().default("draft"),
     maxScore: int("max_score").notNull(),
     createdAt: createdAt(),
@@ -521,6 +523,21 @@ export const assessmentAttempts = mysqlTable(
   ],
 );
 
+export const assessmentReminders = mysqlTable(
+  "school_assessment_reminders",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    assessmentId: varchar("assessment_id", { length: 36 }).notNull().references(() => assessments.id, { onDelete: "cascade" }),
+    studentId: varchar("student_id", { length: 36 }).notNull().references(() => students.id, { onDelete: "cascade" }),
+    sentAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex("school_assessment_reminders_student_unique").on(table.assessmentId, table.studentId),
+    index("school_assessment_reminders_school_idx").on(table.schoolId),
+  ],
+);
+
 export const classSchedules = mysqlTable(
   "school_class_schedules",
   {
@@ -556,6 +573,7 @@ export const attendanceRecords = mysqlTable(
     date: date("date", { mode: "string" }).notNull(),
     status: mysqlEnum("status", ["present", "absent", "late", "excused"]).notNull().default("present"),
     remarks: varchar("remarks", { length: 255 }),
+    guardianNotifiedAt: timestamp("guardian_notified_at"),
     createdAt: createdAt(),
   },
   (table) => [

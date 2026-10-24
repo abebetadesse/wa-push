@@ -6,9 +6,10 @@ import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { academicYears, activityEvents, classrooms, enrollments, students } from "@/db/schema";
+import { academicYears, activityEvents, classrooms, enrollments, gradeLevels, students } from "@/db/schema";
 import { requireSchoolRole } from "@/lib/permissions";
 import { isDuplicateEntry } from "@/lib/db-errors";
+import { parseCsvRecords } from "@/lib/csv";
 
 export type StudentActionState = { error?: string; success?: string };
 type StudentStatus = "active" | "inactive" | "graduated" | "transferred";
@@ -32,6 +33,7 @@ async function registerStudentImpl(
   const firstName = String(formData.get("firstName") ?? "").trim();
   const lastName = String(formData.get("lastName") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const guardianEmail = String(formData.get("guardianEmail") ?? "").trim().toLowerCase();
   const dateOfBirth = String(formData.get("dateOfBirth") ?? "").trim();
   const classroomId = String(formData.get("classroomId") ?? "").trim();
 
@@ -43,6 +45,9 @@ async function registerStudentImpl(
   }
   if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     return { error: "Enter a valid email address." };
+  }
+  if (guardianEmail && (guardianEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail))) {
+    return { error: "Enter a valid guardian email address." };
   }
   if (dateOfBirth && !isDate(dateOfBirth)) {
     return { error: "Enter a valid date of birth." };
@@ -72,6 +77,7 @@ async function registerStudentImpl(
         firstName,
         lastName,
         email: email || null,
+        guardianEmail: guardianEmail || null,
         dateOfBirth: dateOfBirth || null,
       });
       if (classroom) {
@@ -140,6 +146,7 @@ async function updateStudentImpl(
   const firstName = String(formData.get("firstName") ?? "").trim();
   const lastName = String(formData.get("lastName") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const guardianEmail = String(formData.get("guardianEmail") ?? "").trim().toLowerCase();
   const dateOfBirth = String(formData.get("dateOfBirth") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
   const classroomId = String(formData.get("classroomId") ?? "").trim();
@@ -152,6 +159,9 @@ async function updateStudentImpl(
   }
   if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     return { error: "Enter a valid email address." };
+  }
+  if (guardianEmail && (guardianEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail))) {
+    return { error: "Enter a valid guardian email address." };
   }
   if (dateOfBirth && !isDate(dateOfBirth)) return { error: "Enter a valid date of birth." };
   if (!isStudentStatus(status)) return { error: "Select a valid student status." };
@@ -192,6 +202,7 @@ async function updateStudentImpl(
           firstName,
           lastName,
           email: email || null,
+          guardianEmail: guardianEmail || null,
           dateOfBirth: dateOfBirth || null,
           status,
         })
@@ -255,6 +266,7 @@ async function bulkImportStudentsImpl(
 
   if (!schoolId) return { error: "Select a school." };
   if (!rawCsv) return { error: "Please provide CSV content or upload a CSV file." };
+  if (rawCsv.length > 2_000_000) return { error: "Student CSV files must be 2 MB or smaller." };
 
   const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
 
@@ -266,44 +278,25 @@ async function bulkImportStudentsImpl(
 
   const classroomRows = currentYear
     ? await db
-        .select({ id: classrooms.id, name: classrooms.name })
+        .select({ id: classrooms.id, name: classrooms.name, gradeName: gradeLevels.name })
         .from(classrooms)
+        .innerJoin(gradeLevels, eq(classrooms.gradeLevelId, gradeLevels.id))
         .where(and(eq(classrooms.schoolId, schoolId), eq(classrooms.academicYearId, currentYear.id)))
     : [];
 
   const classroomMap = new Map<string, string>();
   for (const c of classroomRows) {
     classroomMap.set(c.name.trim().toLowerCase(), c.id);
+    classroomMap.set(`${c.gradeName} ${c.name}`.trim().toLowerCase(), c.id);
   }
 
-  const lines = rawCsv.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
-  if (lines.length === 0) return { error: "The provided CSV is empty." };
-
-  const parseLine = (line: string): string[] => {
-    const result: string[] = [];
-    let current = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      if (char === '"' || char === "'") {
-        if (inQuotes && line[i + 1] === char) {
-          current += char;
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (char === "," && !inQuotes) {
-        result.push(current.trim());
-        current = "";
-      } else {
-        current += char;
-      }
-    }
-    result.push(current.trim());
-    return result;
-  };
-
-  const parsedRows = lines.map(parseLine);
+  let parsedRows: string[][];
+  try {
+    parsedRows = parseCsvRecords(rawCsv);
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Could not parse the CSV file." };
+  }
+  if (parsedRows.length === 0) return { error: "The provided CSV is empty." };
   let startIndex = 0;
   const firstRowStr = parsedRows[0].join(" ").toLowerCase();
   if (
@@ -314,10 +307,14 @@ async function bulkImportStudentsImpl(
   ) {
     startIndex = 1;
   }
+  if (parsedRows.length - startIndex > 500) {
+    return { error: "Import up to 500 student rows at a time." };
+  }
 
   let imported = 0;
   let skipped = 0;
   const details: string[] = [];
+  const seenStudentNumbers = new Set<string>();
 
   for (let i = startIndex; i < parsedRows.length; i++) {
     const row = parsedRows[i];
@@ -328,6 +325,7 @@ async function bulkImportStudentsImpl(
     const email = row[3]?.trim().toLowerCase() ?? "";
     const dateOfBirth = row[4]?.trim() ?? "";
     const className = row[5]?.trim() ?? "";
+    const guardianEmail = row[6]?.trim().toLowerCase() ?? "";
 
     if (!studentNumber || !firstName || !lastName) {
       skipped++;
@@ -338,6 +336,17 @@ async function bulkImportStudentsImpl(
     if (studentNumber.length > 80) {
       skipped++;
       details.push(`Row ${rowNum} (${studentNumber}): Student number exceeds 80 characters.`);
+      continue;
+    }
+    if (seenStudentNumbers.has(studentNumber.toLowerCase())) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Duplicate student number in this CSV.`);
+      continue;
+    }
+    seenStudentNumbers.add(studentNumber.toLowerCase());
+    if (firstName.length > 100 || lastName.length > 100) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Names must be 100 characters or fewer.`);
       continue;
     }
 
@@ -352,10 +361,19 @@ async function bulkImportStudentsImpl(
       details.push(`Row ${rowNum} (${studentNumber}): Invalid date of birth "${dateOfBirth}" (expected YYYY-MM-DD).`);
       continue;
     }
+    if (guardianEmail && (guardianEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail))) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Invalid guardian email.`);
+      continue;
+    }
 
     let targetClassroomId: string | null = null;
     if (className && classroomMap.has(className.toLowerCase())) {
       targetClassroomId = classroomMap.get(className.toLowerCase())!;
+    } else if (className) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Classroom "${className}" was not found in the current academic year.`);
+      continue;
     } else if (defaultClassroomId && classroomRows.some((c) => c.id === defaultClassroomId)) {
       targetClassroomId = defaultClassroomId;
     }
@@ -370,6 +388,7 @@ async function bulkImportStudentsImpl(
           firstName,
           lastName,
           email: email || null,
+          guardianEmail: guardianEmail || null,
           dateOfBirth: dateOfBirth || null,
         });
 

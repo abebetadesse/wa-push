@@ -19,10 +19,12 @@ import {
   subjects,
 } from "@/db/schema";
 import { SubmitButton } from "@/components/submit-button";
+import { CsvDownloadButton } from "@/components/csv-download-button";
 import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { AssessmentForm } from "./assessment-form";
 import { changeAssessmentStatus } from "./actions";
 import { ResultForm } from "./result-form";
+import { ReminderButton } from "./reminder-button";
 
 export const metadata: Metadata = { title: "Assessments | Forma" };
 
@@ -64,6 +66,7 @@ async function AssessmentsContent() {
       subjectName: subjects.name,
       title: assessments.title,
       instructions: assessments.instructions,
+      dueOn: assessments.dueOn,
       status: assessments.status,
       maxScore: assessments.maxScore,
       createdAt: assessments.createdAt,
@@ -216,6 +219,7 @@ async function AssessmentsContent() {
                       <span>{questionCountByAssessment.get(assessment.id) ?? 0} multiple-choice questions</span>
                       <span>{assessment.maxScore} points</span>
                       <span>Created by {assessment.creatorName}</span>
+                      {assessment.dueOn && <span>Due {assessment.dueOn}</span>}
                     </div>
                     {assessment.instructions && <p className="assessment-instructions">{assessment.instructions}</p>}
                     {(canPublish || canClose) && (
@@ -232,6 +236,7 @@ async function AssessmentsContent() {
                         </SubmitButton>
                       </ActionForm>
                     )}
+                    {assessment.status === "published" && <ReminderButton schoolId={assessment.schoolId} assessmentId={assessment.id} />}
                     {(assessment.status === "published" || assessment.status === "closed") && (
                       <details className="assessment-results">
                         <summary>Student results <span>{onlineAttempts} online submissions · {assessedResults} staff marks</span></summary>
@@ -270,6 +275,24 @@ async function AssessmentsContent() {
                                   </div>}
                               </div>;
                             })}
+                            <CsvDownloadButton
+                              filename="assessment-results.csv"
+                              label="Export results CSV"
+                              headers={["Student number", "Student", "Staff score", "Online score", "Online maximum", "Submitted at", "Staff feedback"]}
+                              rows={classRoster.map((student) => {
+                                const result = resultByAssessmentAndStudent.get(`${assessment.id}:${student.studentId}`);
+                                const attempt = attemptByAssessmentAndStudent.get(`${assessment.id}:${student.studentId}`);
+                                return [
+                                  student.studentNumber,
+                                  `${student.firstName} ${student.lastName}`,
+                                  result?.score,
+                                  attempt?.score,
+                                  attempt?.maxScore,
+                                  attempt?.submittedAt?.toISOString(),
+                                  result?.feedback,
+                                ];
+                              })}
+                            />
                           </div>}
                       </details>
                     )}

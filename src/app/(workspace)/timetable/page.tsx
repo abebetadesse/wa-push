@@ -77,6 +77,7 @@ async function TimetableContent({ searchParams }: { searchParams: SearchParams }
   const entries = selectedTeacher || classroomId
     ? await db.select({
       id: classSchedules.id,
+      classroomId: classSchedules.classroomId,
       academicYearId: classSchedules.academicYearId,
       dayOfWeek: classSchedules.dayOfWeek,
       startTime: classSchedules.startTime,
@@ -108,6 +109,27 @@ async function TimetableContent({ searchParams }: { searchParams: SearchParams }
   const weeklyMinutes = entries
     .filter((entry) => entry.status !== "cancelled")
     .reduce((total, entry) => total + minutesBetween(entry.startTime, entry.endTime), 0);
+  const timetableConflicts: string[] = [];
+  for (let firstIndex = 0; firstIndex < entries.length; firstIndex += 1) {
+    const first = entries[firstIndex];
+    if (first.status === "cancelled") continue;
+    for (const second of entries.slice(firstIndex + 1)) {
+      if (
+        second.status === "cancelled" ||
+        first.dayOfWeek !== second.dayOfWeek ||
+        first.startTime >= second.endTime ||
+        second.startTime >= first.endTime
+      ) continue;
+      const sameClass = first.classroomId === second.classroomId;
+      const sameTeacher = Boolean(first.teacherId && first.teacherId === second.teacherId);
+      const sameRoom = Boolean(first.roomNumber && first.roomNumber === second.roomNumber);
+      if (sameClass || sameTeacher || sameRoom) {
+        timetableConflicts.push(
+          `${dayLabels[first.dayOfWeek]} ${first.startTime}–${first.endTime}: ${first.subjectName} overlaps ${second.subjectName}${sameRoom ? ` in room ${first.roomNumber}` : ""}.`,
+        );
+      }
+    }
+  }
   const columnCount = canManage ? 6 : 5;
   const heading = selectedTeacher
     ? `${selectedTeacher.firstName} ${selectedTeacher.lastName}`
@@ -158,6 +180,10 @@ async function TimetableContent({ searchParams }: { searchParams: SearchParams }
         {classRows.length === 0
           ? <section className="management-card"><p className="empty-state">Set up a current academic year and classes in <Link className="text-link" href="/academic-setup">Academic setup</Link> before building a timetable.</p></section>
           : <>
+            {timetableConflicts.length > 0 && <section className="management-card" aria-labelledby="timetable-conflicts">
+              <div className="management-card-heading"><div><h2 id="timetable-conflicts">Schedule conflicts</h2><p>These existing periods overlap and need administrator review.</p></div></div>
+              <ul className="conflict-list">{timetableConflicts.map((conflict) => <li key={conflict}>{conflict}</li>)}</ul>
+            </section>}
             <section className="management-card">
               <div className="management-card-heading">
                 <div>
