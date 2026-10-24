@@ -1,6 +1,6 @@
 {
   "node": {
-    "7f8d2628079949feab07c07f1fdf5f078936d537bc": {
+    "7fff6735790fe736ee4f371db8c64bf6704d7e3c51": {
       "workers": {
         "app/(workspace)/studio/page": {
           "moduleId": 28864,
@@ -10,7 +10,7 @@
       "exportedName": "approveMaterial",
       "filename": "src/app/(workspace)/studio/actions.ts"
     },
-    "7f8f1d97d65a3d71ef2fbd1db6c8b2103090ad3fe2": {
+    "7f4dcf1686c7501ad61897f9633a01bd240c365639": {
       "workers": {
         "app/(workspace)/studio/page": {
           "moduleId": 28864,
@@ -20,7 +20,7 @@
       "exportedName": "deleteMaterial",
       "filename": "src/app/(workspace)/studio/actions.ts"
     },
-    "7f7fae441c8f9ef4e33e79db536e1d5c31d30e5d7e": {
+    "7fea6221db0da1cfab145581bbcd551cacfa15d459": {
       "workers": {
         "app/(workspace)/studio/page": {
           "moduleId": 28864,
@@ -30,7 +30,7 @@
       "exportedName": "retryGeneration",
       "filename": "src/app/(workspace)/studio/actions.ts"
     },
-    "7f70928a99a9ef355c4e5c3bd8406405f04facadde": {
+    "7fc72d68b6215867d5bcaf94b1690e9147519b7fbb": {
       "workers": {
         "app/(workspace)/studio/page": {
           "moduleId": 28864,
@@ -40,7 +40,7 @@
       "exportedName": "saveAsLessonPlan",
       "filename": "src/app/(workspace)/studio/actions.ts"
     },
-    "7f1cb641db4a3c3c1fe83b75022503be9c9c3ab243": {
+    "7ff6b8abc25205a073637303a34e73bb9b3745683d": {
       "workers": {
         "app/(workspace)/studio/page": {
           "moduleId": 28864,
@@ -50,7 +50,7 @@
       "exportedName": "saveAsQuiz",
       "filename": "src/app/(workspace)/studio/actions.ts"
     },
-    "7ff857ee41055b8dc499f9329edb6d0bbec1838ac6": {
+    "7ff5c907242473ab7ad9d9b1b2dd055ddca41e347b": {
       "workers": {
         "app/(workspace)/studio/page": {
           "moduleId": 28864,

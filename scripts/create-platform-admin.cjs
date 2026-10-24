@@ -69,6 +69,7 @@ __export(schema_exports, {
   activityEvents: () => activityEvents,
   assessmentAttempts: () => assessmentAttempts,
   assessmentQuestions: () => assessmentQuestions,
+  assessmentReminders: () => assessmentReminders,
   assessmentResults: () => assessmentResults,
   assessments: () => assessments,
   attendanceRecords: () => attendanceRecords,
@@ -110,7 +111,7 @@ __export(schema_exports, {
   textbookCatalog: () => textbookCatalog,
   volunteers: () => volunteers
 });
-var import_mysql_core, import_node_crypto, id, createdAt, authUsers, authSessions, authAccounts, authVerifications, schools, schoolMemberships, schoolInvitations, activityEvents, academicYears, gradeLevels, classrooms, students, enrollments, subjects, teachers, lessonPlans, lessonPlanRevisions, assessments, assessmentQuestions, textbookCatalog, learningResources, generatedMaterials, assessmentResults, assessmentAttempts, classSchedules, attendanceRecords, inventoryItems, inventoryMovements, staffMembers, staffLeave, staffContracts, staffAttendance, libraryBooks, libraryLoans, facilities, facilityItems, facilityBookings, facilityLogs, communityPartners, communityEvents, volunteers, prMedia, prPosts, publicProfiles;
+var import_mysql_core, import_node_crypto, id, createdAt, authUsers, authSessions, authAccounts, authVerifications, schools, schoolMemberships, schoolInvitations, activityEvents, academicYears, gradeLevels, classrooms, students, enrollments, subjects, teachers, lessonPlans, lessonPlanRevisions, assessments, assessmentQuestions, textbookCatalog, learningResources, generatedMaterials, assessmentResults, assessmentAttempts, assessmentReminders, classSchedules, attendanceRecords, inventoryItems, inventoryMovements, staffMembers, staffLeave, staffContracts, staffAttendance, libraryBooks, libraryLoans, facilities, facilityItems, facilityBookings, facilityLogs, communityPartners, communityEvents, volunteers, prMedia, prPosts, publicProfiles;
 var init_schema = __esm({
   "src/db/schema.ts"() {
     "use strict";
@@ -299,6 +300,7 @@ var init_schema = __esm({
         firstName: (0, import_mysql_core.varchar)("first_name", { length: 100 }).notNull(),
         lastName: (0, import_mysql_core.varchar)("last_name", { length: 100 }).notNull(),
         email: (0, import_mysql_core.varchar)("email", { length: 254 }),
+        guardianEmail: (0, import_mysql_core.varchar)("guardian_email", { length: 254 }),
         userId: (0, import_mysql_core.varchar)("user_id", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
         dateOfBirth: (0, import_mysql_core.date)("date_of_birth", { mode: "string" }),
         status: (0, import_mysql_core.mysqlEnum)("status", ["active", "inactive", "graduated", "transferred"]).notNull().default("active"),
@@ -441,6 +443,7 @@ var init_schema = __esm({
         subjectId: (0, import_mysql_core.varchar)("subject_id", { length: 36 }).notNull().references(() => subjects.id, { onDelete: "restrict" }),
         title: (0, import_mysql_core.varchar)("title", { length: 200 }).notNull(),
         instructions: (0, import_mysql_core.text)("instructions"),
+        dueOn: (0, import_mysql_core.date)("due_on", { mode: "string" }),
         status: (0, import_mysql_core.mysqlEnum)("status", ["draft", "published", "closed"]).notNull().default("draft"),
         maxScore: (0, import_mysql_core.int)("max_score").notNull(),
         createdAt: createdAt(),
@@ -591,6 +594,23 @@ var init_schema = __esm({
         (0, import_mysql_core.index)("school_assessment_attempts_school_assessment_idx").on(table.schoolId, table.assessmentId)
       ]
     );
+    assessmentReminders = (0, import_mysql_core.mysqlTable)(
+      "school_assessment_reminders",
+      {
+        id: id(),
+        schoolId: (0, import_mysql_core.varchar)("school_id", { length: 36 }).notNull(),
+        assessmentId: (0, import_mysql_core.varchar)("assessment_id", { length: 36 }).notNull(),
+        studentId: (0, import_mysql_core.varchar)("student_id", { length: 36 }).notNull(),
+        sentAt: createdAt()
+      },
+      (table) => [
+        (0, import_mysql_core.uniqueIndex)("school_assessment_reminders_student_unique").on(table.assessmentId, table.studentId),
+        (0, import_mysql_core.index)("school_assessment_reminders_school_idx").on(table.schoolId),
+        (0, import_mysql_core.foreignKey)({ name: "school_ar_school_fk", columns: [table.schoolId], foreignColumns: [schools.id] }).onDelete("cascade"),
+        (0, import_mysql_core.foreignKey)({ name: "school_ar_assessment_fk", columns: [table.assessmentId], foreignColumns: [assessments.id] }).onDelete("cascade"),
+        (0, import_mysql_core.foreignKey)({ name: "school_ar_student_fk", columns: [table.studentId], foreignColumns: [students.id] }).onDelete("cascade")
+      ]
+    );
     classSchedules = (0, import_mysql_core.mysqlTable)(
       "school_class_schedules",
       {
@@ -625,6 +645,7 @@ var init_schema = __esm({
         date: (0, import_mysql_core.date)("date", { mode: "string" }).notNull(),
         status: (0, import_mysql_core.mysqlEnum)("status", ["present", "absent", "late", "excused"]).notNull().default("present"),
         remarks: (0, import_mysql_core.varchar)("remarks", { length: 255 }),
+        guardianNotifiedAt: (0, import_mysql_core.timestamp)("guardian_notified_at"),
         createdAt: createdAt()
       },
       (table) => [
