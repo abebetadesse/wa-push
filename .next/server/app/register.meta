@@ -1,7 +1,5 @@
 {
-  "status": 200,
   "headers": {
-    "link": "</_next/static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
     "x-nextjs-stale-time": "300",
     "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/register/layout,_N_T_/register/page,_N_T_/register"
@@ -12,13 +10,13 @@
     "/register/__PAGE__"
   ],
   "prefetchHints": {
-    "hints": 49216,
+    "hints": 64,
     "slots": {
       "children": {
-        "hints": 49248,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 49312,
+            "hints": 160,
             "slots": null
           }
         }

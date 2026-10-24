@@ -11,13 +11,13 @@
     "/_not-found/__PAGE__"
   ],
   "prefetchHints": {
-    "hints": 49216,
+    "hints": 64,
     "slots": {
       "children": {
-        "hints": 49248,
+        "hints": 96,
         "slots": {
           "children": {
-            "hints": 49312,
+            "hints": 160,
             "slots": null
           }
         }

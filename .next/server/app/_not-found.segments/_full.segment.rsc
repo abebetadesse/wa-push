@@ -1,38 +1,25 @@
 1:"$Sreact.fragment"
-2:"/_next/static/chunks/1tq6ppe__m8m-.js"
+2:"/_next/static/chunks/0umf92h1sb77c.js"
 3:I[39756,["$2"],"default"]
-4:"/_next/static/chunks/3f-s7v4glaivg.js"
+4:"/_next/static/chunks/0ep1tl7_cxwl1.js"
 5:I[58298,["$2","$4"],"default"]
 6:I[37457,["$2"],"default"]
-7:"/_next/static/chunks/21poqdgvjdll4.js"
+7:"/_next/static/chunks/2n5qeheznvl4u.js"
 8:I[22016,["$2","$7"],""]
-d:I[97367,["$2"],"OutletBoundary"]
-e:"$Sreact.suspense"
-11:"ViewportBoundary"
-12:I[97367,["$2"],"$11"]
-14:"MetadataBoundary"
-15:I[97367,["$2"],"$14"]
-18:I[68027,["$2"],"default",1]
+c:I[97367,["$2"],"OutletBoundary"]
+d:"$Sreact.suspense"
+f:"ViewportBoundary"
+10:I[97367,["$2"],"$f"]
+12:"MetadataBoundary"
+13:I[97367,["$2"],"$12"]
+15:I[68027,["$2"],"default",1]
 :HL["/_next/static/chunks/2xmymzqv-3ldc.css","style"]
-9:X
-b:X
-10:X
-c:[["children",{"s":"__PAGE__","h":514,"d":{"r":["$","$1","c",{"children":[["$","main",null,{"className":"auth-page","children":["$","section",null,{"className":"auth-card","children":[["$","p",null,{"className":"status-page-code","children":"404"}],["$","h1",null,{"children":"Page not found"}],["$","p",null,{"className":"auth-description","children":"The page you’re looking for doesn’t exist or has moved. Check the address, or head back to your workspace."}],["$","div",null,{"className":"no-access-actions","children":[["$","$L8",null,{"className":"primary-button","href":"/","children":"Go to my workspace"}],["$","$L8",null,{"className":"secondary-button","href":"/login","children":"Sign in"}]]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/21poqdgvjdll4.js","async":true,"nonce":"$undefined"}]],["$","$Ld",null,{"children":["$","$e",null,{"name":"Next.MetadataOutlet","children":"$@f"}]}]]}],"p":true,"v":"$10"}}]]
-a:[["children",{"s":"/_not-found","h":514,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":true,"v":"$b"},"c":"$Qc"}]]
-17:X
-19:X
-1a:X
-0:{"P":null,"c":["","_not-found"],"q":"","i":false,"t":{"t":{"s":"","h":530,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2xmymzqv-3ldc.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/1tq6ppe__m8m-.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"_0bjUvq_variable","suppressHydrationWarning":true,"children":[["$","head",null,{"children":["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){try{var t=localStorage.getItem(\"forma-theme\");if(t===\"light\"||t===\"dark\")document.documentElement.setAttribute(\"data-theme\",t);}catch(e){}})();(function(){try{var s=localStorage.getItem(\"forma-sidebar\");if(s===\"collapsed\")document.documentElement.setAttribute(\"data-sidebar\",\"collapsed\");}catch(e){}})();"}}]}],["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$5","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/3f-s7v4glaivg.js","async":true,"nonce":"$undefined"}]],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","main",null,{"className":"auth-page","children":["$","section",null,{"className":"auth-card","children":[["$","p",null,{"className":"status-page-code","children":"404"}],["$","h1",null,{"children":"Page not found"}],["$","p",null,{"className":"auth-description","children":"The page you’re looking for doesn’t exist or has moved. Check the address, or head back to your workspace."}],["$","div",null,{"className":"no-access-actions","children":[["$","$L8",null,{"className":"primary-button","href":"/","children":"Go to my workspace"}],["$","$L8",null,{"className":"secondary-button","href":"/login","children":"Sign in"}]]}]]}]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}],"p":true,"v":"$9"},"c":"$Qa"},"h":{"r":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L12",null,{"children":"$L13"}],["$","$L15",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$e",null,{"name":"Next.Metadata","children":"$L16"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":true,"v":"$17"}},"m":"$undefined","G":["$18",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2xmymzqv-3ldc.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$19","s":"$1a","a":"$@1b","l":"$undefined","p":"$undefined","d":"$undefined","b":"0Re7Rw6FKbJHZYhFc-ao8","u":"$@1c"}
-b:C
-1a:300
-13:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#f7f7fb","media":"(prefers-color-scheme: light)"}],["$","meta","3",{"name":"theme-color","content":"#0f0f17","media":"(prefers-color-scheme: dark)"}]]
-1d:I[27201,["$2"],"IconMark"]
-f:null
-16:[["$","title","0",{"children":"Page not found | Forma"}],["$","meta","1",{"name":"description","content":"A unified learning and school management platform."}],["$","meta","2",{"name":"application-name","content":"Forma"}],["$","link","3",{"rel":"icon","href":"/favicon.ico?favicon.117ezoe8m31dk.ico","sizes":"48x48","type":"image/x-icon"}],["$","$L1d","4",{}]]
-1a:C
-17:C
-19:C
-10:C
-9:C
-1c:false
-1b:null
+a:X
+b:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":[["$","main",null,{"className":"auth-page","children":["$","section",null,{"className":"auth-card","children":[["$","p",null,{"className":"status-page-code","children":"404"}],["$","h1",null,{"children":"Page not found"}],["$","p",null,{"className":"auth-description","children":"The page you’re looking for doesn’t exist or has moved. Check the address, or head back to your workspace."}],["$","div",null,{"className":"no-access-actions","children":[["$","$L8",null,{"className":"primary-button","href":"/","children":"Go to my workspace"}],["$","$L8",null,{"className":"secondary-button","href":"/login","children":"Sign in"}]]}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/2n5qeheznvl4u.js","async":true,"nonce":"$undefined"}]],["$","$Lc",null,{"children":["$","$d",null,{"name":"Next.MetadataOutlet","children":"$@e"}]}]]}],"p":false,"v":null}}]]
+9:[["children",{"s":"/_not-found","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$a"},"c":"$Qb"}]]
+0:{"P":null,"c":["","_not-found"],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2xmymzqv-3ldc.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","script","script-0",{"src":"/_next/static/chunks/0umf92h1sb77c.js","async":true,"nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"_0bjUvq_variable","suppressHydrationWarning":true,"children":[["$","head",null,{"children":["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){try{var t=localStorage.getItem(\"forma-theme\");if(t===\"light\"||t===\"dark\")document.documentElement.setAttribute(\"data-theme\",t);}catch(e){}})();(function(){try{var s=localStorage.getItem(\"forma-sidebar\");if(s===\"collapsed\")document.documentElement.setAttribute(\"data-sidebar\",\"collapsed\");}catch(e){}})();"}}]}],["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$5","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/_next/static/chunks/0ep1tl7_cxwl1.js","async":true,"nonce":"$undefined"}]],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","main",null,{"className":"auth-page","children":["$","section",null,{"className":"auth-card","children":[["$","p",null,{"className":"status-page-code","children":"404"}],["$","h1",null,{"children":"Page not found"}],["$","p",null,{"className":"auth-description","children":"The page you’re looking for doesn’t exist or has moved. Check the address, or head back to your workspace."}],["$","div",null,{"className":"no-access-actions","children":[["$","$L8",null,{"className":"primary-button","href":"/","children":"Go to my workspace"}],["$","$L8",null,{"className":"secondary-button","href":"/login","children":"Sign in"}]]}]]}]}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}],"p":false,"v":null},"c":"$Q9"},"h":{"r":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L10",null,{"children":"$L11"}],["$","$L13",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$d",null,{"name":"Next.Metadata","children":"$L14"}]}],null]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"p":false,"v":null}},"m":"$undefined","G":["$15",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/2xmymzqv-3ldc.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"q6zaCGSk-xVMy8OHexfE0"}
+a:C
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#f7f7fb","media":"(prefers-color-scheme: light)"}],["$","meta","3",{"name":"theme-color","content":"#0f0f17","media":"(prefers-color-scheme: dark)"}]]
+16:I[27201,["$2"],"IconMark"]
+e:null
+14:[["$","title","0",{"children":"Page not found | Forma"}],["$","meta","1",{"name":"description","content":"A unified learning and school management platform."}],["$","meta","2",{"name":"application-name","content":"Forma"}],["$","link","3",{"rel":"icon","href":"/favicon.ico?favicon.117ezoe8m31dk.ico","sizes":"48x48","type":"image/x-icon"}],["$","$L16","4",{}]]

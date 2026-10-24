@@ -1,6 +1,6 @@
 {
   "node": {
-    "7f3ab336e6197d92318a942da901f4e0924bc852d5": {
+    "7f5f1da63476eb3010fcad3c5ce9ff8400ec5e5b84": {
       "workers": {
         "app/(workspace)/attendance/page": {
           "moduleId": 31040,
@@ -10,7 +10,7 @@
       "exportedName": "saveAttendance",
       "filename": "src/app/(workspace)/attendance/actions.ts"
     },
-    "7f1bda2453099dd8bfcdb8b4eada4247ce998786c4": {
+    "7fc0ca1b940b25d40056aca3baffde9b673edc81bb": {
       "workers": {
         "app/(workspace)/attendance/page": {
           "moduleId": 31040,
