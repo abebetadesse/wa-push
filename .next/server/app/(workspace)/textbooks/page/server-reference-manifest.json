@@ -1,6 +1,6 @@
 {
   "node": {
-    "7f99063fe4e2145e4a07d95655874f9835069208c1": {
+    "7f4cd1f20b2295e4e165fc219954ad4ec757d2e235": {
       "workers": {
         "app/(workspace)/textbooks/page": {
           "moduleId": 55744,
@@ -10,7 +10,7 @@
       "exportedName": "addCatalogEntry",
       "filename": "src/app/(workspace)/textbooks/actions.ts"
     },
-    "7f4b108baf71ca5757a6db4af638ee2513ee4e7878": {
+    "7ff985f3d049ee1236f9aea6fcaa3319639070c9e4": {
       "workers": {
         "app/(workspace)/textbooks/page": {
           "moduleId": 55744,
@@ -20,7 +20,7 @@
       "exportedName": "addTextbookToLibrary",
       "filename": "src/app/(workspace)/textbooks/actions.ts"
     },
-    "7fe6f2aaa9952d9184d7a7f65f3e8559df78955c55": {
+    "7f5495092ecce5a5d212f679dd374edb025717bbd7": {
       "workers": {
         "app/(workspace)/textbooks/page": {
           "moduleId": 55744,

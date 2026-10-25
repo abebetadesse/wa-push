@@ -1,6 +1,6 @@
 {
   "node": {
-    "40582ee9f5dedcce0598c10eefce95be0f9d56bf23": {
+    "40e1735d550f8b25d8ca28916c1ef1f71810297778": {
       "workers": {
         "app/(workspace)/lessons/generate/page": {
           "moduleId": 79462,
@@ -10,7 +10,7 @@
       "exportedName": "batchSaveLessonPlans",
       "filename": "src/app/(workspace)/lessons/generate/actions.ts"
     },
-    "400bfa8788d8d10a618e89ef17304ae10934b2ef38": {
+    "40e5f58af974d88cfa8a392dfeef7165d6ccf8f123": {
       "workers": {
         "app/(workspace)/lessons/generate/page": {
           "moduleId": 79462,

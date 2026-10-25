@@ -1,6 +1,6 @@
 {
   "node": {
-    "7f406005adecdd51218ad522b8c7e0e6e36dde8a71": {
+    "7f00365a601d0a7ab67184576776ce1e1a6d642e4f": {
       "workers": {
         "app/(workspace)/library/page": {
           "moduleId": 90473,
@@ -10,17 +10,17 @@
       "exportedName": "issueLoan",
       "filename": "src/app/(workspace)/library/actions.ts"
     },
-    "7fd934424cc225cc7146b054622485cdd901eea6aa": {
+    "7f677732e48432c92aaa927224bcd4681c5f10bfe9": {
       "workers": {
         "app/(workspace)/library/page": {
           "moduleId": 90473,
           "async": false
         }
       },
-      "exportedName": "returnLoan",
+      "exportedName": "setCopies",
       "filename": "src/app/(workspace)/library/actions.ts"
     },
-    "7fe1083ab068cae1421f2be3503dfbfc53a63459f7": {
+    "7f9d53fd61fbf01c3795f2d83cba96d39c3beddc2b": {
       "workers": {
         "app/(workspace)/library/page": {
           "moduleId": 90473,
@@ -30,14 +30,14 @@
       "exportedName": "addBook",
       "filename": "src/app/(workspace)/library/actions.ts"
     },
-    "7ffbe7418e49ba4bdf444fd35ce1752811d8f393a6": {
+    "7ff12e7284f0969e28791d23e4cdbb1a0f87d329f1": {
       "workers": {
         "app/(workspace)/library/page": {
           "moduleId": 90473,
           "async": false
         }
       },
-      "exportedName": "setCopies",
+      "exportedName": "returnLoan",
       "filename": "src/app/(workspace)/library/actions.ts"
     }
   },

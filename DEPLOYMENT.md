@@ -92,8 +92,15 @@ application root; it is never part of a release, so deployments do not overwrite
 
 Do not set `NEXT_PUBLIC_BASE_PATH` on the server.
 
-**Database.** Create a dedicated MySQL database and user for Forma in Plesk → Databases, so its
-data, backups, and permissions are independent of any other application.
+**Database.** For a standalone Forma deployment, create a dedicated MySQL database and user in
+Plesk → Databases. If Forma is intentionally consolidated with other apps into one MySQL schema,
+follow [SINGLE-DOMAIN.md](SINGLE-DOMAIN.md): Forma's tables already use the `school_` prefix and
+its migrations use `school_drizzle_migrations`. Every other app must use its own table prefix and
+migration-history table before sharing that schema. A table prefix prevents name collisions; it
+does not provide database-level access isolation. NiniMed currently uses PostgreSQL, so it cannot
+join a MySQL schema through a table prefix; an engine migration would be required. Keep its
+healthcare data isolated unless a reviewed migration and access-control plan explicitly approves
+consolidation.
 
 ## 5. Tables, first administrator, and check
 
