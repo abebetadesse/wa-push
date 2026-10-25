@@ -1,76 +1,103 @@
-# Serving every app from www.wisdomcourse.com.et
+# Serving apps from one domain
 
-NiniMed stays the homepage. The other apps move under the same domain, each on its own path, and a
-portal page at `/apps` lists them all:
+Use `https://www.wisdomcourse.com.et` as the single public address. The root is an app portal with
+dedicated buttons; each app has its own path:
 
-| Today | After |
+| App | Public URL |
 |---|---|
-| `https://www.wisdomcourse.com.et` (NiniMed) | unchanged — the homepage |
-| — | `https://www.wisdomcourse.com.et/apps` — portal with category tabs (`portal/index.html`) |
-| `https://school.wisdomcourse.com.et` (Forma) | `https://www.wisdomcourse.com.et/school` |
-| `https://app.wisdomcourse.com.et` (Ethiopian Wisdom) | `https://www.wisdomcourse.com.et/app` |
-| `https://feud.wisdomcourse.com.et` (Family Feud) | `https://www.wisdomcourse.com.et/feud` |
-| `https://paraphrase.wisdomcourse.com.et` (VERITAS AI) | `https://www.wisdomcourse.com.et/paraphrase` |
+| App portal | `https://www.wisdomcourse.com.et/` (`portal/index.html`) |
+| Forma — School management | `https://www.wisdomcourse.com.et/school` |
+| NiniMed | `https://www.wisdomcourse.com.et/health` |
+| Family Feud | `https://www.wisdomcourse.com.et/feud` |
+| VERITAS AI | `https://www.wisdomcourse.com.et/paraphrase` |
+| Ethiopian Wisdom | `https://www.wisdomcourse.com.et/wa` |
 
-`https://wisdomcourse.com.et` already redirects to `www` and keeps the path, so
-`wisdomcourse.com.et/school` works too. On 21 October none of these paths was used by NiniMed.
+NiniMed runs as the `www` site's Plesk Passenger app. Its Next.js middleware serves the portal at
+`/`, rewrites `/health` to NiniMed internally, and redirects its legacy root-relative URLs under
+`/health`. No custom nginx rule is needed for the portal and NiniMed paths.
+
+`https://wisdomcourse.com.et` currently redirects to `www`; keep that redirect so both hostnames
+land on the same canonical URLs and cookies are not split between them.
+
+## If nginx settings are unavailable
+
+The NiniMed GitHub Actions deployment can serve the portal at `/` and NiniMed at `/health` from
+the same Passenger app using Next.js middleware; it does not need a custom nginx directive. The
+portal links for Forma, Family Feud, VERITAS AI, and Ethiopian Wisdom redirect to their current
+app subdomains for now. GitHub Actions can deploy app code, but it cannot make separate hosting
+processes answer under one domain's path prefixes. Serving every app at `/school`, `/feud`,
+`/paraphrase`, and `/wa` still requires a host-level reverse proxy or consolidating those apps
+behind one application server.
 
 ## How it works
 
-Each app keeps running exactly where it runs now: its own subdomain, its own Node.js app in Plesk,
-its own code and releases. Nothing is merged, so a failure in one app cannot take down another.
+The public URLs use one domain, while each app can continue running as its own application and
+release. The backend hostnames below are internal proxy destinations; visitors use the path URLs
+in the table above, not the app subdomains.
 
-1. **The `www` domain forwards each path to that app's subdomain.** nginx sends `/school…` to
-   `school.wisdomcourse.com.et`, `/feud…` to `feud.wisdomcourse.com.et`, and so on, and marks
-   those requests with an `X-Wisdom-Portal` header. Everything else still goes to NiniMed.
-2. **Each app is built for its path**, so every link and file it produces starts with that path
-   (`/school/_next/…`, `/school/login`). This matters doubly here: NiniMed is a Next.js app that
-   uses `/_next/…` at the root, so an app that still loaded `/_next/…` would get NiniMed's files.
-3. **Each subdomain redirects visitors to the new address.** Requests without the
-   `X-Wisdom-Portal` header come from old links and bookmarks, and are sent to
-   `https://www.wisdomcourse.com.et/<path>/…`.
-4. **nginx serves the portal page** at `/apps` straight from a file, without involving NiniMed.
+1. **nginx serves the portal at `/`**, proxies the independently hosted apps, and routes NiniMed
+   through the existing Passenger app under `/health`.
+2. **Each app must support its path**, including links, API routes, callbacks, cookies, and static
+   assets (for example, `/school/_next/...`). A reverse proxy alone cannot make an app path-aware.
+3. **Old app hostnames can redirect to the new path URLs.** Proxy requests carry an
+   `X-Wisdom-Portal` header so those redirects do not loop.
+4. **Database consolidation is separate from URL consolidation.** A table prefix prevents name
+   collisions only within the same database engine; it cannot make PostgreSQL and MySQL share one
+   schema. See the database compatibility section before planning data migrations.
 
 > **Do the steps in order, one app at a time.** If an app is rebuilt for its path before `www`
 > forwards that path, its subdomain shows a broken page.
 
 ## Before you start
 
-- **The database must accept writes.** The shared server `mysql-db02.remote` is currently
-  read-only (`SELECT @@global.read_only` returns 1), so nobody can sign in to Forma at any
-  address until the host fixes it.
-- **Cookies are shared by every app on one domain** — NiniMed's included. Each app needs its own
-  cookie names, or one app's sign-in replaces another's. Forma uses the prefix `forma`
-  (`advanced.cookiePrefix` in `src/lib/auth.ts`). Another app using better-auth needs its own
-  prefix; apps using other sign-in libraries need their session cookie renamed similarly.
+- **Database compatibility is resolved by keeping NiniMed separate.** NiniMed uses PostgreSQL
+  (`postgres-js` and Drizzle's PostgreSQL schema); Forma, Family Feud, Ethiopian Wisdom, and
+  VERITAS AI's account store use MySQL. Keep NiniMed on PostgreSQL. The other MySQL apps can share
+  a MySQL schema with distinct prefixes; prefixes cannot combine PostgreSQL and MySQL.
+- **Protect clinical data.** NiniMed handles healthcare data. Combining it with unrelated apps in
+  one schema removes database-level isolation; use a separate database and credentials unless the
+  security, privacy, backup, and regulatory requirements have been reviewed and explicitly
+  approved.
+- **Cookies are shared by every app on one domain.** Give every app a unique cookie name/prefix and
+  review cookie `Path`, `Secure`, `SameSite`, and authentication callback settings. Forma uses the
+  `forma` prefix (`advanced.cookiePrefix` in `src/lib/auth.ts`). Separate databases do not create
+  shared sign-in (SSO).
 - **Find the domain's folder on the server.** Plesk → **Websites & Domains** → `wisdomcourse.com.et`
   → **Hosting & DNS → Hosting**: the document root is shown there, usually
   `/var/www/vhosts/wisdomcourse.com.et/httpdocs`. Below, `/var/www/vhosts/wisdomcourse.com.et`
   stands for the part before `/httpdocs`; replace it if yours differs.
 
-## 1. Add the portal page
+## 1. Serve the portal at the root
 
-1. Plesk → `wisdomcourse.com.et` → **File Manager**. At the top level (next to `httpdocs`, not
-   inside it, so it stays separate from NiniMed), create a folder `portal`.
-2. Upload `portal/index.html` from this repository into it.
-3. The `apps` list at the bottom of the file holds each card's name, path, category, icon and
-   description; edit it as needed.
+1. Copy `portal/index.html` from this repository to a location outside the app document root, for
+   example `/var/www/vhosts/wisdomcourse.com.et/portal/index.html`.
+2. The `apps` list in the file defines each dedicated button's name, path, category, icon, and
+   description.
 
-The page is served by the nginx block in step 2.
+Upload the portal file before changing the routing. The nginx rule below serves it at `/` and
+`/apps` redirects to `/`. NiniMed stays on the existing Passenger handler and is built for
+`/health`. Apply the root rule and `/health` compatibility routing together; do not switch the
+portal to `/` until the portal file is present. `/health` is only fully functional after the new
+NiniMed release is running.
 
 ## 2. Forward the paths on www.wisdomcourse.com.et
 
 Plesk → `wisdomcourse.com.et` (the domain that serves `www`) → **Apache & nginx Settings** →
 **Additional nginx directives**. Add:
 
+Install each independent app's proxy block only after that upstream supports the matching path
+prefix and has passed a direct test. NiniMed remains on Passenger; the complete example below
+shows the intended final routing.
+
 ```nginx
-# Portal page listing every app
-location = /apps {
+# App portal
+location = / {
     passenger_enabled off;
     default_type text/html;
     alias /var/www/vhosts/wisdomcourse.com.et/portal/index.html;
 }
-location = /apps/ { return 301 /apps; }
+location = /apps { return 301 /; }
+location = /apps/ { return 301 /; }
 
 # Forma — school management
 location ~ ^/school(/|$) {
@@ -85,19 +112,66 @@ location ~ ^/school(/|$) {
     proxy_read_timeout 120s;
     client_max_body_size 110m;   # learning resources up to 100 MB
 }
+
+# Family Feud
+location ~ ^/feud(/|$) {
+    passenger_enabled off;
+    proxy_pass https://feud.wisdomcourse.com.et;
+    proxy_ssl_server_name on;
+    proxy_set_header Host feud.wisdomcourse.com.et;
+    proxy_set_header X-Wisdom-Portal 1;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_read_timeout 120s;
+}
+
+# VERITAS AI
+location ~ ^/paraphrase(/|$) {
+    passenger_enabled off;
+    proxy_pass https://paraphrase.wisdomcourse.com.et;
+    proxy_ssl_server_name on;
+    proxy_set_header Host paraphrase.wisdomcourse.com.et;
+    proxy_set_header X-Wisdom-Portal 1;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_read_timeout 120s;
+}
+
+# Ethiopian Wisdom
+location ~ ^/wa(/|$) {
+    passenger_enabled off;
+    proxy_pass https://app.wisdomcourse.com.et;
+    proxy_ssl_server_name on;
+    proxy_set_header Host app.wisdomcourse.com.et;
+    proxy_set_header X-Wisdom-Portal 1;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_read_timeout 120s;
+}
+
+# NiniMed compatibility: its basePath build serves /health, while older raw links and
+# fetch("/api/...") calls still target the origin root. Route unclaimed paths to that app.
+# Exact "/" remains the portal; the other app prefixes are excluded and handled above.
+location ~ ^/(?!health(?:/|$)|school(?:/|$)|feud(?:/|$)|paraphrase(?:/|$)|wa(?:/|$))(.*)$ {
+    rewrite ^/(.*)$ /health/$1 last;
+}
 ```
 
-`proxy_pass` has no path after the host, so the request keeps its `/school/…` path, which is
-what the rebuilt app expects. `passenger_enabled off;` is required: NiniMed runs as a Node.js app,
-so Plesk enables Passenger for the whole site and, without it, NiniMed keeps answering these paths
-(its 404 page). Click **OK**; Plesk checks the configuration before applying it.
+`proxy_pass` has no path after the host, so each request keeps its prefix. Each upstream app must
+be configured to handle that prefix. `passenger_enabled off;` stops the root site's Node.js app from
+intercepting proxied paths. NiniMed is not proxied: the final rewrite sends its unclaimed legacy
+paths to the existing Passenger app under `/health`. Click **OK**; Plesk checks the configuration
+before applying it.
 
-Before rebuilding Forma, check the forwarding: `https://www.wisdomcourse.com.et/school/api/health`
-must return Forma's JSON health report, not a NiniMed page.
-`https://www.wisdomcourse.com.et/apps` now shows the portal.
+Check the forwarding for each app before switching its public links. Forma's
+`https://www.wisdomcourse.com.et/school/api/health` must return Forma's JSON health report. The
+root URL should show the portal; `/apps` should redirect to it.
 
-For each other app, add a copy of the Forma block **when that app is ready for its path** (see
-"The other apps"), changing `school` to `feud`, `paraphrase` or `app` in the three places it appears.
+The backend hostnames in these rules are still used by nginx to reach the apps; users should only
+need the single `www` domain.
 
 ## 3. Rebuild Forma for `/school`
 
@@ -122,57 +196,77 @@ own). Check `https://www.wisdomcourse.com.et/school/api/health`: `release.basePa
 
 Everyone is signed out once, because Forma's cookie name changed.
 
-## 4. Redirect the old subdomain
+## 4. Configure the other app paths and databases
 
-Plesk → `school.wisdomcourse.com.et` → **Apache & nginx Settings** → **Additional nginx
-directives**:
+This repository contains Forma and the static portal. NiniMed is built for `/health`; Family Feud,
+VERITAS AI, and Ethiopian Wisdom still need their path routing configured in their own
+deployments. The checked-out app sources use these database engines and table-prefix settings:
+
+| App | Path prefix | Current database engine | Current table prefix | Existing backend |
+|---|---|---|---|---|
+| Forma | `/school` | MySQL | `school_` | `school.wisdomcourse.com.et` |
+| NiniMed | `/health` | PostgreSQL | None; tables are currently unprefixed | Existing `www` Passenger app, mounted at `/health` by Next.js middleware |
+| Family Feud | `/feud` | MySQL | `feud_` by default (`DB_TABLE_PREFIX`) | `feud.wisdomcourse.com.et` |
+| VERITAS AI | `/paraphrase` | MySQL for account data; SQLite for local auth/jobs | `paraphrase_` by default for MySQL; SQLite data stays local | `paraphrase.wisdomcourse.com.et` |
+| Ethiopian Wisdom | `/wa` | MySQL | Configurable with `DB_TABLE_PREFIX` (normally `wa_`) | `app.wisdomcourse.com.et` |
+
+Keep NiniMed's PostgreSQL database separate as requested. Forma, Family Feud, VERITAS AI's MySQL
+account store, and Ethiopian Wisdom can use one MySQL schema with distinct table prefixes. Do not
+point NiniMed at a MySQL URL or the MySQL apps at a PostgreSQL URL.
+
+For a MySQL-only shared schema, retain distinct prefixes for Forma, Feud, VERITAS AI, and Ethiopian
+Wisdom. Prefixes avoid table-name collisions but do not isolate data or permissions. VERITAS AI
+currently keeps authentication/job data in local SQLite as well, so a shared MySQL schema would not
+automatically consolidate those stores. Inventory all data stores, take verified backups, and test
+conversions against disposable copies before changing production.
+
+Before applying this to an existing production database, inventory the current tables and take a
+verified backup. Renaming tables or changing migration histories can break live apps; plan and test
+any data move explicitly. Do not migrate the other apps to the existing Forma schema until their
+source code and migrations have been updated and tested against a disposable copy of the combined
+schema.
+
+Set each application's public URL/base-path settings to the canonical origin and its path prefix.
+NiniMed's Next.js middleware serves the app under `/health`; set `NEXT_PUBLIC_APP_URL` to
+`https://www.wisdomcourse.com.et/health`.
+For a Next.js app, set `basePath` at build time; for Vite, configure both the asset base and router
+base; for Express, mount the router and static files under the prefix. Update auth callbacks, email
+links, API URLs, and cookie names too. Each app must be tested directly through its prefix before
+the public links are switched.
+
+## 5. Redirect old app URLs (optional)
+
+After each path is working through `www`, configure its old public subdomain to redirect visitors
+to the new path while allowing requests proxied from `www` through. For Forma, Plesk →
+`school.wisdomcourse.com.et` → **Apache & nginx Settings** → **Additional nginx directives**:
 
 ```nginx
-# Old links: send visitors to www.wisdomcourse.com.et/school. Requests forwarded by www carry
-# X-Wisdom-Portal and are served normally.
 if ($http_x_wisdom_portal != "1") {
     rewrite ^/school(/.*)?$ https://www.wisdomcourse.com.et/school$1 permanent;
     rewrite ^/(.*)$ https://www.wisdomcourse.com.et/school/$1 permanent;
 }
 ```
 
-Query strings are kept, so password-reset and invitation links sent before the move still work.
-Remove any older `location ^~ /school` rule from `app.wisdomcourse.com.et`; it is no longer used.
+For the other apps, use their path and host from the table above. Query strings are preserved for
+existing invitation and password-reset links. The backend subdomains may remain for proxy traffic;
+the goal is one public URL domain, not necessarily one backend process.
 
-## 5. Check
+## 6. Check
 
-- `https://www.wisdomcourse.com.et/` is still NiniMed.
-- `https://www.wisdomcourse.com.et/apps` shows the portal; **Forma — School management** opens
-  `https://www.wisdomcourse.com.et/school`.
-- Signing in and out of Forma works, and pages load with their styles (no `/_next/...` 404s in
-  the browser console).
+- `https://www.wisdomcourse.com.et/` shows the portal and five dedicated app buttons.
+- Each button opens its matching path: `/school`, `/health`, `/feud`, `/paraphrase`, or `/wa`.
+- NiniMed loads at `/health/`; `/health/api/health` returns its service health response, and
+  App Router navigation returns an RSC payload under the same prefix.
+- The Forma health endpoint at `https://www.wisdomcourse.com.et/school/api/health` reports the
+  `/school` release and a healthy database.
+- Each app signs in, loads its CSS/JavaScript, and serves its API under the right prefix (no RSC,
+  asset, or API 404s in the browser console).
+- Signing in and out of Forma works; invitations and password-reset emails use the `/school` URL.
 - `https://school.wisdomcourse.com.et/login` redirects to
   `https://www.wisdomcourse.com.et/school/login`.
-- Invitations and password-reset emails link to `https://www.wisdomcourse.com.et/school/...`.
-
-## The other apps
-
-For Ethiopian Wisdom (`/app`), Family Feud (`/feud`) and VERITAS AI (`/paraphrase`):
-
-1. Make the app run under its path:
-
-   | App type | Setting |
-   |---|---|
-   | Next.js | `basePath: "/feud"` in `next.config` |
-   | Vite / React / Vue | `base: "/feud/"` in the Vite config, and the router's base path |
-   | Express / Node | mount the routes under `/feud` (`app.use("/feud", router)`), static files too |
-   | PHP / Laravel | `APP_URL=https://www.wisdomcourse.com.et/feud`, and links built from it |
-
-   Also point its own public-URL settings (sign-in callbacks, emailed links, allowed origins) at
-   `https://www.wisdomcourse.com.et/<path>`, and give its sign-in cookie a unique name.
-2. Add its forwarding block on `www` (step 2), deploy it, and add its subdomain redirect (step 4,
-   with `school` replaced by its path).
-3. Check it as in step 5.
-
-Family Feud returned 503 on 21 October; get it running on its subdomain before moving it.
 
 ## Going back
 
-Remove the `www` `location` blocks and the subdomain redirect, set the GitHub variables back
-(`BASE_PATH` empty, `PUBLIC_URL` `https://school.wisdomcourse.com.et`), set `BETTER_AUTH_URL`
-back, re-run the workflow, and restart the app.
+Restore the previous root-site configuration and remove the portal and app-path nginx rules.
+Revert each app's base-path/public-URL settings, restore its previous public links, and restart the
+apps. Do not delete any app database during rollback; each database remains independently managed.
