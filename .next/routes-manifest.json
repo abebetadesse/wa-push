@@ -80,7 +80,16 @@
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/lessons/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/lessons/(?<nxtPid>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/lessons/[id].segments/!KHdvcmtzcGFjZSk/lessons/$d$id$segment",
+          "source": "^/lessons/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/lessons/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
     },
     {
       "page": "/students/[id]",
@@ -88,7 +97,16 @@
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/students/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/students/(?<nxtPid>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/students/[id].segments/!KHdvcmtzcGFjZSk/students/$d$id$segment",
+          "source": "^/students/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/students/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
     },
     {
       "page": "/students/[id]/report-card",
@@ -96,7 +114,16 @@
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/students/(?<nxtPid>[^/]+?)/report\\-card(?:/)?$"
+      "namedRegex": "^/students/(?<nxtPid>[^/]+?)/report\\-card(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/students/[id]/report-card.segments/!KHdvcmtzcGFjZSk/students/$d$id/report-card$segment",
+          "source": "^/students/(?<nxtPid>[^/]+?)/report\\-card\\.segments/!KHdvcmtzcGFjZSk/students/\\$d\\$id/report\\-card(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
     },
     {
       "page": "/studio/[id]",
@@ -104,7 +131,16 @@
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/studio/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/studio/(?<nxtPid>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/studio/[id].segments/!KHdvcmtzcGFjZSk/studio/$d$id$segment",
+          "source": "^/studio/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/studio/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
     },
     {
       "page": "/teachers/[id]",
@@ -112,7 +148,16 @@
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/teachers/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/teachers/(?<nxtPid>[^/]+?)(?:/)?$",
+      "prefetchSegmentDataRoutes": [
+        {
+          "destination": "/teachers/[id].segments/!KHdvcmtzcGFjZSk/teachers/$d$id$segment",
+          "source": "^/teachers/(?<nxtPid>[^/]+?)\\.segments/!KHdvcmtzcGFjZSk/teachers/\\$d\\$id(?<segment>/__PAGE__\\.segment\\.rsc|\\.segment\\.rsc)(?:/)?$",
+          "routeKeys": {
+            "nxtPid": "nxtPid"
+          }
+        }
+      ]
     }
   ],
   "staticRoutes": [
@@ -344,11 +389,18 @@
     "prefetchSegmentHeader": "next-router-segment-prefetch",
     "prefetchSegmentSuffix": ".segment.rsc",
     "prefetchSegmentDirSuffix": ".segments",
-    "clientParamParsing": false,
-    "dynamicRSCPrerender": false
+    "clientParamParsing": true,
+    "dynamicRSCPrerender": true
   },
   "rewriteHeaders": {
     "pathHeader": "x-nextjs-rewritten-path",
     "queryHeader": "x-nextjs-rewritten-query"
+  },
+  "ppr": {
+    "chain": {
+      "headers": {
+        "next-resume": "1"
+      }
+    }
   }
 }

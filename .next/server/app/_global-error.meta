@@ -11,10 +11,10 @@
     "/__PAGE__"
   ],
   "prefetchHints": {
-    "hints": 64,
+    "hints": 49216,
     "slots": {
       "children": {
-        "hints": 160,
+        "hints": 49312,
         "slots": null
       }
     }
