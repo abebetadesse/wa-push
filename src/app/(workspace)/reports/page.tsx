@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import Form from "next/form";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -10,27 +10,40 @@ import {
   assessmentResults,
   assessments,
   attendanceRecords,
+  authUsers,
   classrooms,
   enrollments,
   gradeLevels,
+  lessonPlans,
   students,
   subjects,
+  teachers,
+  teacherReports,
 } from "@/db/schema";
 import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
 import { CsvDownloadButton } from "@/components/csv-download-button";
+import { activeTab, PageTabs } from "@/components/page-tabs";
+import { CameraReportSubmitter } from "@/components/camera-report-submitter";
+import { PhotoReportsList, type SerializedTeacherReport } from "@/components/photo-reports-list";
 import { SavedReportFilters } from "./saved-report-filters";
 import { ProgressTable } from "./progress-table";
 
 export const metadata: Metadata = { title: "Results & reports | Forma" };
 
-type SearchParams = Promise<{ schoolId?: string; academicYearId?: string; classroomId?: string; subjectId?: string }>;
+type SearchParams = Promise<{ schoolId?: string; academicYearId?: string; classroomId?: string; subjectId?: string; tab?: string }>;
 
 async function ReportsContent({ searchParams }: { searchParams: SearchParams }) {
-  const { schoolIds, schools } = await requireSchoolsFor(pageRoles.academics);
+  const { context, schoolIds, schools, hasRole } = await requireSchoolsFor(pageRoles.academics);
   const params = await searchParams;
   const selectedSchoolId = schoolIds.includes(params.schoolId ?? "") ? params.schoolId! : schoolIds[0];
+  const tab = activeTab(params.tab, ["progress", "camera-reports"] as const);
+  const isAdmin = hasRole(selectedSchoolId, "school_admin");
 
-  const [studentRows, enrollmentRows, attendanceRows, assessmentRows, yearOptions, classOptions, subjectOptions] = await Promise.all([
+  const [
+    studentRows, enrollmentRows, attendanceRows, assessmentRows,
+    yearOptions, classOptions, subjectOptions, lessonPlanOptions,
+    photoReportRows,
+  ] = await Promise.all([
     db.select({
       id: students.id,
       studentNumber: students.studentNumber,
@@ -85,7 +98,54 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
       .from(subjects)
       .where(eq(subjects.schoolId, selectedSchoolId))
       .orderBy(subjects.name),
+    db.select({ id: lessonPlans.id, title: lessonPlans.title })
+      .from(lessonPlans)
+      .where(eq(lessonPlans.schoolId, selectedSchoolId))
+      .orderBy(desc(lessonPlans.createdAt))
+      .limit(50),
+    db.select({
+      id: teacherReports.id,
+      schoolId: teacherReports.schoolId,
+      teacherId: teacherReports.teacherId,
+      submittedBy: teacherReports.submittedBy,
+      title: teacherReports.title,
+      section: teacherReports.section,
+      reportDate: teacherReports.reportDate,
+      photoStorageKey: teacherReports.photoStorageKey,
+      photoFileName: teacherReports.photoFileName,
+      photoSizeBytes: teacherReports.photoSizeBytes,
+      transcription: teacherReports.transcription,
+      transcriptionStatus: teacherReports.transcriptionStatus,
+      notes: teacherReports.notes,
+      classroomId: teacherReports.classroomId,
+      classroomName: classrooms.name,
+      subjectId: teacherReports.subjectId,
+      subjectName: subjects.name,
+      lessonPlanId: teacherReports.lessonPlanId,
+      lessonPlanTitle: lessonPlans.title,
+      assessmentId: teacherReports.assessmentId,
+      assessmentTitle: assessments.title,
+      status: teacherReports.status,
+      reviewFeedback: teacherReports.reviewFeedback,
+      reviewedAt: teacherReports.reviewedAt,
+      reviewedBy: teacherReports.reviewedBy,
+      createdAt: teacherReports.createdAt,
+      submitterName: authUsers.name,
+      teacherFirstName: teachers.firstName,
+      teacherLastName: teachers.lastName,
+    })
+      .from(teacherReports)
+      .innerJoin(authUsers, eq(authUsers.id, teacherReports.submittedBy))
+      .leftJoin(teachers, eq(teachers.id, teacherReports.teacherId))
+      .leftJoin(classrooms, eq(classrooms.id, teacherReports.classroomId))
+      .leftJoin(subjects, eq(subjects.id, teacherReports.subjectId))
+      .leftJoin(lessonPlans, eq(lessonPlans.id, teacherReports.lessonPlanId))
+      .leftJoin(assessments, eq(assessments.id, teacherReports.assessmentId))
+      .where(eq(teacherReports.schoolId, selectedSchoolId))
+      .orderBy(desc(teacherReports.createdAt))
+      .limit(100),
   ]);
+
 
   const selectedYearId = yearOptions.some(({ id }) => id === params.academicYearId) ? params.academicYearId! : "";
   const selectedClassroomId = classOptions.some(({ id, academicYearId }) =>
@@ -207,11 +267,40 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
     }
   }
 
+  const serializedReports: SerializedTeacherReport[] = photoReportRows.map((r) => ({
+    id: r.id,
+    schoolId: r.schoolId,
+    teacherId: r.teacherId,
+    teacherName: r.teacherFirstName ? `${r.teacherFirstName} ${r.teacherLastName}` : "",
+    submittedByName: r.submitterName,
+    isOwnReport: r.submittedBy === context.userId,
+    isAdmin,
+    title: r.title,
+    section: r.section,
+    reportDate: r.reportDate,
+    photoUrl: `/api/teacher-reports/${r.id}/photo`,
+    photoFileName: r.photoFileName,
+    photoSizeBytes: r.photoSizeBytes,
+    transcription: r.transcription,
+    transcriptionStatus: r.transcriptionStatus,
+    notes: r.notes,
+    classroomName: r.classroomName,
+    subjectName: r.subjectName,
+    lessonPlanTitle: r.lessonPlanTitle,
+    assessmentTitle: r.assessmentTitle,
+    status: r.status,
+    reviewedByName: null,
+    reviewedAt: r.reviewedAt ? r.reviewedAt.toISOString().slice(0, 10) : null,
+    reviewFeedback: r.reviewFeedback,
+    createdAt: r.createdAt.toISOString(),
+  }));
+
   const filterQuery = new URLSearchParams({
     schoolId: selectedSchoolId,
     ...(selectedYearId ? { academicYearId: selectedYearId } : {}),
     ...(selectedClassroomId ? { classroomId: selectedClassroomId } : {}),
     ...(selectedSubjectId ? { subjectId: selectedSubjectId } : {}),
+    ...(tab !== "progress" ? { tab } : {}),
   }).toString();
 
   return (
@@ -221,10 +310,57 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
           <Link href="/" className="management-back">← Dashboard</Link>
           <p className="auth-eyebrow">LEARNING OUTCOMES &amp; REPORTS</p>
           <h1>Results &amp; reports</h1>
-          <p className="management-description">Review recorded assessment performance and attendance coverage for active students.</p>
+          <p className="management-description">Review student assessment outcomes, attendance metrics, and direct camera photo submissions from teachers.</p>
+        </div>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+          <CameraReportSubmitter
+            schools={schools}
+            currentSchoolId={selectedSchoolId}
+            classrooms={classOptions}
+            subjects={subjectOptions}
+            lessonPlans={lessonPlanOptions}
+            assessments={assessmentRows.map((a) => ({ id: a.id, title: a.subjectName, classroomName: a.classroomName }))}
+            triggerButtonText="📷 Submit Photo Report"
+          />
         </div>
       </header>
+
+      <PageTabs
+        active={tab}
+        basePath="/reports"
+        params={{ schoolId: selectedSchoolId, academicYearId: selectedYearId, classroomId: selectedClassroomId, subjectId: selectedSubjectId }}
+        tabs={[
+          { id: "progress", label: "Student Progress & Analytics" },
+          { id: "camera-reports", label: "Teacher Photo Reports & Transcriptions", count: photoReportRows.length },
+        ]}
+      />
+
       <div className="management-sections">
+        {tab === "camera-reports" ? (
+          <section className="management-card">
+            <div className="management-card-heading">
+              <div>
+                <h2>Teacher Camera &amp; Field Reports</h2>
+                <p>{photoReportRows.length} report photo{photoReportRows.length === 1 ? "" : "s"} submitted across academic sections · Click any report to inspect high-resolution photo and AI transcription</p>
+              </div>
+              <CameraReportSubmitter
+                schools={schools}
+                currentSchoolId={selectedSchoolId}
+                classrooms={classOptions}
+                subjects={subjectOptions}
+                lessonPlans={lessonPlanOptions}
+                assessments={assessmentRows.map((a) => ({ id: a.id, title: a.subjectName, classroomName: a.classroomName }))}
+                triggerButtonText="＋ Capture New Report"
+              />
+            </div>
+            <PhotoReportsList
+              reports={serializedReports}
+              schoolId={selectedSchoolId}
+              isAdmin={isAdmin}
+            />
+          </section>
+        ) : (
+          <>
         <section className="management-card">
           <Form action="/reports" className="auth-form attendance-filter">
             {schools.length > 1 && <label>School<select defaultValue={selectedSchoolId} name="schoolId">
@@ -321,6 +457,8 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
             </table>
           </div>}
         </section>
+        </>
+        )}
       </div>
     </main>
   );

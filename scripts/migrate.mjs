@@ -209,6 +209,7 @@ export async function runMigrations() {
 
     // 5. Make sure the session table is Forma's own and has required keys.
     await repairSessionTable(connection);
+    await repairTeacherReportsTable(connection);
 
     let applied = 0;
     try {
@@ -530,6 +531,44 @@ export async function repairSessionTable(connection) {
       console.warn("[migrate] could not add the session → user foreign key:", error instanceof Error ? error.message : error);
     }
   }
+}
+
+export async function repairTeacherReportsTable(connection) {
+  await ensureTable(connection, "school_teacher_reports", `
+    CREATE TABLE IF NOT EXISTS \`school_teacher_reports\` (
+      \`id\` varchar(36) NOT NULL,
+      \`school_id\` varchar(36) NOT NULL,
+      \`teacher_id\` varchar(36) DEFAULT NULL,
+      \`submitted_by\` varchar(36) NOT NULL,
+      \`title\` varchar(200) NOT NULL,
+      \`section\` enum('lessons','attendance','assessments','facilities','general') NOT NULL DEFAULT 'general',
+      \`report_date\` date NOT NULL,
+      \`photo_storage_key\` varchar(36) NOT NULL,
+      \`photo_file_name\` varchar(255) NOT NULL,
+      \`photo_content_type\` varchar(60) NOT NULL,
+      \`photo_size_bytes\` int NOT NULL,
+      \`transcription\` text DEFAULT NULL,
+      \`transcription_status\` enum('pending','completed','edited','failed','skipped') NOT NULL DEFAULT 'pending',
+      \`notes\` text DEFAULT NULL,
+      \`classroom_id\` varchar(36) DEFAULT NULL,
+      \`subject_id\` varchar(36) DEFAULT NULL,
+      \`academic_year_id\` varchar(36) DEFAULT NULL,
+      \`lesson_plan_id\` varchar(36) DEFAULT NULL,
+      \`assessment_id\` varchar(36) DEFAULT NULL,
+      \`status\` enum('submitted','reviewed','archived') NOT NULL DEFAULT 'submitted',
+      \`reviewed_by\` varchar(36) DEFAULT NULL,
+      \`reviewed_at\` timestamp NULL DEFAULT NULL,
+      \`review_feedback\` text DEFAULT NULL,
+      \`created_at\` timestamp NOT NULL DEFAULT (now()),
+      \`updated_at\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT \`school_teacher_reports_id\` PRIMARY KEY (\`id\`),
+      KEY \`school_tr_school_section_idx\` (\`school_id\`, \`section\`, \`report_date\`),
+      KEY \`school_tr_teacher_idx\` (\`teacher_id\`),
+      KEY \`school_tr_lesson_idx\` (\`lesson_plan_id\`),
+      KEY \`school_tr_assessment_idx\` (\`assessment_id\`),
+      KEY \`school_tr_classroom_idx\` (\`classroom_id\`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=${DEFAULT_COLLATION}
+  `);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

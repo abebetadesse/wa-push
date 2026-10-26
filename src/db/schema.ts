@@ -969,3 +969,44 @@ export const publicProfiles = mysqlTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
 );
+
+// Reports submitted directly by teachers (via live camera or photo upload) with optional AI transcription,
+// routed to their respective section (lessons, attendance, assessments, facilities, or general).
+export const teacherReports = mysqlTable(
+  "school_teacher_reports",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    teacherId: varchar("teacher_id", { length: 36 }).references(() => teachers.id, { onDelete: "set null" }),
+    submittedBy: varchar("submitted_by", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    section: mysqlEnum("section", ["lessons", "attendance", "assessments", "facilities", "general"]).notNull().default("general"),
+    reportDate: date("report_date", { mode: "string" }).notNull(),
+    photoStorageKey: varchar("photo_storage_key", { length: 36 }).notNull(),
+    photoFileName: varchar("photo_file_name", { length: 255 }).notNull(),
+    photoContentType: varchar("photo_content_type", { length: 60 }).notNull(),
+    photoSizeBytes: int("photo_size_bytes").notNull(),
+    transcription: text("transcription"),
+    transcriptionStatus: mysqlEnum("transcription_status", ["pending", "completed", "edited", "failed", "skipped"]).notNull().default("pending"),
+    notes: text("notes"),
+    classroomId: varchar("classroom_id", { length: 36 }).references(() => classrooms.id, { onDelete: "set null" }),
+    subjectId: varchar("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
+    academicYearId: varchar("academic_year_id", { length: 36 }).references(() => academicYears.id, { onDelete: "set null" }),
+    lessonPlanId: varchar("lesson_plan_id", { length: 36 }).references(() => lessonPlans.id, { onDelete: "set null" }),
+    assessmentId: varchar("assessment_id", { length: 36 }).references(() => assessments.id, { onDelete: "set null" }),
+    status: mysqlEnum("status", ["submitted", "reviewed", "archived"]).notNull().default("submitted"),
+    reviewedBy: varchar("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewFeedback: text("review_feedback"),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    index("school_teacher_reports_school_section_idx").on(table.schoolId, table.section, table.reportDate),
+    index("school_teacher_reports_teacher_idx").on(table.teacherId),
+    index("school_teacher_reports_lesson_idx").on(table.lessonPlanId),
+    index("school_teacher_reports_assessment_idx").on(table.assessmentId),
+    index("school_teacher_reports_classroom_idx").on(table.classroomId),
+  ],
+);
+
