@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { db } from "@/db";
 import { authUsers, schoolInvitations, schoolMemberships, schools } from "@/db/schema";
 import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
-import { InviteForm } from "./invite-form";
+import { AddMemberForm } from "./add-member-form";
 import { MemberActions, RevokeInvitationButton } from "./member-actions";
 
 export const metadata: Metadata = { title: "School team | Forma" };
@@ -51,7 +51,7 @@ async function TeamContent() {
           <Link href="/" className="management-back">← Dashboard</Link>
           <p className="auth-eyebrow">ACCESS MANAGEMENT</p>
           <h1>School team</h1>
-          <p className="management-description">Invite staff, change school roles, remove access, and revoke pending invitations. Re-inviting an email replaces its pending invitation.</p>
+          <p className="management-description">Add people to the school with their email and a first password, change school roles and remove access. Nobody is emailed: the account works as soon as you add it.</p>
         </div>
       </header>
       <div className="management-sections">
@@ -63,8 +63,8 @@ async function TeamContent() {
               <div className="management-card-heading">
                 <div><h2>{school.name}</h2><p>{school.country || "Country not set"}</p></div>
               </div>
-              <h3>Invite a team member</h3>
-              <InviteForm schoolId={school.id} allowSchoolAdmin={platformAdmin} />
+              <h3>Add a team member</h3>
+              <AddMemberForm schoolId={school.id} allowSchoolAdmin={platformAdmin} />
               <h3>Current members</h3>
               <div className="record-list">
                 {schoolMembers.map((member) => (

@@ -45,6 +45,7 @@ export function StudentForm({
       <label>Email <span className="optional-label">Optional</span><input autoComplete="email" maxLength={254} name="email" type="email" /></label>
       <label>Guardian email <span className="optional-label">Optional · for attendance updates</span><input autoComplete="email" maxLength={254} name="guardianEmail" type="email" /></label>
       <label>Date of birth <span className="optional-label">Optional</span><input name="dateOfBirth" type="date" /></label>
+      <label>Sex <span className="optional-label">Optional</span><select defaultValue="" name="gender"><option value="">—</option><option value="female">Female</option><option value="male">Male</option></select></label>
       {state.error && <p className="auth-error" role="alert">{state.error}</p>}
       {state.success && <p className="auth-success" role="status">{state.success}</p>}
       <button className="primary-button auth-submit" disabled={pending} type="submit">{pending ? "Registering..." : "Register student"}</button>

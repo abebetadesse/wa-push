@@ -11,7 +11,7 @@ const signInMessages: Record<string, string> = {
   INVALID_EMAIL: "Enter your full email address, for example name@gmail.com.",
   PASSWORD_TOO_LONG: "That password is longer than allowed (128 characters).",
   EMAIL_NOT_VERIFIED: "Verify your email address before signing in.",
-  BANNED_USER: "This account has been suspended. Contact your school administrator.",
+  BANNED_USER: "This account is suspended, or its registration is still waiting for approval. Contact your school administrator.",
   INVALID_ORIGIN: "Sign-in was blocked because this page's address isn't trusted by the server. Open the site at its usual https:// address and try again.",
   MISSING_OR_NULL_ORIGIN: "Sign-in was blocked by the browser's privacy settings. Reload the page and try again.",
 };
@@ -134,7 +134,7 @@ export function AuthForm() {
             {pending ? "Signing in…" : "Sign in"}
           </button>
         </form>
-        <p className="auth-note">Accounts are created by school invitation. <Link href="/register">How do I get access?</Link></p>
+        <p className="auth-note">New here? <Link href="/register">Create an account</Link>. A school administrator adds you to a school once your registration is approved.</p>
       </section>
     </main>
   );

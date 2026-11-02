@@ -9,7 +9,8 @@ import { db } from "@/db";
 import { activityEvents, authUsers, schoolInvitations, schoolMemberships, staffMembers, students } from "@/db/schema";
 import { sendEmail } from "@/lib/email";
 import { withBasePath } from "@/lib/base-path";
-import { hashInvitationToken } from "@/lib/invitations";
+import { createCredentialAccount, findUserByEmail, normalizeEmail, validEmail } from "@/lib/accounts";
+import { attachMember, hashInvitationToken } from "@/lib/invitations";
 import { isPlatformAdmin, requireSchoolRole } from "@/lib/permissions";
 import { INVITE_ROLES, isStaffRole } from "@/lib/roles";
 
@@ -106,6 +107,63 @@ async function inviteMemberImpl(_previous: InviteState, formData: FormData): Pro
   return { success: `Invitation sent to ${email}.` };
 }
 
+
+/**
+ * Adds a person to the school team directly: the administrator types their email and a first
+ * password, the account is ready at once, and nothing is emailed. An email that already has a Forma
+ * account (for example from the register page) is just given its place in this school.
+ */
+async function addMemberImpl(_previous: InviteState, formData: FormData): Promise<InviteState> {
+  const schoolId = String(formData.get("schoolId") ?? "").trim();
+  const email = normalizeEmail(formData.get("email"));
+  const role = String(formData.get("role") ?? "").trim();
+  const name = String(formData.get("name") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!schoolId || !validEmail(email)) return { error: "Enter a valid email address and school." };
+  if (!isInviteRole(role)) return { error: "Select a valid school role." };
+
+  const access = await requireSchoolRole(schoolId, ["school_admin"]);
+  if (role === "school_admin" && !isPlatformAdmin(access.session)) {
+    return { error: "Only a platform administrator can add another school administrator." };
+  }
+
+  const existing = await findUserByEmail(email);
+  if (existing?.banned) return { error: "That account is suspended or still waiting for approval. Approve it from the portal dashboard first." };
+  if (existing) {
+    const [already] = await db
+      .select({ id: schoolMemberships.id })
+      .from(schoolMemberships)
+      .where(and(eq(schoolMemberships.schoolId, schoolId), eq(schoolMemberships.userId, existing.id)))
+      .limit(1);
+    if (already) return { error: "This person is already on the school team." };
+  } else {
+    if (name.length < 2 || name.length > 255) return { error: "Enter the person's name." };
+    if (password.length < 12 || password.length > 128) return { error: "Give a first password of at least 12 characters." };
+  }
+
+  let userId = existing?.id;
+  try {
+    userId ??= await createCredentialAccount({ name, email, password });
+    const memberId = userId;
+    await db.transaction(async (tx) => {
+      await attachMember(tx, { schoolId, userId: memberId, email, role });
+      await tx.insert(activityEvents).values({
+        schoolId,
+        userId: access.session.user.id,
+        detail: `Added ${email} as ${role.replaceAll("_", " ")}`,
+      });
+    });
+  } catch (error) {
+    // A new account whose school record did not match must not be left behind half-made.
+    if (!existing && userId) await db.delete(authUsers).where(eq(authUsers.id, userId));
+    if (error instanceof Error && /student|staff/i.test(error.message)) throw new UserError(error.message);
+    throw error;
+  }
+  revalidatePath("/team");
+  revalidatePath("/");
+  return { success: existing ? `${email} was added to the team with their existing account.` : `${email} was added. They can sign in now with the password you set.` };
+}
 
 async function revokeInvitationImpl(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const schoolId = String(formData.get("schoolId") ?? "").trim();
@@ -218,6 +276,9 @@ async function removeMemberImpl(_previous: ActionState, formData: FormData): Pro
 // a blank HTTP 500 (Next.js hides thrown messages in production).
 export async function inviteMember(...args: Parameters<typeof inviteMemberImpl>) {
   return guardAction(() => inviteMemberImpl(...args));
+}
+export async function addMember(...args: Parameters<typeof addMemberImpl>) {
+  return guardAction(() => addMemberImpl(...args));
 }
 export async function revokeInvitation(...args: Parameters<typeof revokeInvitationImpl>) {
   return guardAction(() => revokeInvitationImpl(...args));

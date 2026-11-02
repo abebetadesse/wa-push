@@ -5,11 +5,11 @@ import { bulkImportStudents, type BulkImportActionState } from "./actions";
 import type { StudentClassOption, StudentSchoolOption } from "./student-form";
 import { parseCsvRecords } from "@/lib/csv";
 
-const SAMPLE_CSV = `student_number,first_name,last_name,email,date_of_birth,class_name,guardian_email
-STU-1001,Abebe,Bekele,abebe.b@example.com,2010-04-12,Grade 9A,parent.b@example.com
-STU-1002,Sara,Tadesse,sara.t@example.com,2010-08-25,Grade 9A,parent.t@example.com
-STU-1003,Dawit,Haile,,2009-11-03,Grade 9B,
-STU-1004,Marta,Kassa,marta.k@example.com,2010-01-19,Grade 9B,guardian.k@example.com`;
+const SAMPLE_CSV = `student_number,first_name,last_name,email,date_of_birth,class_name,guardian_email,sex
+STU-1001,Abebe,Bekele,abebe.b@example.com,2010-04-12,Grade 9A,parent.b@example.com,male
+STU-1002,Sara,Tadesse,sara.t@example.com,2010-08-25,Grade 9A,parent.t@example.com,female
+STU-1003,Dawit,Haile,,2009-11-03,Grade 9B,,male
+STU-1004,Marta,Kassa,marta.k@example.com,2010-01-19,Grade 9B,guardian.k@example.com,female`;
 
 export function BulkStudentImportForm({
   schools,
@@ -160,7 +160,7 @@ export function BulkStudentImportForm({
       </label>
 
       <p className="setup-hint">
-        Columns: <code>student_number, first_name, last_name, email, date_of_birth, class_name, guardian_email</code>.
+        Columns: <code>student_number, first_name, last_name, email, date_of_birth, class_name, guardian_email, sex</code> (sex: female/male, ሴ/ወ). Further columns are ignored here; import them as data fields from Data fields.
         Headers are skipped automatically. Date format: YYYY-MM-DD.
       </p>
       {csvContent.trim() && <div className={preview.issues.length ? "import-details" : "setup-hint"} aria-live="polite">

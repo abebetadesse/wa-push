@@ -2,9 +2,10 @@
 
 import { useActionState } from "react";
 import { ActionForm } from "@/components/action-form";
+import { StatusForm } from "@/components/status-form";
 import { SubmitButton } from "@/components/submit-button";
 import { CURRICULUM_SUBJECTS } from "@/lib/ethiopian-curriculum";
-import { addCatalogEntry, addTextbookToLibrary, recheckCatalogEntry } from "./actions";
+import { addCatalogEntry, addGradeTextbooks, addTextbookToLibrary, loadOfficialCatalog, recheckCatalog, recheckCatalogEntry, removeCatalogEntry } from "./actions";
 
 export function AddToLibraryButton({ schoolId, catalogEntryId, sizeLabel }: { schoolId: string; catalogEntryId: string; sizeLabel: string }) {
   return (
@@ -25,6 +26,39 @@ export function RecheckButton({ catalogEntryId }: { catalogEntryId: string }) {
   );
 }
 
+/** Adds every available book of one grade to the school's library, in the background. */
+export function AddGradeButton({ schoolId, grade, count }: { schoolId: string; grade: number; count: number }) {
+  return (
+    <StatusForm action={addGradeTextbooks} className="inline-action">
+      <input name="schoolId" type="hidden" value={schoolId} />
+      <input name="grade" type="hidden" value={grade} />
+      <SubmitButton className="primary-button" pendingLabel="Starting…">Add all {count} to the library</SubmitButton>
+    </StatusForm>
+  );
+}
+
+export function CatalogMaintenance() {
+  return (
+    <div className="inline-actions">
+      <StatusForm action={loadOfficialCatalog} className="inline-action">
+        <SubmitButton className="primary-button" pendingLabel="Loading…">Load the official textbook list</SubmitButton>
+      </StatusForm>
+      <StatusForm action={recheckCatalog} className="inline-action">
+        <SubmitButton pendingLabel="Starting…">Check every source</SubmitButton>
+      </StatusForm>
+    </div>
+  );
+}
+
+export function RemoveCatalogEntryButton({ catalogEntryId, title }: { catalogEntryId: string; title: string }) {
+  return (
+    <ActionForm action={removeCatalogEntry} className="inline-action">
+      <input name="catalogEntryId" type="hidden" value={catalogEntryId} />
+      <SubmitButton className="danger-button record-action" confirm={`Remove “${title}” from the catalog? Schools keep the copies they already added.`} pendingLabel="Removing…">Remove</SubmitButton>
+    </ActionForm>
+  );
+}
+
 export function CatalogEntryForm() {
   const [state, action, pending] = useActionState(addCatalogEntry, {});
   return (
@@ -40,6 +74,12 @@ export function CatalogEntryForm() {
           <select name="subjectName" required defaultValue="">
             <option value="" disabled>Choose…</option>
             {CURRICULUM_SUBJECTS.map((subject) => <option key={subject.code} value={subject.name}>{subject.name}</option>)}
+          </select>
+        </label>
+        <label>Kind
+          <select defaultValue="student_textbook" name="kind">
+            <option value="student_textbook">Student textbook</option>
+            <option value="teacher_guide">Teacher guide</option>
           </select>
         </label>
         <label>Title<input maxLength={200} name="title" placeholder="Biology Student Textbook Grade 10" required /></label>

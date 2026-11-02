@@ -1,0 +1,5 @@
+﻿student_number,first_name,last_name,email,date_of_birth,class_name,guardian_email,sex,mother_tongue,home_kebele,distance_km,transport,guardian_name,guardian_phone,guardian_relationship,guardian_occupation,orphan_status,special_needs,special_needs_type,school_feeding,blood_group,height_cm,weight_kg,health_notes
+GEN-001,Hana,Tesfaye,,2021-03-14,KG 1A,,female,Amharic,አዲስ ገነት,0.8,Walking,Tesfaye Alemu,+251 911 000 001,Father,Merchant,Not an orphan,No,,Yes,O+,102,16.5,
+GEN-002,Dawit,Girma,,2020-11-02,KG 2A,,male,Afaan Oromo,ሳህለ ስላሴ,1.5,Public transport,Almaz Bekele,+251 911 000 002,Mother,Teacher,Not an orphan,Yes,Hearing,Yes,A+,108,18,
+GEN-003,Meron,Abebe,,2019-07-21,KG 3A,,female,Amharic,አዲስ ገነት,0.4,Walking,Abebe Kassa,+251 911 000 003,Father,Driver,Single orphan,No,,No,B+,114,20.2,
+GEN-004,Yonas,Haile,,2019-12-05,KG 3B,,male,Tigrinya,ሳህለ ስላሴ,2.2,School bus,Selam Haile,+251 911 000 004,Grandparent,Retired,Double orphan,No,,Yes,Unknown,112,19.4,

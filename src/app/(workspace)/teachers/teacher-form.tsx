@@ -12,6 +12,7 @@ export type EditableTeacher = {
   email: string | null;
   phone: string | null;
   specialization: string | null;
+  gender?: "female" | "male" | null;
   status: "active" | "on_leave" | "inactive";
 };
 
@@ -34,6 +35,7 @@ export function TeacherForm({
         <label>Last name<input autoComplete="off" defaultValue={teacher?.lastName} maxLength={100} name="lastName" required /></label>
         <label>Teacher number<input defaultValue={teacher?.teacherNumber} maxLength={80} name="teacherNumber" required /></label>
         <label>Specialization <span className="optional-label">Optional</span><input defaultValue={teacher?.specialization ?? ""} maxLength={150} name="specialization" placeholder="e.g. Mathematics" /></label>
+        <label>Sex <span className="optional-label">Optional</span><select defaultValue={teacher?.gender ?? ""} name="gender"><option value="">—</option><option value="female">Female</option><option value="male">Male</option></select></label>
         <label>Email <span className="optional-label">Optional</span><input autoComplete="off" defaultValue={teacher?.email ?? ""} maxLength={254} name="email" type="email" /></label>
         <label>Phone <span className="optional-label">Optional</span><input autoComplete="off" defaultValue={teacher?.phone ?? ""} maxLength={40} name="phone" type="tel" /></label>
         {teacher && <label>Status

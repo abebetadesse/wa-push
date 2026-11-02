@@ -7,9 +7,10 @@ import { db } from "@/db";
 import { gradeLevels, learningResources, subjects, textbookCatalog } from "@/db/schema";
 import { withBasePath } from "@/lib/base-path";
 import { curriculumSubject, gradeNumber, subjectTaughtInGrade } from "@/lib/ethiopian-curriculum";
-import { allowedSourceUrl } from "@/lib/textbook-sources";
-import { pageRoles, requireSchoolsFor } from "@/lib/workspace";
-import { AddToLibraryButton, CatalogEntryForm, RecheckButton } from "./forms";
+import { allowedSourceUrl, canDownloadSource, uploadedSourceKey } from "@/lib/textbook-sources";
+import { hasSchoolRole, pageRoles, requireSchoolsFor } from "@/lib/workspace";
+import { AddGradeButton, AddToLibraryButton, CatalogEntryForm, CatalogMaintenance, RecheckButton, RemoveCatalogEntryButton } from "./forms";
+import { TextbookUploadForm } from "./upload-form";
 
 export const metadata: Metadata = { title: "Textbooks | Forma" };
 
@@ -34,6 +35,7 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
     db.select({
       id: learningResources.id,
       title: learningResources.title,
+      description: learningResources.description,
       gradeLevelId: learningResources.gradeLevelId,
       subjectId: learningResources.subjectId,
       catalogEntryId: learningResources.catalogEntryId,
@@ -66,6 +68,8 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
   const pairs = rows.flatMap((row) => row.subjects);
   const withOfficial = pairs.filter((pair) => pair.entries.length > 0).length;
   const inLibrary = pairs.filter((pair) => pair.libraryByEntry.size > 0 || pair.uploads.length > 0).length;
+  const mayAdd = hasSchoolRole(context, schoolId, ["school_admin", "teacher"]);
+  const guides = catalog.filter((entry) => entry.kind === "teacher_guide").length;
 
   return (
     <main className="management-page">
@@ -75,7 +79,7 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
           <p className="auth-eyebrow">CURRICULUM</p>
           <h1>Textbooks</h1>
           <p className="management-description">
-            Official student textbooks for every grade and subject your school teaches. Add a book to the library to open it in class and to generate lesson plans and quizzes from it.
+            Official student textbooks and teacher guides for every grade and subject your school teaches. Add a book to the library — one at a time or a whole grade at once — or upload your own PDF, to open it in class and to generate lesson plans and quizzes from it.
           </p>
         </div>
       </header>
@@ -95,17 +99,29 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
             <div><strong>{pairs.length}</strong><span>grade–subject pairs taught</span></div>
             <div><strong>{withOfficial}</strong><span>have an official textbook in the catalog</span></div>
             <div><strong>{inLibrary}</strong><span>have a textbook in the library</span></div>
+            <div><strong>{catalog.length}</strong><span>books in the catalog ({guides} teacher guides)</span></div>
           </div>
-          {rows.length === 0 && <p className="empty-state">This school has no grades yet. Add them under <Link href="/academic-setup">Academic setup</Link>.</p>}
+          {rows.length === 0 && <p className="empty-state">This school has no grades yet. Set up Grades 1–12 with sections under <Link href="/academic-setup">Academic setup</Link>.</p>}
         </section>
 
-        {rows.map(({ grade, subjects: gradeSubjects }) => (
+        {mayAdd && rows.length > 0 && (
+          <section className="management-card" id="upload">
+            <h2>Upload a textbook or teacher guide</h2>
+            <p className="management-description">For a grade and subject with no official copy yet, or your school&apos;s own edition. The PDF goes to this school&apos;s library.</p>
+            <TextbookUploadForm grades={grades} schoolId={schoolId} subjects={schoolSubjects} />
+          </section>
+        )}
+
+        {rows.map(({ grade, number, subjects: gradeSubjects }) => {
+          const missing = gradeSubjects.flatMap((pair) => pair.entries.filter((entry) => canDownloadSource(entry) && !pair.libraryByEntry.has(entry.id) && entry.checkStatus !== "missing")).length;
+          return (
           <section className="management-card" key={grade.id}>
             <div className="management-card-heading">
               <div>
                 <h2>{grade.name}</h2>
                 <p>{gradeSubjects.filter((pair) => pair.libraryByEntry.size || pair.uploads.length).length} of {gradeSubjects.length} subjects have a textbook in the library</p>
               </div>
+              {mayAdd && missing > 0 && <AddGradeButton count={missing} grade={number} schoolId={schoolId} />}
             </div>
             {gradeSubjects.length === 0
               ? <p className="empty-state">No subjects of the national curriculum are set up for this grade.</p>
@@ -118,7 +134,7 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
                     ))}
                     {uploads.map((book) => (
                       <li key={book.id}>
-                        <span>{book.title} <span className="role-badge">uploaded</span></span>
+                        <span>{book.title} <span className="role-badge">{book.description?.startsWith("Teacher guide") ? "teacher guide · uploaded" : "uploaded"}</span></span>
                         <span className="inline-actions">
                           <a className="text-link" href={withBasePath(`/api/resources/${book.id}`)} rel="noreferrer" target="_blank">Open</a>
                           <Link className="text-link" href={`/studio?resourceId=${book.id}`}>AI Studio →</Link>
@@ -128,32 +144,40 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
                       </li>
                     ))}
                     {entries.length === 0 && uploads.length === 0 && (
-                      <li className="textbook-missing">No official textbook found yet. <Link className="text-link" href="/resources">Upload your copy</Link></li>
+                      <li className="textbook-missing">No official textbook found yet. {mayAdd ? <a className="text-link" href="#upload">Upload your copy</a> : "Ask an administrator to upload one."}</li>
                     )}
                   </ul>
                 </div>
               ))}</div>}
           </section>
-        ))}
+          );
+        })}
 
         {context.platformAdmin && (
           <section className="management-card">
             <div className="management-card-heading">
               <div>
                 <h2>Textbook catalog</h2>
-                <p>{catalog.length} official sources shared by every school. Downloads are only made from {`the Oromia Education Bureau and the Ministry of Education's e-learning portal`}.</p>
+                <p>{catalog.length} sources shared by every school. Downloads come only from the Oromia Education Bureau, the Ministry of Education&apos;s portals, the Google Drive copy of the Ministry&apos;s 2023 grade 9–12 textbooks, and PDFs uploaded here.</p>
               </div>
             </div>
-            <CatalogEntryForm />
+            <CatalogMaintenance />
+            <h3 className="org-subheading">Upload a PDF for every school</h3>
+            <TextbookUploadForm catalog />
+            <details className="field-edit">
+              <summary>Add a source by web address</summary>
+              <CatalogEntryForm />
+            </details>
             <div className="record-list">
               {catalog.map((entry) => (
                 <div className="record-row" key={entry.id}>
                   <div>
                     <strong>{entry.title}</strong>
-                    <small>Grade {entry.grade} · {entry.subjectName} · {entry.language} · {entry.publisher}{entry.sizeBytes ? ` · ${formatBytes(entry.sizeBytes)}` : ""}</small>
+                    <small>Grade {entry.grade} · {entry.subjectName} · {entry.kind === "teacher_guide" ? "Teacher guide" : "Student textbook"} · {entry.language} · {entry.publisher}{entry.sizeBytes ? ` · ${formatBytes(entry.sizeBytes)}` : ""}{uploadedSourceKey(entry.sourceUrl) ? " · uploaded here" : entry.directDownload ? "" : " · web page"}</small>
                   </div>
                   <span className={`role-badge status-${entry.checkStatus === "ok" ? "active" : "inactive"}`}>{entry.checkStatus}</span>
-                  {allowedSourceUrl(entry.sourceUrl) && <RecheckButton catalogEntryId={entry.id} />}
+                  {allowedSourceUrl(entry.sourceUrl) && entry.directDownload && <RecheckButton catalogEntryId={entry.id} />}
+                  <RemoveCatalogEntryButton catalogEntryId={entry.id} title={entry.title} />
                 </div>
               ))}
             </div>
@@ -165,11 +189,11 @@ async function TextbooksContent({ searchParams }: { searchParams: SearchParams }
 }
 
 function CatalogOption({ entry, libraryBookId, schoolId }: { entry: CatalogEntry; libraryBookId?: string; schoolId: string }) {
-  const downloadable = entry.directDownload && Boolean(allowedSourceUrl(entry.sourceUrl));
+  const downloadable = canDownloadSource(entry);
   return (
     <li>
       <span>
-        {entry.language}
+        {entry.kind === "teacher_guide" && <span className="role-badge">Teacher guide</span>} {entry.language}
         <small> · {entry.publisher}</small>
         {entry.checkStatus === "unreachable" && !libraryBookId && <small className="textbook-warning"> · source unreachable when last checked</small>}
         {entry.checkStatus === "missing" && !libraryBookId && <small className="textbook-warning"> · source no longer has this file</small>}

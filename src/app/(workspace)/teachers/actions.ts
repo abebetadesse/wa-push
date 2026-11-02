@@ -26,6 +26,7 @@ function readTeacherFields(formData: FormData) {
     email: String(formData.get("email") ?? "").trim().toLowerCase(),
     phone: String(formData.get("phone") ?? "").trim(),
     specialization: String(formData.get("specialization") ?? "").trim(),
+    gender: String(formData.get("gender") ?? "").trim(),
   };
   let error: string | undefined;
   if (!fields.schoolId || !fields.teacherNumber || fields.teacherNumber.length > 80) {
@@ -34,6 +35,8 @@ function readTeacherFields(formData: FormData) {
     error = "First and last names are required and must be 100 characters or fewer.";
   } else if (fields.email && (fields.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))) {
     error = "Enter a valid email address.";
+  } else if (fields.gender && fields.gender !== "female" && fields.gender !== "male") {
+    error = "Choose female or male.";
   } else if (fields.phone.length > 40 || fields.specialization.length > 150) {
     error = "Phone must be 40 characters or fewer and specialization 150 characters or fewer.";
   }
@@ -88,6 +91,7 @@ async function createTeacherImpl(
         email: fields.email || null,
         phone: fields.phone || null,
         specialization: fields.specialization || null,
+        gender: (fields.gender || null) as "female" | "male" | null,
       });
       await tx.insert(activityEvents).values({
         schoolId: fields.schoolId,
@@ -137,6 +141,7 @@ async function updateTeacherImpl(
           email: fields.email || null,
           phone: fields.phone || null,
           specialization: fields.specialization || null,
+        gender: (fields.gender || null) as "female" | "male" | null,
           status,
         })
         .where(and(eq(teachers.id, teacherId), eq(teachers.schoolId, fields.schoolId)));

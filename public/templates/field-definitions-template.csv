@@ -1,0 +1,84 @@
+﻿key,label,local_label,type,section,required,options,min,max,unit,formula,help,periodic
+principal_name,Principal / representative name,የት/ቤቱ ርዕሰ መ/ር / ተወካይ ስም,text,1. General,,,,,,,,yes
+principal_phone,Principal / representative phone,የት/ቤቱ ርዕሰ መ/ር / ተወካይ ስ.ቁ,phone,1. General,,,,,,,,yes
+gps_location,GPS location,ጅፒኤስ,gps,1. General,,,,,,,"Latitude, longitude — for example 9.0108, 38.7613.",yes
+ownership,Ownership,ባለቤትነት,select,1. General,,Government; Private; Religious / mission; Community; NGO,,,,,,yes
+has_water,Water,ውሃ,yes_no,2. Facilities,,,,,,,,yes
+water_source,Water source,የውሃ ምንጭ,select,2. Facilities,,Piped; Protected well; Rain harvesting; Tanker; None,,,,,,yes
+has_toilet,Toilet,መፀዳጃ ቤት,yes_no,2. Facilities,,,,,,,,yes
+toilets_girls,Toilet seats for girls,የሴት መፀዳጃ መቀመጫ,integer,2. Facilities,,,0,,,,,yes
+toilets_boys,Toilet seats for boys,የወንድ መፀዳጃ መቀመጫ,integer,2. Facilities,,,0,,,,,yes
+has_handwashing,Hand-washing station,የእጅ መታጠቢያ,yes_no,2. Facilities,,,,,,,,yes
+has_electricity,Electricity,መብራት,yes_no,2. Facilities,,,,,,,,yes
+has_outdoor_play,Outdoor play area,ውጪ መጫዎቻ,yes_no,2. Facilities,,,,,,,,yes
+has_indoor_play,Indoor play area,ውስጥ መጫዎቻ,yes_no,2. Facilities,,,,,,,,yes
+has_dining,Dining area,መመገቢያ,yes_no,2. Facilities,,,,,,,,yes
+has_nap_room,Nap / sleeping room,ማሸለቢያ/መኝታ,yes_no,2. Facilities,,,,,,,,yes
+has_first_aid,First-aid kit,የመጀመሪያ እርዳታ መስጫ,yes_no,2. Facilities,,,,,,,,yes
+has_fence,Fenced compound,አጥር,yes_no,2. Facilities,,,,,,,,yes
+classrooms_total,Classrooms,የመማሪያ ክፍል ብዛት,integer,2. Facilities,,,0,,,,,yes
+classroom_condition,Classroom condition,የክፍሎች ሁኔታ,select,2. Facilities,,Good; Fair; Poor,,,,,,yes
+learning_materials,Play and learning materials,የመጫዎቻና መማሪያ ቁሳቁስ,rating,2. Facilities,,,1,5,,,,yes
+has_feeding_program,School feeding,ምገባ,yes_no,"3. Feeding, parents & inclusion",,,,,,,,yes
+feeding_supported_by,Feeding supported by,ምገባ ካለ በማን ድጋፍ,text,"3. Feeding, parents & inclusion",,,,,,,"For example አልማ, the city administration, parents.",yes
+parents_participating,Participating parents,የወላጅ ተሳታፊ ብዛት,integer,"3. Feeding, parents & inclusion",,,0,,,,,yes
+parents_active,Actively participating parents,ንቁ ተሳታፈ ወላጅ ብዛት,integer,"3. Feeding, parents & inclusion",,,0,,,,,yes
+special_needs_students,Students with special needs,ልዩ ፍላጎት ተማሪ ብዛት,integer,"3. Feeding, parents & inclusion",,,0,,,,,yes
+special_needs_types,Kinds of special needs,የልዩ ፍላጎት አይነት,checkboxes,"3. Feeding, parents & inclusion",,Visual; Hearing; Physical; Intellectual; Autism; Learning difficulty; Other,,,,,,yes
+main_teachers_female,Main teachers — female,ዋና መምህር — ጠቅላላ ሴት መ/ራን,integer,4. Teachers,,,0,,,,,yes
+main_teachers_male,Main teachers — male,ዋና መምህር — ጠቅላላ ወንድ መ/ራን,integer,4. Teachers,,,0,,,,,yes
+main_teachers_total,Main teachers — total,ዋና መምህር — ጠቅላላ መ/ራን,formula,4. Teachers,,,,,,main_teachers_female + main_teachers_male,,yes
+assistant_teachers_female,Assistant teachers — female,ረዳት መምህር — ጠቅላላ ሴት መ/ራን,integer,4. Teachers,,,0,,,,,yes
+assistant_teachers_male,Assistant teachers — male,ረዳት መምህር — ጠቅላላ ወንድ መ/ራን,integer,4. Teachers,,,0,,,,,yes
+assistant_teachers_total,Assistant teachers — total,ረዳት መምህር — ጠቅላላ መ/ራን,formula,4. Teachers,,,,,,assistant_teachers_female + assistant_teachers_male,,yes
+all_teachers_total,Main and assistant teachers — total,ጠቅላላ ዋና መምህር እና ረዳት መምህር,formula,4. Teachers,,,,,,main_teachers_total + assistant_teachers_total,,yes
+teachers_contract,Contract teachers,ኮንትራት መ/ራን,integer,4. Teachers,,,0,,,,,yes
+teachers_permanent,Permanent teachers,ቋሚ መምህራን,integer,4. Teachers,,,0,,,,,yes
+teachers_below_certificate,Teachers below certificate,ጠቅላላ ከሰርተፍኬት በታች,integer,4. Teachers,,,0,,,,,yes
+teachers_certificate,Teachers with a certificate,ጠቅላላ ሰርተፈኬት,integer,4. Teachers,,,0,,,,,yes
+teachers_diploma,Teachers with a diploma,ጠቅላላ ዲፕሎማ,integer,4. Teachers,,,0,,,,,yes
+teachers_degree,Teachers with a bachelor's degree,ጠቅላላ ባችለር ድግሪ,integer,4. Teachers,,,0,,,,,yes
+teachers_masters,Teachers with a master's or above,ጠቅላላ ማስተርስ እና በላይ,integer,4. Teachers,,,0,,,,,yes
+teachers_preprimary_graduates,Teachers graduated in pre-primary,ጠቅላላ በቅድመ አንደኛ የተመረቁ,integer,4. Teachers,,,0,,,,,yes
+teachers_age4,Teachers for 4-year-olds,መምህራን ብዛት — 4 አመት,integer,4. Teachers,,,0,,,,,yes
+teachers_age5,Teachers for 5-year-olds,መምህራን ብዛት — 5 አመት,integer,4. Teachers,,,0,,,,,yes
+teachers_age6,Teachers for 6-year-olds,መምህራን ብዛት — 6 አመት,integer,4. Teachers,,,0,,,,,yes
+teachers_inservice_trained,Teachers with in-service training,የስራ ላይ ስልጠና,integer,4. Teachers,,,0,,,,,yes
+rep_male,School representative — male,የት/ቤት ተወካይ — ወ,integer,5. School representative,,,0,,,,,yes
+rep_female,School representative — female,የት/ቤት ተወካይ — ሴ,integer,5. School representative,,,0,,,,,yes
+rep_education_level,Representative's education level,የትምህርት ደረጃ,select,5. School representative,,Below certificate; Certificate; Diploma; Degree; Masters and above,,,,,,yes
+rep_preprimary_graduate,Representative graduated in pre-primary,ተወካዩ በቅድመ አንደኛ ተመርቀዋል,yes_no,5. School representative,,,,,,,,yes
+rep_preprimary_trained,Representative trained in pre-primary,በቅድመ አንደኛ ስልጠና ወስደዋል,yes_no,5. School representative,,,,,,,,yes
+age4_male,4-year-olds — male,4 አመት — ወ,integer,6. Students,,,0,,,,,yes
+age4_female,4-year-olds — female,4 አመት — ሴ,integer,6. Students,,,0,,,,,yes
+age4_total,4-year-olds — total,4 አመት — ድ,formula,6. Students,,,,,,age4_male + age4_female,,yes
+age5_male,5-year-olds — male,5 አመት — ወ,integer,6. Students,,,0,,,,,yes
+age5_female,5-year-olds — female,5 አመት — ሴ,integer,6. Students,,,0,,,,,yes
+age5_total,5-year-olds — total,5 አመት — ድ,formula,6. Students,,,,,,age5_male + age5_female,,yes
+age6_male,6-year-olds — male,6 አመት — ወ,integer,6. Students,,,0,,,,,yes
+age6_female,6-year-olds — female,6 አመት — ሴ,integer,6. Students,,,0,,,,,yes
+age6_total,6-year-olds — total,6 አመት — ድ,formula,6. Students,,,,,,age6_male + age6_female,,yes
+students_female,Students — female total,ጠቅላላ ሴት ተማሪዎች ብዛት,formula,6. Students,,,,,,age4_female + age5_female + age6_female,,yes
+students_male,Students — male total,ጠቅላላ ወንድ ተማሪዎች ብዛት,formula,6. Students,,,,,,age4_male + age5_male + age6_male,,yes
+students_total,Students — total,ድምር,formula,6. Students,,,,,,students_female + students_male,,yes
+sections_age4,Sections for 4-year-olds,4 አመት የክፍል ብዛት,integer,6. Students,,,0,,,,,yes
+sections_age5,Sections for 5-year-olds,5 አመት የክፍል ብዛት,integer,6. Students,,,0,,,,,yes
+sections_age6,Sections for 6-year-olds,6 አመት የክፍል ብዛት,integer,6. Students,,,0,,,,,yes
+dropouts_female,Dropouts — female,ሴት አቋራጭ,integer,6. Students,,,0,,,,,yes
+dropouts_male,Dropouts — male,ወንድ አቋራጭ,integer,6. Students,,,0,,,,,yes
+dropouts_total,Dropouts — total,ድምር አቋራጭ,formula,6. Students,,,,,,dropouts_female + dropouts_male,,yes
+pupil_teacher_ratio,Students per main teacher,ተማሪ ለመምህር ጥምርታ,formula,7. Indicators,,,,,,students_total / main_teachers_total,,yes
+students_per_section,Students per section,ተማሪ በክፍል,formula,7. Indicators,,,,,,students_total / (sections_age4 + sections_age5 + sections_age6),,yes
+girls_share,Girls' share of students (%),የሴት ተማሪዎች ድርሻ (%),formula,7. Indicators,,,,,,students_female * 100 / students_total,,yes
+dropout_rate,Dropout rate (%),የማቋረጥ መጠን (%),formula,7. Indicators,,,,,,dropouts_total * 100 / students_total,,yes
+trained_teacher_share,Teachers trained in pre-primary (%),በቅድመ አንደኛ የሰለጠኑ መምህራን (%),formula,7. Indicators,,,,,,teachers_preprimary_graduates * 100 / all_teachers_total,,yes
+last_supervision_date,Last supervision visit,የመጨረሻ የሱፐርቪዥን ቀን,date,8. Supervision,,,,,,,,yes
+supervision_score,Supervision score (%),የሱፐርቪዥን ውጤት (%),percentage,8. Supervision,,,,,,,,yes
+supervisor_notes,Supervisor's notes,የሱፐርቫይዘር አስተያየት,textarea,8. Supervision,,,,,,,,yes
+school_location,School location,የት/ቤቱ አድራሻ,ethiopia_location,1. General,,,,,,,"Region › Zone › Woreda, chosen from the national list.",yes
+visit_location,Location at the time of the visit,የጉብኝት ቦታ,my_location,8. Supervision,,,,,,,Filled in from the supervisor's phone GPS.,yes
+compound_photo,Photo of the compound,የግቢ ፎቶ,image,2. Facilities,,,,,,,,yes
+facility_documents,Inspection documents,የምርመራ ሰነዶች,multiple_files,8. Supervision,,,,,,,,yes
+head_signature,Principal's signature,የርዕሰ መምህር ፊርማ,signature,8. Supervision,,,,,,,,yes
+visit_month,Month of the visit,የጉብኝት ወር,month,8. Supervision,,,,,,,,yes
+focus_areas,Focus areas,ትኩረት የሚሰጣቸው,tags,8. Supervision,,,,,,,,yes

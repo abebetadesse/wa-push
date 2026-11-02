@@ -8,12 +8,15 @@
  *   - Ministry of Education e-learning portal (elearn.moe.gov.et): grade 9–12 books found through
  *     web search. The portal did not answer from the development machine when this was
  *     written, so most entries point at the book's page rather than the PDF.
+ *   - src/data/textbook-sources.json: the curated list the Textbooks page loads (the Ministry's 2023
+ *     grade 9–12 textbooks, teacher guides, and a snapshot of the bureau's books).
  *
  * Safe to run again: entries are matched by URL and updated.
  *
  *   npx tsx scripts/sync-textbook-catalog.ts [--allow-remote]
  */
 import { loadEnvConfig } from "@next/env";
+import curated from "../src/data/textbook-sources.json";
 import { randomUUID } from "node:crypto";
 import { curriculumSubject } from "../src/lib/ethiopian-curriculum";
 import { checkTextbookSource, sourceUrlHash } from "../src/lib/textbook-sources";
@@ -22,6 +25,7 @@ loadEnvConfig(process.cwd());
 
 type Entry = {
   grade: number;
+  kind?: "student_textbook" | "teacher_guide";
   subjectName: string;
   language: string;
   title: string;
@@ -111,7 +115,8 @@ async function main() {
   }
 
   console.info("Reading the Oromia Education Bureau's textbook pages…");
-  const entries = [...(await bureauEntries()), ...MOE_ENTRIES];
+  const byUrl = new Map<string, Entry>([...(curated as Entry[]), ...(await bureauEntries()), ...MOE_ENTRIES].map((entry) => [entry.sourceUrl, entry]));
+  const entries = [...byUrl.values()];
   for (const entry of entries) {
     if (!curriculumSubject(entry.subjectName)) throw new Error(`Unknown subject ${entry.subjectName}`);
   }
@@ -122,17 +127,17 @@ async function main() {
     for (const entry of entries) {
       await connection.query(
         `INSERT INTO school_textbook_catalog
-           (id, grade, subject_name, language, title, publisher, source_url, source_url_hash, direct_download)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           (id, grade, subject_name, language, kind, title, publisher, source_url, source_url_hash, direct_download)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE grade = VALUES(grade), subject_name = VALUES(subject_name), language = VALUES(language),
-           title = VALUES(title), publisher = VALUES(publisher), direct_download = VALUES(direct_download)`,
-        [randomUUID(), entry.grade, entry.subjectName, entry.language, entry.title, entry.publisher, entry.sourceUrl, sourceUrlHash(entry.sourceUrl), entry.directDownload],
+           kind = VALUES(kind), title = VALUES(title), publisher = VALUES(publisher), direct_download = VALUES(direct_download)`,
+        [randomUUID(), entry.grade, entry.subjectName, entry.language, entry.kind ?? "student_textbook", entry.title, entry.publisher, entry.sourceUrl, sourceUrlHash(entry.sourceUrl), entry.directDownload],
       );
     }
 
     console.info(`Checking ${entries.length} sources (headers only)…`);
     const tally: Record<string, number> = {};
-    for (const entry of entries) {
+    for (const entry of entries.filter((candidate) => candidate.directDownload)) {
       const check = await checkTextbookSource(entry.sourceUrl);
       tally[check.status] = (tally[check.status] ?? 0) + 1;
       await connection.query(

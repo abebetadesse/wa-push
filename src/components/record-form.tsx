@@ -10,7 +10,7 @@ type FormAction = (state: FormState, formData: FormData) => Promise<FormState>;
 export type FieldSpec = {
   name: string;
   label: string;
-  type?: "text" | "textarea" | "number" | "date" | "time" | "email" | "tel" | "select" | "checkbox" | "file";
+  type?: "text" | "textarea" | "number" | "date" | "time" | "email" | "tel" | "password" | "select" | "checkbox" | "file";
   /** For file fields: accepted types, e.g. "image/jpeg,image/png". */
   accept?: string;
   required?: boolean;

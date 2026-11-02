@@ -16,7 +16,7 @@ nextEnv.loadEnvConfig(root, false, { info() {}, error: console.error });
 
 const DEFAULT_COLLATION = "utf8mb4_unicode_ci";
 const ROLE_ENUM =
-  "enum('school_admin','teacher','student','guardian','inventory_manager','hr_manager'," +
+  "enum('school_admin','supervisor','teacher','student','guardian','inventory_manager','hr_manager'," +
   "'librarian','lab_technician','workshop_manager','community_officer','pr_officer')";
 
 export async function tableExists(connection, name) {

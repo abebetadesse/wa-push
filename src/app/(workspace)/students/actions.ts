@@ -7,7 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { academicYears, activityEvents, classrooms, enrollments, gradeLevels, students } from "@/db/schema";
-import { requireSchoolRole } from "@/lib/permissions";
+import { requirePrivilege } from "@/lib/permissions";
 import { isDuplicateEntry } from "@/lib/db-errors";
 import { parseCsvRecords } from "@/lib/csv";
 
@@ -16,6 +16,15 @@ type StudentStatus = "active" | "inactive" | "graduated" | "transferred";
 
 function isStudentStatus(value: string): value is StudentStatus {
   return ["active", "inactive", "graduated", "transferred"].includes(value);
+}
+
+/** "female", "male", or null for empty; Amharic and Afaan Oromo answers are understood too. */
+function readGender(value: string): "female" | "male" | null | undefined {
+  const text = value.trim().toLowerCase();
+  if (!text) return null;
+  if (["f", "female", "girl", "ሴ", "ሴት", "dubartii", "dubara"].includes(text)) return "female";
+  if (["m", "male", "boy", "ወ", "ወንድ", "dhiira", "dhiirsa"].includes(text)) return "male";
+  return undefined;
 }
 
 function isDate(value: string) {
@@ -36,10 +45,12 @@ async function registerStudentImpl(
   const guardianEmail = String(formData.get("guardianEmail") ?? "").trim().toLowerCase();
   const dateOfBirth = String(formData.get("dateOfBirth") ?? "").trim();
   const classroomId = String(formData.get("classroomId") ?? "").trim();
+  const gender = readGender(String(formData.get("gender") ?? ""));
 
   if (!schoolId || studentNumber.length < 1 || studentNumber.length > 80) {
     return { error: "Enter a valid student number and school." };
   }
+  if (gender === undefined) return { error: "Choose female or male." };
   if (!firstName || firstName.length > 100 || !lastName || lastName.length > 100) {
     return { error: "First and last names are required and must be 100 characters or fewer." };
   }
@@ -53,7 +64,7 @@ async function registerStudentImpl(
     return { error: "Enter a valid date of birth." };
   }
 
-  const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
+  const { session } = await requirePrivilege(schoolId, "students", "add");
   const studentId = randomUUID();
   const [classroom] = classroomId
     ? await db
@@ -79,6 +90,7 @@ async function registerStudentImpl(
         email: email || null,
         guardianEmail: guardianEmail || null,
         dateOfBirth: dateOfBirth || null,
+        gender,
       });
       if (classroom) {
         await tx.insert(enrollments).values({
@@ -112,7 +124,7 @@ async function changeStudentStatusImpl(_previous: ActionState, formData: FormDat
   if (!schoolId || !studentId || !isStudentStatus(status)) {
     throw new UserError("Invalid student status request.");
   }
-  const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
+  const { session } = await requirePrivilege(schoolId, "students", "edit");
   const [student] = await db
     .select({ firstName: students.firstName, lastName: students.lastName })
     .from(students)
@@ -150,6 +162,7 @@ async function updateStudentImpl(
   const dateOfBirth = String(formData.get("dateOfBirth") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
   const classroomId = String(formData.get("classroomId") ?? "").trim();
+  const gender = readGender(String(formData.get("gender") ?? ""));
 
   if (!schoolId || !studentId || studentNumber.length < 1 || studentNumber.length > 80) {
     return { error: "Enter a valid student number." };
@@ -165,8 +178,9 @@ async function updateStudentImpl(
   }
   if (dateOfBirth && !isDate(dateOfBirth)) return { error: "Enter a valid date of birth." };
   if (!isStudentStatus(status)) return { error: "Select a valid student status." };
+  if (gender === undefined) return { error: "Choose female or male." };
 
-  const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
+  const { session } = await requirePrivilege(schoolId, "students", "edit");
   const [student] = await db
     .select({ id: students.id })
     .from(students)
@@ -204,6 +218,7 @@ async function updateStudentImpl(
           email: email || null,
           guardianEmail: guardianEmail || null,
           dateOfBirth: dateOfBirth || null,
+          gender,
           status,
         })
         .where(and(eq(students.id, studentId), eq(students.schoolId, schoolId)));
@@ -268,7 +283,7 @@ async function bulkImportStudentsImpl(
   if (!rawCsv) return { error: "Please provide CSV content or upload a CSV file." };
   if (rawCsv.length > 2_000_000) return { error: "Student CSV files must be 2 MB or smaller." };
 
-  const { session } = await requireSchoolRole(schoolId, ["school_admin"]);
+  const { session } = await requirePrivilege(schoolId, "students", "import");
 
   const [currentYear] = await db
     .select({ id: academicYears.id })
@@ -326,6 +341,7 @@ async function bulkImportStudentsImpl(
     const dateOfBirth = row[4]?.trim() ?? "";
     const className = row[5]?.trim() ?? "";
     const guardianEmail = row[6]?.trim().toLowerCase() ?? "";
+    const gender = readGender(row[7] ?? "");
 
     if (!studentNumber || !firstName || !lastName) {
       skipped++;
@@ -367,6 +383,12 @@ async function bulkImportStudentsImpl(
       continue;
     }
 
+    if (gender === undefined) {
+      skipped++;
+      details.push(`Row ${rowNum} (${studentNumber}): Sex "${row[7]}" is not female or male.`);
+      continue;
+    }
+
     let targetClassroomId: string | null = null;
     if (className && classroomMap.has(className.toLowerCase())) {
       targetClassroomId = classroomMap.get(className.toLowerCase())!;
@@ -390,6 +412,7 @@ async function bulkImportStudentsImpl(
           email: email || null,
           guardianEmail: guardianEmail || null,
           dateOfBirth: dateOfBirth || null,
+          gender,
         });
 
         if (targetClassroomId && currentYear) {

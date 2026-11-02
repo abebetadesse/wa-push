@@ -5,10 +5,13 @@ import { guardAction } from "@/lib/action-result";
 import { randomUUID } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { activityEvents, schoolMemberships, schools } from "@/db/schema";
+import { activityEvents, orgUnits, schoolMemberships, schools } from "@/db/schema";
+import { UserError } from "@/lib/action-result";
 import { auth } from "@/lib/auth";
 import { isPlatformAdmin } from "@/lib/permissions";
+import { chooseSlug } from "@/lib/slug";
 
 export type CreateSchoolState = {
   error?: string;
@@ -38,12 +41,21 @@ async function createSchoolImpl(
   }
 
   const schoolId = randomUUID();
-  const slugBase = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 88) || "school";
-  const slug = `${slugBase}-${randomUUID().slice(0, 8)}`;
+  // The public page is /<slug>: the name's own slug when free, so it reads like the school's name.
+  let slug: string;
+  try {
+    slug = await chooseSlug(name, String(formData.get("slug") ?? "").trim().toLowerCase() || null);
+  } catch (error) {
+    if (error instanceof UserError) return { error: error.message };
+    throw error;
+  }
+  const clusterId = String(formData.get("clusterId") ?? "").trim() || null;
+  if (clusterId) {
+    const [cluster] = await db.select({ level: orgUnits.level }).from(orgUnits).where(eq(orgUnits.id, clusterId)).limit(1);
+    if (cluster?.level !== "cluster") return { error: "Choose a school cluster." };
+  }
+  const schoolCode = String(formData.get("schoolCode") ?? "").trim().slice(0, 40) || null;
+  const kebele = String(formData.get("kebele") ?? "").trim().slice(0, 120) || null;
 
   try {
     await db.transaction(async (tx) => {
@@ -52,6 +64,9 @@ async function createSchoolImpl(
         name,
         slug,
         country: country || null,
+        orgUnitId: clusterId,
+        schoolCode,
+        kebele,
       });
       await tx.insert(schoolMemberships).values({
         schoolId,

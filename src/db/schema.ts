@@ -14,7 +14,7 @@ import {
   varchar,
 } from "drizzle-orm/mysql-core";
 import { randomUUID } from "node:crypto";
-import { SCHOOL_ROLES } from "../lib/roles";
+import { ORG_LEVELS, ORG_ROLES, SCHOOL_ROLES } from "../lib/roles";
 
 const id = () => varchar("id", { length: 36 }).primaryKey().$defaultFn(() => randomUUID());
 const createdAt = () => timestamp("created_at").notNull().defaultNow();
@@ -100,10 +100,19 @@ export const schools = mysqlTable(
     country: varchar("country", { length: 100 }),
     timezone: varchar("timezone", { length: 64 }).notNull().default("Africa/Nairobi"),
     status: mysqlEnum("status", ["active", "trial", "suspended"]).notNull().default("trial"),
+    /** The school cluster the school belongs to (school_org_units, level "cluster"). */
+    orgUnitId: varchar("org_unit_id", { length: 36 }),
+    schoolCode: varchar("school_code", { length: 40 }),
+    kebele: varchar("kebele", { length: 120 }),
+    /** Lets students apply for an account from the school's public page. */
+    studentRegistrationOpen: boolean("student_registration_open").notNull().default(false),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
-  (table) => [uniqueIndex("school_schools_slug_unique").on(table.slug)],
+  (table) => [
+    uniqueIndex("school_schools_slug_unique").on(table.slug),
+    index("school_schools_org_unit_idx").on(table.orgUnitId),
+  ],
 );
 
 export const schoolMemberships = mysqlTable(
@@ -213,6 +222,7 @@ export const students = mysqlTable(
     guardianEmail: varchar("guardian_email", { length: 254 }),
     userId: varchar("user_id", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
     dateOfBirth: date("date_of_birth", { mode: "string" }),
+    gender: mysqlEnum("gender", ["female", "male"]),
     status: mysqlEnum("status", ["active", "inactive", "graduated", "transferred"]).notNull().default("active"),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
@@ -270,6 +280,7 @@ export const teachers = mysqlTable(
     email: varchar("email", { length: 254 }),
     phone: varchar("phone", { length: 40 }),
     specialization: varchar("specialization", { length: 150 }),
+    gender: mysqlEnum("gender", ["female", "male"]),
     status: mysqlEnum("status", ["active", "on_leave", "inactive"]).notNull().default("active"),
     createdAt: createdAt(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
@@ -1010,3 +1021,309 @@ export const teacherReports = mysqlTable(
   ],
 );
 
+// ───────────────────────── Governance: hierarchy, privileges, dynamic data ─────────────────────────
+
+// Region → Zone → Woreda → School cluster. Schools point at their cluster (schools.orgUnitId).
+export const orgUnits = mysqlTable(
+  "school_org_units",
+  {
+    id: id(),
+    level: mysqlEnum("level", ORG_LEVELS).notNull(),
+    name: varchar("name", { length: 160 }).notNull(),
+    code: varchar("code", { length: 40 }),
+    parentId: varchar("parent_id", { length: 36 }),
+    description: varchar("description", { length: 500 }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    foreignKey({ name: "school_org_units_parent_fk", columns: [table.parentId], foreignColumns: [table.id] }).onDelete("restrict"),
+    uniqueIndex("school_org_units_parent_name_unique").on(table.parentId, table.level, table.name),
+    index("school_org_units_level_idx").on(table.level),
+  ],
+);
+
+/** Administrators and supervisors of a hierarchy unit; their access covers every school below it. */
+export const orgMemberships = mysqlTable(
+  "school_org_memberships",
+  {
+    id: id(),
+    orgUnitId: varchar("org_unit_id", { length: 36 }).notNull().references(() => orgUnits.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+    role: mysqlEnum("role", ORG_ROLES).notNull(),
+    createdBy: varchar("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex("school_org_memberships_unit_user_unique").on(table.orgUnitId, table.userId),
+    index("school_org_memberships_user_idx").on(table.userId),
+  ],
+);
+
+/**
+ * A privilege override: which actions `role` may take on `resource` within a scope. The platform scope
+ * (scopeId "") holds the super administrator's defaults; a unit or school scope overrides them below it.
+ */
+export const rolePermissions = mysqlTable(
+  "school_role_permissions",
+  {
+    id: id(),
+    scopeType: mysqlEnum("scope_type", ["platform", "org_unit", "school"]).notNull(),
+    scopeId: varchar("scope_id", { length: 36 }).notNull().default(""),
+    role: varchar("role", { length: 40 }).notNull(),
+    resource: varchar("resource", { length: 40 }).notNull(),
+    actions: json("actions").$type<string[]>().notNull(),
+    updatedBy: varchar("updated_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [uniqueIndex("school_role_permissions_unique").on(table.scopeType, table.scopeId, table.role, table.resource)],
+);
+
+export type FieldConfig = {
+  min?: number;
+  max?: number;
+  step?: number;
+  pattern?: string;
+  placeholder?: string;
+  unit?: string;
+  formula?: string;
+  maxLength?: number;
+  defaultValue?: string;
+};
+
+/** A data field added by an administrator, supervisor or teacher, for one kind of record within a scope. */
+export const fieldDefinitions = mysqlTable(
+  "school_field_definitions",
+  {
+    id: id(),
+    scopeType: mysqlEnum("scope_type", ["platform", "org_unit", "school"]).notNull(),
+    scopeId: varchar("scope_id", { length: 36 }).notNull().default(""),
+    entity: mysqlEnum("entity", ["school", "student", "teacher", "staff"]).notNull(),
+    fieldKey: varchar("field_key", { length: 60 }).notNull(),
+    label: varchar("label", { length: 160 }).notNull(),
+    labelLocal: varchar("label_local", { length: 200 }),
+    fieldType: varchar("field_type", { length: 30 }).notNull(),
+    section: varchar("section", { length: 100 }),
+    options: json("options").$type<string[]>(),
+    config: json("config").$type<FieldConfig>(),
+    required: boolean("required").notNull().default(false),
+    helpText: varchar("help_text", { length: 300 }),
+    sortOrder: int("sort_order").notNull().default(0),
+    /** Roles that may fill in or change values; empty means anyone with the field-data edit privilege. */
+    editRoles: json("edit_roles").$type<string[]>(),
+    /** Roles that may see values; empty means anyone with the field-data read privilege. */
+    viewRoles: json("view_roles").$type<string[]>(),
+    /** Values are kept per period (for example per academic year) instead of once. */
+    isPeriodic: boolean("is_periodic").notNull().default(false),
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: varchar("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    uniqueIndex("school_field_definitions_key_unique").on(table.scopeType, table.scopeId, table.entity, table.fieldKey),
+    index("school_field_definitions_entity_idx").on(table.entity, table.isActive),
+  ],
+);
+
+export type FieldValue = string | number | boolean | string[] | null;
+
+export const fieldValues = mysqlTable(
+  "school_field_values",
+  {
+    id: id(),
+    fieldId: varchar("field_id", { length: 36 }).notNull().references(() => fieldDefinitions.id, { onDelete: "cascade" }),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    entity: mysqlEnum("entity", ["school", "student", "teacher", "staff"]).notNull(),
+    entityId: varchar("entity_id", { length: 36 }).notNull(),
+    period: varchar("period", { length: 20 }).notNull().default(""),
+    value: json("value").$type<FieldValue>(),
+    updatedBy: varchar("updated_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [
+    uniqueIndex("school_field_values_unique").on(table.fieldId, table.entityId, table.period),
+    index("school_field_values_school_entity_idx").on(table.schoolId, table.entity, table.period),
+  ],
+);
+
+export type ReportConfig = {
+  source: string;
+  visual: string;
+  rows: string[];
+  series: string | null;
+  measures: { column: string; agg: string }[];
+  filters: { column: string; op: string; value: string }[];
+  scope: { unitId: string | null; schoolId: string | null };
+  period: string;
+  sort: "label" | "value_desc" | "value_asc";
+  limit: number;
+  showPercent: boolean;
+};
+
+export const savedReports = mysqlTable(
+  "school_saved_reports",
+  {
+    id: id(),
+    ownerId: varchar("owner_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 160 }).notNull(),
+    description: varchar("description", { length: 500 }),
+    config: json("config").$type<ReportConfig>().notNull(),
+    /** Shared reports are listed for everyone who can read reports; the data still follows each viewer's access. */
+    isShared: boolean("is_shared").notNull().default(false),
+    pinned: boolean("pinned").notNull().default(false),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [index("school_saved_reports_owner_idx").on(table.ownerId)],
+);
+
+export type CertificateElement = {
+  id: string;
+  kind: "text" | "signature" | "seal" | "line" | "code";
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  fontSize: number;
+  bold: boolean;
+  italic: boolean;
+  color: string;
+  align: "left" | "center" | "right";
+  font: "serif" | "sans" | "script";
+};
+
+export type CertificateDesign = {
+  orientation: "landscape" | "portrait";
+  background: string;
+  border: "classic" | "double" | "modern" | "ornate" | "none";
+  borderColor: string;
+  accent: string;
+  watermark: string;
+};
+
+export type CertificateVariable = { key: string; label: string; defaultValue: string };
+
+export const certificateTemplates = mysqlTable(
+  "school_certificate_templates",
+  {
+    id: id(),
+    scopeType: mysqlEnum("scope_type", ["platform", "org_unit", "school"]).notNull(),
+    scopeId: varchar("scope_id", { length: 36 }).notNull().default(""),
+    name: varchar("name", { length: 160 }).notNull(),
+    audience: mysqlEnum("audience", ["student", "teacher", "staff"]).notNull(),
+    design: json("design").$type<CertificateDesign>().notNull(),
+    elements: json("elements").$type<CertificateElement[]>().notNull(),
+    /** Values the issuer fills in for each issue, used in the text as {{var.key}}. */
+    variables: json("variables").$type<CertificateVariable[]>().notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: varchar("created_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (table) => [index("school_certificate_templates_scope_idx").on(table.scopeType, table.scopeId)],
+);
+
+export const certificates = mysqlTable(
+  "school_certificates",
+  {
+    id: id(),
+    templateId: varchar("template_id", { length: 36 }).notNull().references(() => certificateTemplates.id, { onDelete: "restrict" }),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    recipientType: mysqlEnum("recipient_type", ["student", "teacher", "staff"]).notNull(),
+    recipientId: varchar("recipient_id", { length: 36 }).notNull(),
+    recipientName: varchar("recipient_name", { length: 220 }).notNull(),
+    serial: varchar("serial", { length: 40 }).notNull(),
+    verificationCode: varchar("verification_code", { length: 16 }).notNull(),
+    /** Every placeholder's value at the time of issue, so a printed copy never changes. */
+    data: json("data").$type<Record<string, string>>().notNull(),
+    issuedBy: varchar("issued_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    issuedAt: timestamp("issued_at").notNull().defaultNow(),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    uniqueIndex("school_certificates_serial_unique").on(table.serial),
+    uniqueIndex("school_certificates_code_unique").on(table.verificationCode),
+    index("school_certificates_recipient_idx").on(table.recipientType, table.recipientId),
+    index("school_certificates_school_idx").on(table.schoolId, table.issuedAt),
+  ],
+);
+
+export const discussionThreads = mysqlTable(
+  "school_discussion_threads",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    classroomId: varchar("classroom_id", { length: 36 }).references(() => classrooms.id, { onDelete: "set null" }),
+    subjectId: varchar("subject_id", { length: 36 }).references(() => subjects.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 200 }).notNull(),
+    body: text("body").notNull(),
+    authorId: varchar("author_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+    pinned: boolean("pinned").notNull().default(false),
+    locked: boolean("locked").notNull().default(false),
+    hidden: boolean("hidden").notNull().default(false),
+    lastActivityAt: timestamp("last_activity_at").notNull().defaultNow(),
+    createdAt: createdAt(),
+  },
+  (table) => [index("school_discussion_threads_school_idx").on(table.schoolId, table.lastActivityAt)],
+);
+
+export const discussionPosts = mysqlTable(
+  "school_discussion_posts",
+  {
+    id: id(),
+    threadId: varchar("thread_id", { length: 36 }).notNull().references(() => discussionThreads.id, { onDelete: "cascade" }),
+    authorId: varchar("author_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    hidden: boolean("hidden").notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (table) => [index("school_discussion_posts_thread_idx").on(table.threadId, table.createdAt)],
+);
+
+/** A student's request for an account, made from the school's public page and approved by the school. */
+export const studentApplications = mysqlTable(
+  "school_student_applications",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 36 }).notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+    firstName: varchar("first_name", { length: 100 }).notNull(),
+    lastName: varchar("last_name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 254 }).notNull(),
+    studentNumber: varchar("student_number", { length: 80 }),
+    gender: mysqlEnum("gender", ["female", "male"]),
+    dateOfBirth: date("date_of_birth", { mode: "string" }),
+    gradeName: varchar("grade_name", { length: 80 }),
+    guardianPhone: varchar("guardian_phone", { length: 40 }),
+    message: varchar("message", { length: 1000 }),
+    status: mysqlEnum("status", ["pending", "approved", "rejected"]).notNull().default("pending"),
+    reviewedBy: varchar("reviewed_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at"),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    index("school_student_applications_school_idx").on(table.schoolId, table.status),
+    uniqueIndex("school_student_applications_school_user_unique").on(table.schoolId, table.userId),
+  ],
+);
+
+/** A file uploaded into a file, image, document, video, audio or signature data field. */
+export const fieldFiles = mysqlTable(
+  "school_field_files",
+  {
+    id: id(),
+    schoolId: varchar("school_id", { length: 36 }).notNull().references(() => schools.id, { onDelete: "cascade" }),
+    fieldId: varchar("field_id", { length: 36 }).notNull().references(() => fieldDefinitions.id, { onDelete: "cascade" }),
+    entityId: varchar("entity_id", { length: 36 }).notNull(),
+    storageKey: varchar("storage_key", { length: 36 }).notNull(),
+    fileName: varchar("file_name", { length: 255 }).notNull(),
+    contentType: varchar("content_type", { length: 120 }).notNull(),
+    sizeBytes: int("size_bytes").notNull(),
+    uploadedBy: varchar("uploaded_by", { length: 36 }).references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex("school_field_files_storage_key_unique").on(table.storageKey),
+    index("school_field_files_field_entity_idx").on(table.fieldId, table.entityId),
+  ],
+);

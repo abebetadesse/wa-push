@@ -1,0 +1,15 @@
+﻿report,data,visual,rows (group by),series,values,filters,what it answers
+"Students by sex, per school",Schools,Column chart,School,,Sum of students_female; Sum of students_male,,Girls and boys enrolled in each school of the cluster
+Students by age group,Schools,Stacked columns,School,,Sum of age4_total; Sum of age5_total; Sum of age6_total,,How each school's pre-primary enrolment splits by age
+"Schools with water, by kebele",Schools,100% stacked columns,Kebele,has_water,Count of rows,,Share of schools with water in each kebele
+Facilities coverage,Schools,Bar chart,,,Sum of has_water (1 = Yes); …toilet; …electricity; …play areas; …dining; …nap room; …feeding,,How many schools have each facility
+Teachers by qualification,Schools,Donut chart,,,Sum of teachers_below_certificate; …certificate; …diploma; …degree; …masters,,The cluster's teaching force by qualification
+Students per main teacher,Schools,Bar chart,School,,Average of pupil_teacher_ratio,,Which schools are short of teachers (largest first)
+Cluster totals,Schools,KPI cards,,,Sum of students_total; Sum of all_teachers_total; Sum of parents_participating; Sum of dropouts_total,,The headline numbers of the form's ድምር row
+Dropouts by school and sex,Schools,Stacked columns,School,,Sum of dropouts_female; Sum of dropouts_male,dropouts_total > 0,Where children leave and who leaves
+Students by grade and sex,Students,Column chart,Grade (current year),Sex,Count of rows,Status is active,Enrolment from the student roster
+Special needs by kind,Students,Bar chart,Kind of special need: …,,Count of rows,Has special needs is Yes,"Learners who need support, by kind"
+Attendance by month and status,Attendance,100% stacked columns,Month,Status,Sum of Attendance records,,Attendance trend across the year
+Average score by subject and sex,Assessment results,Column chart,Subject,Sex,Average of Score (%),,Gender gaps in learning outcomes
+Score bands by class,Assessment results,Heat map,Class,Score band,Count of rows,,Where low scores concentrate
+Teachers by employment and sex,Teachers,Matrix (pivot),Employment,Sex,Count of rows,,Permanent and contract teachers by sex
