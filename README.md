@@ -129,3 +129,13 @@ Assessment, attendance, inventory, and HR actions enforce server-side school mem
 Before a production deployment, use a unique high-entropy `BETTER_AUTH_SECRET`, an HTTPS `BETTER_AUTH_URL`, a production SMTP service, protected MySQL credentials, automated backups, and a privacy/security review appropriate for student records. Apply migrations in a controlled release before deploying application code that depends on new columns or tables.
 
 Treat the first production release as incomplete until the production mail provider has been verified and invitation and password-reset links have been exercised using a controlled test inbox. Also verify first-admin provisioning against a fresh disposable database, sign-in and session revocation, invitation expiry/reuse rejection, school-role denials, and cross-school access isolation in the deployed environment. A local SMTP capture test does not verify provider authentication, deliverability, DNS, TLS, or production URL configuration. Do not use real student information until these release checks and the required privacy/security review are complete.
+
+## On its own, and under service.echat.et
+
+This repository is the app's source of truth: change the code here.
+
+- **On its own** (the default) the app serves from `/` on whatever address it is deployed to. Set `NEXT_PUBLIC_BASE_PATH` (at build time) only to publish it under a path of another site.
+- **service.echat.et/school** is built by [abebetadesse/all-app](https://github.com/abebetadesse/all-app),
+  which copies `main` of this repository into `apps/school` (on every push, through
+  `.github/workflows/notify-all-app.yml`, and hourly) and builds it under `/school`. Nothing in this
+  repository needs to change for that.

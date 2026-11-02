@@ -1,0 +1,28 @@
+name: Tell all-app this app changed
+
+# service.echat.et serves this app under /school from github.com/abebetadesse/all-app, which copies main of
+# this repository into its apps/school folder. This asks all-app to do that now rather than at its next
+# hourly check. Without the secret ALL_APP_TOKEN (a fine-grained token with Contents read and write on
+# abebetadesse/all-app) it does nothing, and the hourly check still brings the change in.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ask all-app to bring in this change
+        env:
+          TOKEN: ${{ secrets.ALL_APP_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "ALL_APP_TOKEN is not set; all-app brings the change in at its next hourly check."
+            exit 0
+          fi
+          curl -fsS -X POST https://api.github.com/repos/abebetadesse/all-app/dispatches             -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json"             -d '{"event_type":"app-updated","client_payload":{"app":"school"}}'
