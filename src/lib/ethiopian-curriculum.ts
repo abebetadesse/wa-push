@@ -12,7 +12,7 @@ export type CurriculumSubject = {
 
 export const CURRICULUM_SUBJECTS: CurriculumSubject[] = [
   { name: "Amharic", code: "AMH", department: "Languages", grades: [1, 10] },
-  { name: "Afan Oromo", code: "AFO", department: "Languages", grades: [1, 8] },
+  { name: "Afan Oromo", code: "AFO", department: "Languages", grades: [1, 10] },
   { name: "English", code: "ENG", department: "Languages", grades: [1, 12] },
   { name: "Mathematics", code: "MATH", department: "Mathematics", grades: [1, 12] },
   { name: "Environmental Science", code: "ENV", department: "Natural Sciences", grades: [1, 6] },

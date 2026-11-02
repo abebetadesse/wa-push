@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, unlink, writeFile } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { activityEvents, learningResources } from "@/db/schema";
+import { activityEvents, gradeLevels, learningResources, subjects } from "@/db/schema";
 import { canManageLearningResources, MAX_RESOURCE_BYTES, resourceFileType, resourceStorageDirectory } from "@/lib/learning-resources";
 import { getSession, isPlatformAdmin } from "@/lib/permissions";
 
@@ -27,7 +28,13 @@ export async function POST(request: Request) {
 
   const schoolId = String(formData.get("schoolId") ?? "").trim();
   const titleInput = String(formData.get("title") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
+  const kind = String(formData.get("kind") ?? "").trim();
+  const descriptionInput = String(formData.get("description") ?? "").trim();
+  // Textbooks and teacher guides uploaded from the Textbooks page say so, before any description.
+  const description = kind === "teacher_guide" ? `Teacher guide.${descriptionInput ? ` ${descriptionInput}` : ""}`
+    : kind === "student_textbook" ? `Student textbook.${descriptionInput ? ` ${descriptionInput}` : ""}` : descriptionInput;
+  const gradeLevelInput = String(formData.get("gradeLevelId") ?? "").trim();
+  const subjectInput = String(formData.get("subjectId") ?? "").trim();
   const uploadedFile = formData.get("file");
   if (!schoolId || !(uploadedFile instanceof File) || !uploadedFile.name) {
     return NextResponse.json({ error: "Choose a school and a resource file." }, { status: 400 });
@@ -40,6 +47,17 @@ export async function POST(request: Request) {
   }
   if (description.length > 2000 || titleInput.length > 200) {
     return NextResponse.json({ error: "Keep the title under 200 characters and description under 2,000 characters." }, { status: 400 });
+  }
+
+  // A grade and subject must be the school's own.
+  const [gradeLevel] = gradeLevelInput
+    ? await db.select({ id: gradeLevels.id }).from(gradeLevels).where(and(eq(gradeLevels.id, gradeLevelInput), eq(gradeLevels.schoolId, schoolId))).limit(1)
+    : [];
+  const [subject] = subjectInput
+    ? await db.select({ id: subjects.id }).from(subjects).where(and(eq(subjects.id, subjectInput), eq(subjects.schoolId, schoolId))).limit(1)
+    : [];
+  if ((gradeLevelInput && !gradeLevel) || (subjectInput && !subject)) {
+    return NextResponse.json({ error: "Choose a grade and subject of this school." }, { status: 400 });
   }
 
   const fileName = basename(uploadedFile.name.replace(/\\/g, "/"))
@@ -62,6 +80,8 @@ export async function POST(request: Request) {
         id: randomUUID(),
         schoolId,
         uploadedBy: session.user.id,
+        gradeLevelId: gradeLevel?.id ?? null,
+        subjectId: subject?.id ?? null,
         title,
         description: description || null,
         fileName,

@@ -39,6 +39,7 @@ const SCHOOLS: DemoSchool[] = [
 
 const PEOPLE: Record<Role, { local: string; first: string; last: string; title: string }[]> = {
   school_admin: [{ local: "admin", first: "Selamawit", last: "Bekele", title: "Principal" }],
+  supervisor: [{ local: "supervisor", first: "Kebede", last: "Assefa", title: "Supervisor" }],
   teacher: [{ local: "teacher", first: "Dawit", last: "Haile", title: "Teacher" }],
   student: [{ local: "student", first: "Hanna", last: "Tesfaye", title: "Student" }],
   guardian: [{ local: "guardian", first: "Tesfaye", last: "Girma", title: "Guardian" }],
@@ -54,6 +55,7 @@ const PEOPLE: Record<Role, { local: string; first: string; last: string; title: 
 // Prefix of each person's student, teacher or employee number.
 const ROLE_CODES: Record<Role, string> = {
   school_admin: "A",
+  supervisor: "V",
   teacher: "T",
   student: "S",
   guardian: "G",

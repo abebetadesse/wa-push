@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { themeInitScript } from "@/components/theme";
 import "./globals.css";
+import "./governance.css";
 
 // Exposed as --font-inter; globals.css builds --font-sans from it. (Naming both --font-sans made the
 // variable refer to itself, which browsers treat as invalid, so Inter was downloaded but never used.)

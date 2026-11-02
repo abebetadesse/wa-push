@@ -75,9 +75,9 @@ Uploads use private local filesystem storage. By default, files are written to `
 
 ## Textbook catalog
 
-The **Textbooks** page shows, for every grade and subject a school teaches under the national curriculum (`src/lib/ethiopian-curriculum.ts`), the official textbooks in the platform catalog and whether the school's library already has them. Teachers and school admins add a book with one click: Forma downloads the PDF from the official source into the school's resources and links it to the grade and subject. Downloads are only made from official hosts (the Oromia Education Bureau's site and the Ministry of Education's e-learning portal; `TEXTBOOK_SOURCE_HOSTS` replaces the list), must be a PDF, and must fit the 100 MB resource limit.
+The **Textbooks** page shows, for every grade and subject a school teaches under the national curriculum (`src/lib/ethiopian-curriculum.ts`), the official student textbooks and teacher guides in the platform catalog and whether the school's library already has them. Teachers and school admins add a book with one click, or every available book of a grade at once (downloaded in the background, one at a time): Forma copies the PDF into the school's resources and links it to the grade and subject. They can also upload their own PDF for a grade and subject. Downloads are only made from allowed hosts (the Oromia Education Bureau's site, the Ministry of Education's e-learning portals, and the Google Drive copy of the Ministry's 2023 grade 9–12 textbooks; `TEXTBOOK_SOURCE_HOSTS` replaces the list), must be a PDF, and may be up to 250 MB.
 
-`npm run db:sync-textbooks` fills the catalog: it reads the Oromia Education Bureau's textbook pages (grades 1, 3 and 5 of the new curriculum, in Afaan Oromo, Amharic and English) and adds the grade 9–12 Ministry books known so far, then checks every source with a HEAD request. Platform admins can add further sources on the Textbooks page.
+Platform admins fill the catalog with **Load the official textbook list** (`src/data/textbook-sources.json`: the Ministry's 2023 student textbooks for grades 9–12, the Oromia Education Bureau's new-curriculum books for grades 1, 3 and 5, and the Ministry's grade 9–10 teacher guides that have a known address), check every source, add sources by web address, remove entries, and **upload a PDF for every school** — the way to add teacher guides and books for grades with no official download (2, 4, 6, 7 and 8). The Ministry's portal does not answer outside Ethiopia, so its entries may show as unreachable from elsewhere. `npm run db:sync-textbooks` does the same from the command line and also re-reads the bureau's pages.
 
 `drizzle-kit` reads `.env` before `.env.local`, so `npm run db:migrate`, `db:generate` and `db:studio` use the database in `.env` when that file sets `DATABASE_URL`. Use `node scripts/migrate.mjs`, which prefers `.env.local`, for the local database.
 
@@ -91,6 +91,24 @@ The **Textbooks** page shows, for every grade and subject a school teaches under
 - Lesson plans can be saved to **Lesson plans** as drafts, and an exam's multiple-choice part saved as a draft online quiz for a class. School admins approve material. Teachers should review all AI-written material before using it.
 
 Textbook PDFs are sent to Anthropic for processing. Use only textbooks the school may share this way, such as the freely published official ones.
+
+## Hierarchy, privileges, data fields, analytics and certificates
+
+**Clusters & hierarchy** (`/organization`) organizes schools as Region → Zone → Woreda → School cluster → Schools. The super administrator can load Ethiopia's 15 regions, 133 zones and 1,217 woredas in one step (`src/data/ethiopia-admin-units.json`), add clusters inside a woreda, and import a whole cluster with its schools from `public/templates/hierarchy-template.csv`. Administrators and supervisors can be given a role on any unit: an administrator acts as the school administrator of every school below that unit and can add units, schools and roles under it; a supervisor acts as the **Supervisor** of those schools (Supervisor is also a school role in Team & access).
+
+**Roles & privileges** (`/privileges`) sets, for each role, which actions (view, add/write, edit/modify, delete, approve, import, export, manage) it has on each area. A school uses its own settings, then its cluster's, woreda's, zone's and region's, then the platform defaults set by the super administrator, then the built-in defaults in `src/lib/privileges.ts` (which match the behaviour before privileges existed). A school administrator can change roles below theirs and only grant actions they hold. New features and student records check these privileges (`requirePrivilege` in `src/lib/permissions.ts`); older pages still use their fixed role lists.
+
+**Data fields** (`/data-fields`) lets anyone with the data-field privilege add fields to schools, students, teachers or staff, for the platform, a hierarchy unit or one school: text, numbers, money, percentages, ratings, ranges, durations, dates, months and weeks, yes/no, choices, tags, Ethiopia location (Region › Zone › Woreda), town/kebele location, GPS (typed or detected), file, image, document, video, audio and signature uploads, colour, auto-numbers, formulas, and headings/paragraphs/dividers for laying out a form. Each field can restrict who may edit and who may see it. Values can be kept per period (for example `2019 E.C.`), entered on screen or imported from CSV by field key, label or local (e.g. Amharic) label. Ready-made sets include the cluster's pre-primary census form, student profile and teacher profile fields.
+
+**Analytics** (`/analytics`) builds reports from schools (with all school data fields), students, teachers, staff, attendance and assessment results over any hierarchy scope the viewer may report on: group by up to three columns plus a series, sum/average/count/median/min/max/distinct values, filters, top-N, and tables, pivot matrices, column/stacked/100% stacked/bar/line/area/pie/donut charts, KPI cards and heat maps. Reports can be exported to CSV, printed, saved, shared and pinned to a dashboard.
+
+**Certificates** (`/certificates`) designs templates with positioned text, placeholders (recipient, school, hierarchy, year, data fields), signature lines, seals, serial and verification code, and values asked at issue time; issues them in bulk to students, teachers or staff; prints them (A4); and lets anyone check one at `/verify/<code>`.
+
+**Students** can register from their school's public page when the school opens registration (`/applications`); the school approves each application. Students see **My progress** (attendance, results by subject, certificates and fields shared with them) and **Discussions** with their school and class, which teachers moderate.
+
+**Public school pages** live at `/<slug>` — `https://service.echat.et/school/<slug>` in production. A school's slug is set in Student applications → Public page & registration; new schools get one from their name, with Amharic names transliterated (ገነት → `genet`).
+
+Sample CSV templates built from the cluster's pre-primary census workbook are in `public/templates/` and linked from Data fields → Templates & export.
 
 ## Database and tenant access
 
@@ -111,3 +129,13 @@ Assessment, attendance, inventory, and HR actions enforce server-side school mem
 Before a production deployment, use a unique high-entropy `BETTER_AUTH_SECRET`, an HTTPS `BETTER_AUTH_URL`, a production SMTP service, protected MySQL credentials, automated backups, and a privacy/security review appropriate for student records. Apply migrations in a controlled release before deploying application code that depends on new columns or tables.
 
 Treat the first production release as incomplete until the production mail provider has been verified and invitation and password-reset links have been exercised using a controlled test inbox. Also verify first-admin provisioning against a fresh disposable database, sign-in and session revocation, invitation expiry/reuse rejection, school-role denials, and cross-school access isolation in the deployed environment. A local SMTP capture test does not verify provider authentication, deliverability, DNS, TLS, or production URL configuration. Do not use real student information until these release checks and the required privacy/security review are complete.
+
+## On its own, and under service.echat.et
+
+This repository is the app's source of truth: change the code here.
+
+- **On its own** (the default) the app serves from `/` on whatever address it is deployed to. Set `NEXT_PUBLIC_BASE_PATH` (at build time) only to publish it under a path of another site.
+- **service.echat.et/school** is built by [abebetadesse/all-app](https://github.com/abebetadesse/all-app),
+  which copies `main` of this repository into `apps/school` (on every push, through
+  `.github/workflows/notify-all-app.yml`, and hourly) and builds it under `/school`. Nothing in this
+  repository needs to change for that.

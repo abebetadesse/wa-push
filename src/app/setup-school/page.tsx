@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
+import { ancestors, loadHierarchy } from "@/lib/hierarchy";
 import { isPlatformAdmin } from "@/lib/permissions";
 import { SchoolForm } from "./school-form";
 
@@ -35,6 +36,10 @@ async function SchoolSetup() {
   }
   if (!session) redirect("/login");
   if (!isPlatformAdmin(session)) redirect("/no-access");
+  const hierarchy = await loadHierarchy();
+  const clusters = hierarchy.units.filter((unit) => unit.level === "cluster")
+    .map((unit) => ({ value: unit.id, label: ancestors(hierarchy, unit.id).reverse().map((part) => part.name).join(" › ") }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
     <main className="auth-page">
@@ -45,9 +50,9 @@ async function SchoolSetup() {
         <p className="auth-eyebrow">SCHOOL WORKSPACE</p>
         <h1>Create a school</h1>
         <p className="auth-description">
-          Add a school workspace and assign its first administrator.
+          Add a school workspace and assign its first administrator. Clusters are created in Clusters & hierarchy.
         </p>
-        <SchoolForm />
+        <SchoolForm clusters={clusters} />
         <p className="auth-switch"><Link href="/">← Back to dashboard</Link></p>
         <p className="auth-note">Only platform administrators can provision schools. School data is restricted to authorized members.</p>
       </section>

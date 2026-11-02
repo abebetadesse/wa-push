@@ -25,6 +25,7 @@ async function TeacherDetail({ teacherId }: { teacherId: string }) {
       email: teachers.email,
       phone: teachers.phone,
       specialization: teachers.specialization,
+      gender: teachers.gender,
       status: teachers.status,
       userId: teachers.userId,
     })

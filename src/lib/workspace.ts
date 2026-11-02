@@ -4,8 +4,19 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { db } from "@/db";
 import { schoolMemberships } from "@/db/schema";
-import { getAccessibleSchools, getSession, isPlatformAdmin, type SchoolRole } from "@/lib/permissions";
+import {
+  getAccessibleSchools,
+  getDerivedSchoolRoles,
+  getOrgRoles,
+  getPrivilegeResolver,
+  getSession,
+  isPlatformAdmin,
+  type PrivilegeResolver,
+  type SchoolRole,
+} from "@/lib/permissions";
 import type { WorkspaceAccess } from "@/lib/navigation";
+import { allows, type PrivilegeAction, type PrivilegeResource } from "@/lib/privileges";
+import type { OrgRoleName } from "@/lib/roles";
 import { STAFF_ROLES } from "@/lib/roles";
 
 export type WorkspaceContext = {
@@ -13,7 +24,10 @@ export type WorkspaceContext = {
   userName: string;
   userEmail: string;
   platformAdmin: boolean;
+  /** School roles: direct memberships plus those that come from hierarchy roles. */
   roles: { schoolId: string; role: SchoolRole }[];
+  /** Hierarchy units the user administers or supervises. */
+  orgRoles: { unitId: string; role: OrgRoleName }[];
   schools: { id: string; name: string; country: string | null }[];
   access: WorkspaceAccess;
 };
@@ -22,7 +36,7 @@ export type WorkspaceContext = {
 // read these lists, so a link is shown exactly when its page lets the user in.
 export const pageRoles = {
   dashboard: STAFF_ROLES,
-  academics: ["school_admin", "teacher"],
+  academics: ["school_admin", "supervisor", "teacher"],
   schoolAdmin: ["school_admin"],
   inventory: ["school_admin", "inventory_manager"],
   hr: ["school_admin", "hr_manager"],
@@ -39,7 +53,7 @@ export const getWorkspaceContext = cache(async (): Promise<WorkspaceContext | nu
   if (!session) return null;
 
   const platformAdmin = isPlatformAdmin(session);
-  const [schools, roles] = await Promise.all([
+  const [schools, direct, derived, orgRoles, resolver] = await Promise.all([
     getAccessibleSchools(),
     platformAdmin
       ? Promise.resolve([])
@@ -47,9 +61,14 @@ export const getWorkspaceContext = cache(async (): Promise<WorkspaceContext | nu
         .select({ schoolId: schoolMemberships.schoolId, role: schoolMemberships.role })
         .from(schoolMemberships)
         .where(eq(schoolMemberships.userId, session.user.id)),
+    platformAdmin ? Promise.resolve([]) : getDerivedSchoolRoles(session.user.id),
+    platformAdmin ? Promise.resolve([]) : getOrgRoles(session.user.id),
+    getPrivilegeResolver(),
   ]);
   const activeSchoolIds = new Set(schools.map((school) => school.id));
-  const activeRoles = roles.filter(({ schoolId }) => activeSchoolIds.has(schoolId));
+  const seen = new Set<string>();
+  const activeRoles = [...direct, ...derived.map(({ schoolId, role }) => ({ schoolId, role }))]
+    .filter(({ schoolId, role }) => activeSchoolIds.has(schoolId) && !seen.has(`${schoolId}:${role}`) && Boolean(seen.add(`${schoolId}:${role}`)));
 
   return {
     userId: session.user.id,
@@ -57,8 +76,9 @@ export const getWorkspaceContext = cache(async (): Promise<WorkspaceContext | nu
     userEmail: session.user.email,
     platformAdmin,
     roles: activeRoles,
+    orgRoles: orgRoles.map(({ unitId, role }) => ({ unitId, role: role as OrgRoleName })),
     schools,
-    access: getAccess(platformAdmin, activeRoles.map(({ role }) => role)),
+    access: getAccess(platformAdmin, activeRoles, orgRoles.length > 0, resolver),
   };
 });
 
@@ -81,7 +101,7 @@ export async function requireSchoolsFor(roles: readonly SchoolRole[]) {
   const context = await requireWorkspaceContext();
   const schoolIds = context.platformAdmin
     ? context.schools.map((school) => school.id)
-    : context.roles.filter(({ role }) => roles.includes(role)).map(({ schoolId }) => schoolId);
+    : [...new Set(context.roles.filter(({ role }) => roles.includes(role)).map(({ schoolId }) => schoolId))];
   if (schoolIds.length === 0) redirect("/no-access");
 
   return {
@@ -92,8 +112,34 @@ export async function requireSchoolsFor(roles: readonly SchoolRole[]) {
   };
 }
 
-function getAccess(platformAdmin: boolean, roles: SchoolRole[]): WorkspaceAccess {
+/**
+ * The active schools where the user's roles grant `action` on `resource`, and a checker for other
+ * actions there. Redirects to /no-access when there are none.
+ */
+export async function requireSchoolsWithPrivilege(resource: PrivilegeResource, action: PrivilegeAction = "read") {
+  const context = await requireWorkspaceContext();
+  const resolver = await getPrivilegeResolver();
+  const can = (schoolId: string, wantedResource: PrivilegeResource, wanted: PrivilegeAction) => context.platformAdmin
+    || context.roles.some((membership) => membership.schoolId === schoolId && allows(resolver.atSchool(schoolId, membership.role, wantedResource), wanted));
+  const schoolIds = context.schools.map((school) => school.id).filter((schoolId) => can(schoolId, resource, action));
+  if (schoolIds.length === 0) redirect("/no-access");
+  return {
+    context,
+    resolver,
+    schoolIds,
+    schools: context.schools.filter((school) => schoolIds.includes(school.id)),
+    can,
+    rolesAt: (schoolId: string) => context.roles.filter((membership) => membership.schoolId === schoolId).map(({ role }) => role),
+  };
+}
+
+function getAccess(platformAdmin: boolean, memberships: { schoolId: string; role: SchoolRole }[], hasOrgRole: boolean, resolver: PrivilegeResolver): WorkspaceAccess {
+  const roles = memberships.map(({ role }) => role);
   const has = (wanted: readonly SchoolRole[]) => platformAdmin || roles.some((role) => wanted.includes(role));
+  const grants = (resource: PrivilegeResource, action: PrivilegeAction = "read", among = memberships) => platformAdmin
+    || among.some(({ schoolId, role }) => allows(resolver.atSchool(schoolId, role, resource), action));
+  // Students and guardians see their own certificates in their portal, not the certificate office.
+  const staffMemberships = memberships.filter(({ role }) => role !== "student" && role !== "guardian");
   return {
     platformAdmin,
     dashboard: has(pageRoles.dashboard),
@@ -107,6 +153,13 @@ function getAccess(platformAdmin: boolean, roles: SchoolRole[]): WorkspaceAccess
     community: has(pageRoles.community),
     pr: has(pageRoles.pr),
     student: roles.includes("student"),
+    organization: hasOrgRole || grants("hierarchy"),
+    privileges: hasOrgRole || grants("privileges"),
+    analytics: grants("reports", "read", staffMemberships),
+    dataFields: grants("data_fields", "read", staffMemberships) || grants("field_data", "read", staffMemberships),
+    certificates: grants("certificates", "read", staffMemberships),
+    discussions: grants("discussions"),
+    applications: grants("applications"),
   };
 }
 
