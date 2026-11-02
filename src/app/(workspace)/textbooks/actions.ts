@@ -15,10 +15,12 @@ import { curriculumSubject, gradeNumber } from "@/lib/ethiopian-curriculum";
 import { isDuplicateEntry } from "@/lib/db-errors";
 import { resourceStorageDirectory } from "@/lib/learning-resources";
 import { isPlatformAdmin, requireSchoolRole, requireSession } from "@/lib/permissions";
-import { catalogUploadPath, downloadTextbook } from "@/lib/textbook-download";
+import { catalogUploadPath, provideCatalogFile } from "@/lib/textbook-download";
 import { allowedSourceUrl, canDownloadSource, checkTextbookSource, sourceUrlHash, uploadedSourceKey } from "@/lib/textbook-sources";
 
 type CatalogEntry = typeof textbookCatalog.$inferSelect;
+
+const runningGradeDownloads = new Set<string>();
 
 const KIND_LABELS = { student_textbook: "Student textbook", teacher_guide: "Teacher guide" } as const;
 
@@ -43,7 +45,7 @@ async function addEntryToSchool(schoolId: string, userId: string, entry: Catalog
   const directory = resourceStorageDirectory(schoolId);
   const filePath = join(directory, storageKey);
   await mkdir(directory, { recursive: true, mode: 0o700 });
-  const sizeBytes = await downloadTextbook(entry.sourceUrl, filePath);
+  const sizeBytes = await provideCatalogFile(entry, filePath);
 
   const sourceName = uploadedSourceKey(entry.sourceUrl) ? "" : decodeURIComponent(new URL(entry.sourceUrl).pathname.split("/").pop() ?? "");
   const fileName = (/\.pdf$/i.test(sourceName) ? sourceName : `${entry.title}.pdf`)
@@ -118,16 +120,26 @@ async function addGradeTextbooksImpl(_previous: ActionState, formData: FormData)
   const pending = entries.filter((entry) => canDownloadSource(entry) && taught.has(entry.subjectName) && !ownedIds.has(entry.id) && entry.checkStatus !== "missing");
   if (pending.length === 0) return { success: `Every available Grade ${grade} book is already in the library.` };
 
+  // One bulk download per school and grade at a time, so repeated clicks don't pile up.
+  const job = `${schoolId}:${grade}`;
+  if (runningGradeDownloads.has(job)) return { success: `Grade ${grade}'s books are already downloading. Reload the page in a few minutes.` };
+  runningGradeDownloads.add(job);
   const userId = session.user.id;
   after(async () => {
-    for (const entry of pending) {
-      try {
-        await addEntryToSchool(schoolId, userId, entry);
-        // A short pause between books keeps the hosts from refusing the next connection.
-        await new Promise((resolve) => setTimeout(resolve, 2_000));
-      } catch (error) {
-        console.warn(`[forma] could not add “${entry.title}” to school ${schoolId}:`, error instanceof Error ? error.message : error);
+    try {
+      for (const entry of pending) {
+        try {
+          await addEntryToSchool(schoolId, userId, entry);
+          // A short pause between books keeps the hosts from refusing the next connection.
+          await new Promise((resolve) => setTimeout(resolve, 2_000));
+        } catch (error) {
+          console.warn(`[forma] could not add “${entry.title}” to school ${schoolId}:`, error instanceof Error ? error.message : error);
+          // A full disk stops the whole batch instead of trying every remaining book.
+          if (error instanceof UserError && error.message.startsWith("The server's storage is full")) break;
+        }
       }
+    } finally {
+      runningGradeDownloads.delete(job);
     }
   });
   return { success: `Downloading ${pending.length} Grade ${grade} book${pending.length === 1 ? "" : "s"} in the background. Reload the page in a few minutes to see them.` };
@@ -277,8 +289,8 @@ async function removeCatalogEntryImpl(_previous: ActionState, formData: FormData
   const [entry] = await db.select().from(textbookCatalog).where(eq(textbookCatalog.id, catalogEntryId)).limit(1);
   if (!entry) return {};
   await db.delete(textbookCatalog).where(eq(textbookCatalog.id, entry.id));
-  const key = uploadedSourceKey(entry.sourceUrl);
-  if (key) await unlink(catalogUploadPath(key)).catch(() => {});
+  // The shared copy goes; schools' copies are links of their own and stay readable.
+  await unlink(catalogUploadPath(uploadedSourceKey(entry.sourceUrl) ?? entry.id)).catch(() => {});
   revalidatePath("/textbooks");
   return {};
 }
